@@ -1,0 +1,76 @@
+target_date: "2026-06-15"
+normalization_method: "provisional_thresholds_v0.1"
+
+input:
+  indicator_csv: "indicator_outputs/grid_indicators_P30_P90_P730_HSAF_SWI_2026-06-15.csv"
+  crs_epsg: 3059
+  cell_size_m: 1000
+
+output:
+  directory: "outputs/kiri_normalized"
+  csv: "kiri_grid_2026_06_15.csv"
+  geojson: "kiri_grid_2026_06_15.geojson"
+  gpkg: "kiri_grid_2026_06_15.gpkg"
+  municipality_summary_csv: "municipality_summary_2026_06_15.csv"
+  metadata_json: "normalization_metadata_2026_06_15.json"
+
+risk_labels_lv:
+  1: "Zems risks"
+  2: "Neliels risks"
+  3: "Paaugstināts risks"
+  4: "Augsts risks"
+  5: "Ļoti augsts risks"
+
+variables:
+  p30:
+    input_column: "P30_mm"
+    output_column: "p30_risk"
+    unit: "mm"
+    thresholds: [40, 70, 100, 140]
+    direction: "higher_is_riskier"
+    reason_prefix: "p30"
+
+  p90:
+    input_column: "P90_mm"
+    output_column: "p90_risk"
+    unit: "mm"
+    thresholds: [120, 180, 240, 320]
+    direction: "higher_is_riskier"
+    reason_prefix: "p90"
+
+  p730:
+    input_column: "P730_mm"
+    output_column: "p730_risk"
+    unit: "mm"
+    thresholds: [900, 1100, 1300, 1500]
+    direction: "higher_is_riskier"
+    reason_prefix: "p730"
+
+  hsaf_ssm:
+    input_column: "HSAF_SSM_pct"
+    output_column: "hsaf_ssm_risk"
+    unit: "percent"
+    unit_handling: "auto_fraction_to_percent"
+    thresholds: [40, 55, 70, 85]
+    direction: "higher_is_riskier"
+    reason_prefix: "hsaf_ssm"
+
+  swi:
+    input_column: "SWI010_pct"
+    output_column: "swi_risk"
+    unit: "percent"
+    unit_handling: "auto_fraction_to_percent"
+    thresholds: [35, 50, 65, 80]
+    direction: "higher_is_riskier"
+    reason_prefix: "swi"
+
+combination:
+  rule: "second_highest_valid"
+  minimum_valid_variables: 3
+  medium_confidence_valid_variables: [3, 4]
+  high_confidence_valid_variables: 5
+
+legal_placeholder:
+  legal_status: "not_evaluated"
+  hard_stop_active: false
+  block_reason: null

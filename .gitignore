@@ -1,0 +1,21 @@
+# Python / R runtime noise
+__pycache__/
+*.py[cod]
+.Rhistory
+.RData
+
+# Local raw and intermediate data products
+DATA_LAST_60/
+GRID_SAGATAVE/outputs/
+GRID_SAGATAVE/precip_outputs/
+GRID_SAGATAVE/indicator_outputs/
+GRID_SAGATAVE/__pycache__/
+
+# Local servers / OS files
+.DS_Store
+Thumbs.db
+*.sr.lock
+
+# Keep GitHub Pages payload compact:
+# frontend/data/grid_static + grid_values + dates overview/manifest are tracked.
+GRID_SAGATAVE/frontend/data/frontend_kiri_data_metadata.json
