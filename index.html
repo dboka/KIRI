@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="lv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KIRI-LV | Kūtsmēslu izkliedes riska karte</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="src/styles.css?v=6" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="map-stage" aria-label="KIRI-LV karte">
+        <div id="map"></div>
+
+        <div class="topbar">
+          <div>
+            <div class="eyebrow">KIRI-LV</div>
+            <h1>Kūtsmēslu izkliedes riska karte</h1>
+          </div>
+          <div class="toolbar">
+            <button id="backButton" class="back-button" type="button" hidden>
+              Atpakaļ uz Latvijas karti
+            </button>
+            <button id="calendarToggle" class="date-button" type="button" aria-expanded="true">
+              <span id="activeDateLabel">-</span>
+            </button>
+          </div>
+        </div>
+
+        <section id="calendarPanel" class="calendar-panel" aria-label="Datuma izvēle">
+          <div class="calendar-head">
+            <div>
+              <div class="panel-kicker">60 dienu v0.1 apskats</div>
+              <strong>Izvēlies datumu</strong>
+            </div>
+            <div id="dateCoverage" class="coverage-pill">-</div>
+          </div>
+          <div id="calendarMonths" class="calendar-months"></div>
+        </section>
+
+        <div class="legend">
+          <div class="legend-title">Riska līmenis</div>
+          <div><span class="swatch risk-1"></span>1. Zems risks</div>
+          <div><span class="swatch risk-2"></span>2. Neliels risks</div>
+          <div><span class="swatch risk-3"></span>3. Paaugstināts risks</div>
+          <div><span class="swatch risk-4"></span>4. Augsts risks</div>
+          <div><span class="swatch risk-5"></span>5. Ļoti augsts risks</div>
+        </div>
+
+        <aside id="detailPanel" class="detail-panel" hidden>
+          <div id="panelKicker" class="panel-kicker">Pašvaldības skats</div>
+          <h2 id="panelTitle">Pašvaldība</h2>
+          <div class="risk-badge">Kopējais risks: <strong id="overallRisk">-</strong></div>
+
+          <div class="panel-section">
+            <div class="metric-label">Augsta riska grid šūnas</div>
+            <div class="metric-value"><span id="highRiskPercent">-</span>%</div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-label">Dominējošie faktori</div>
+            <ul id="dominantFactors"></ul>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-label">Rekomendācija</div>
+            <p id="recommendation"></p>
+          </div>
+
+          <div class="indicator-grid">
+            <div class="indicator-card">
+              <span>P30</span>
+              <strong id="p30Card">-</strong>
+            </div>
+            <div class="indicator-card">
+              <span>P90</span>
+              <strong id="p90Card">-</strong>
+            </div>
+            <div class="indicator-card">
+              <span>P730</span>
+              <strong id="p730Card">-</strong>
+            </div>
+            <div class="indicator-card">
+              <span>H-SAF SSM</span>
+              <strong id="hsafCard">-</strong>
+            </div>
+            <div class="indicator-card">
+              <span>Copernicus SWI</span>
+              <strong id="swiCard">-</strong>
+            </div>
+          </div>
+
+          <p class="demo-note">
+            v0.1: riska klases veidotas ar pagaidu sliekšņiem; juridiskie hard-stop noteikumi vēl nav vērtēti.
+          </p>
+        </aside>
+
+        <div id="loadingState" class="loading-state" hidden>Ielādē datumu...</div>
+        <div class="footer-note">
+          Dati: VZD robežas, CLIDATA, H-SAF, Copernicus SWI, KIRI-LV 1 km grid
+        </div>
+      </section>
+    </main>
+
+    <script src="vendor/leaflet/leaflet.js"></script>
+    <script src="src/main.js?v=7"></script>
+  </body>
+</html>
