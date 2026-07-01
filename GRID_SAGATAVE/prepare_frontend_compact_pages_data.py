@@ -107,6 +107,18 @@ def update_manifests() -> None:
     write_json(FRONTEND_DATA / "calendar_manifest.json", calendar)
 
 
+def remove_repeated_date_grids() -> int:
+    removed = 0
+    dates_root = DATES_DIR.resolve()
+    for grid_dir in sorted(DATES_DIR.glob("*/municipality_grids")):
+        resolved = grid_dir.resolve()
+        if not resolved.is_relative_to(dates_root):
+            raise RuntimeError(f"Refusing to remove path outside {dates_root}: {resolved}")
+        shutil.rmtree(resolved)
+        removed += 1
+    return removed
+
+
 def main() -> None:
     date_dirs = sorted(path for path in DATES_DIR.iterdir() if path.is_dir())
     if not date_dirs:
@@ -115,11 +127,13 @@ def main() -> None:
     static_count = build_static_geometry(date_dirs[0])
     values_count = build_daily_values()
     update_manifests()
+    removed_date_grid_dirs = remove_repeated_date_grids()
     print(
         json.dumps(
             {
                 "static_grid_files": static_count,
                 "daily_value_files": values_count,
+                "removed_date_grid_dirs": removed_date_grid_dirs,
                 "static_dir": str(STATIC_DIR),
                 "values_dir": str(VALUES_DIR),
             },

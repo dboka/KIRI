@@ -13,10 +13,14 @@ OUT_ROOT = PROJECT_DIR / "DATA_LAST_60"
 
 def fix_mojibake(value: object) -> str:
     text = str(value)
-    try:
-        return text.encode("latin1").decode("utf-8")
-    except UnicodeError:
-        return text
+    for encoding in ("cp1252", "latin1"):
+        try:
+            candidate = text.encode(encoding).decode("utf-8")
+        except UnicodeError:
+            continue
+        if "\ufffd" not in candidate:
+            return candidate
+    return text
 
 
 def load_name_map() -> dict[str, str]:
