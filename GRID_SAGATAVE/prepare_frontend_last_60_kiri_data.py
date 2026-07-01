@@ -5,7 +5,9 @@ import math
 import shutil
 from pathlib import Path
 
+import geopandas as gpd
 import pandas as pd
+from shapely import wkt
 
 from src.normalization.normalize_kiri_v01 import (
     add_combined_risk,
@@ -26,6 +28,7 @@ SOURCE_GRID_DIR = FRONTEND_DATA / "municipality_grids"
 SOURCE_MUNICIPALITIES = FRONTEND_DATA / "municipalities.geojson"
 SOURCE_MANIFEST = FRONTEND_DATA / "municipality_manifest.json"
 CONFIG_PATH = BASE_DIR / "config" / "normalization_v01.yaml"
+GRID_ASSIGNMENT_CSV = BASE_DIR / "outputs" / "grid_1km_municipalities_centroid.csv"
 
 
 def read_json(path: Path) -> dict:
@@ -95,7 +98,56 @@ def grid_feature(row: pd.Series, geometry: dict) -> dict:
     }
 
 
+def rebuild_source_municipality_grids() -> None:
+    if not GRID_ASSIGNMENT_CSV.exists():
+        raise FileNotFoundError(
+            f"Missing source grid geometry. Expected {SOURCE_GRID_DIR} or {GRID_ASSIGNMENT_CSV}"
+        )
+
+    print(f"Rebuilding source municipality grid geometries from {GRID_ASSIGNMENT_CSV}")
+    df = pd.read_csv(
+        GRID_ASSIGNMENT_CSV,
+        dtype={
+            "grid_id": "string",
+            "municipality_code": "string",
+            "cell_polygon_lks92_wkt": "string",
+        },
+        usecols=["grid_id", "municipality_code", "cell_polygon_lks92_wkt"],
+        low_memory=False,
+    )
+    df = df[
+        df["grid_id"].notna()
+        & df["municipality_code"].notna()
+        & df["cell_polygon_lks92_wkt"].notna()
+    ].copy()
+    df["municipality_code"] = df["municipality_code"].astype(str).str.replace(r"\.0$", "", regex=True)
+    df["grid_id"] = df["grid_id"].astype(str)
+
+    geometry = df["cell_polygon_lks92_wkt"].map(wkt.loads)
+    gdf = gpd.GeoDataFrame(df[["grid_id", "municipality_code"]], geometry=geometry, crs="EPSG:3059").to_crs(
+        "EPSG:4326"
+    )
+
+    if SOURCE_GRID_DIR.exists():
+        shutil.rmtree(SOURCE_GRID_DIR)
+    SOURCE_GRID_DIR.mkdir(parents=True, exist_ok=True)
+
+    for code, part in gdf.groupby("municipality_code", sort=True):
+        features = [
+            {
+                "type": "Feature",
+                "properties": {"grid_id": str(row.grid_id)},
+                "geometry": row.geometry.__geo_interface__,
+            }
+            for row in part.itertuples(index=False)
+        ]
+        write_json(SOURCE_GRID_DIR / f"{code}.geojson", {"type": "FeatureCollection", "features": features})
+
+
 def load_grid_geometries() -> tuple[dict[str, dict], dict[str, list[str]]]:
+    if not any(SOURCE_GRID_DIR.glob("*.geojson")):
+        rebuild_source_municipality_grids()
+
     geometry_by_grid_id: dict[str, dict] = {}
     grid_ids_by_code: dict[str, list[str]] = {}
     for path in sorted(SOURCE_GRID_DIR.glob("*.geojson")):

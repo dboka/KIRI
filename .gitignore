@@ -18,4 +18,5 @@ Thumbs.db
 
 # Keep GitHub Pages payload compact:
 # frontend/data/grid_static + grid_values + dates overview/manifest are tracked.
+GRID_SAGATAVE/frontend/data/municipality_grids/
 GRID_SAGATAVE/frontend/data/frontend_kiri_data_metadata.json
