@@ -8,6 +8,8 @@ This folder holds project-level documentation that is useful but should not sit 
 - `github-pages.md` - deployment notes for GitHub Pages.
 - `next-steps.md` - practical development order after v0.1.2.
 - `security.md` - credential handling and rotation notes.
+- `meeting-brief-lv.md` - detailed Latvian project explanation for stakeholder meetings.
+- `demo-script-lv.md` - short Latvian speaking script for live website demos.
 
 ## Canonical Technical Docs
 

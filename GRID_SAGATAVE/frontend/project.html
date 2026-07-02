@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="lv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KIRI-LV | Projekta apraksts</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="src/project.css?v=1" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">KIRI-LV v0.1.2</p>
+          <h1>Kūtsmēslu izkliedes riska kartes prototips</h1>
+          <p class="lead">
+            Statiska GitHub Pages karte, kas apvieno nokrišņu uzkrājumus, satelītu augsnes mitruma indikatorus un 1 km režģi, lai parādītu izkliedes riska līmeni Latvijas pašvaldībās.
+          </p>
+        </div>
+        <a class="map-link" href="./">Atvērt karti</a>
+      </header>
+
+      <section class="stats" aria-label="Pašreizējā datu pakotne">
+        <div><strong>60</strong><span>dienas</span></div>
+        <div><strong>43</strong><span>pašvaldības</span></div>
+        <div><strong>65 621</strong><span>1 km šūnas dienā</span></div>
+        <div><strong>2 580</strong><span>dienas-pašvaldības faili</span></div>
+      </section>
+
+      <section class="content">
+        <article>
+          <h2>Ko rīks dara</h2>
+          <p>
+            KIRI-LV rāda relatīvu kūtsmēslu izkliedes risku skalā no 1 līdz 5. Pārskata līmenī redzama visa Latvija, bet pēc klikšķa uz pašvaldības tiek ielādēts detalizēts 1 km režģis ar aktīvajiem faktoriem un indikatoriem.
+          </p>
+        </article>
+
+        <article>
+          <h2>Datu avoti</h2>
+          <ul>
+            <li>VZD pašvaldību robežas.</li>
+            <li>CLIDATA nokrišņu novērojumi P30, P90 un P730 logiem.</li>
+            <li>H-SAF SSM virsmas augsnes mitrums.</li>
+            <li>Copernicus SWI profila mitruma konteksts.</li>
+            <li>Latvijas 1 km režģis EPSG:3059 aprēķinu slānim.</li>
+          </ul>
+        </article>
+
+        <article>
+          <h2>Riska aprēķins</h2>
+          <p>
+            Modelis ir mitruma prioritātes modelis. Ja SWI ir pieejams, aktīvais risks tiek svērts no H-SAF, SWI, P30 un P90. Ja SWI kavējas, modelis izmanto H-SAF, P30 un P90. P730 darbojas kā ilgtermiņa nokrišņu fona modifikators.
+          </p>
+        </article>
+
+        <article>
+          <h2>Ātrdarbības arhitektūra</h2>
+          <p>
+            v0.1.2 glabā 1 km režģa ģeometriju tikai vienu reizi mapē <code>grid_static</code>. Katrai dienai tiek pievienoti tikai vērtību faili <code>grid_values/&lt;date&gt;</code>. Pārlūks apvieno statisko ģeometriju ar dienas vērtībām tikai tad, kad lietotājs atver pašvaldību.
+          </p>
+        </article>
+
+        <article>
+          <h2>Pašreizējais snapshots</h2>
+          <p>
+            Noklusējuma datums ir 2026-06-30. Šajā dienā redzamas 60 839 šūnas ar H-SAF datiem: 8 460 šūnas ir riska līmenī 2, 38 356 līmenī 3 un 14 023 līmenī 4. SWI šajā snapshotā nav pieejams, tāpēc uzticamība ir vidēja.
+          </p>
+        </article>
+
+        <article>
+          <h2>Nākamais solis</h2>
+          <p>
+            Nākamais attīstības posms ir automātiska jaunas dienas pievienošana: dati ienāk, tiek pārrēķināti indikatori, atjaunoti dienas vērtību faili, validēts datu līgums un publicēta jaunā karte.
+          </p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

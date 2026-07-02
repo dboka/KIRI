@@ -21,6 +21,8 @@ KIRI-LV is a static GitHub Pages prototype for manure spreading risk mapping in 
 - `GRID_SAGATAVE/frontend/data/dates` - daily overview and manifest files.
 - `GRID_SAGATAVE/clean` - latest clean data handoff manifest.
 - `docs` - planning and project documentation.
+- `docs/meeting-brief-lv.md` - Latvian meeting brief for explaining the data flow, risk logic, architecture, and demo.
+- `docs/demo-script-lv.md` - short Latvian script for presenting the website in a meeting.
 - `DATA_LAST_60` - local raw/intermediate latest data source; ignored by git.
 
 ## GitHub Pages
