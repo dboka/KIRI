@@ -7,6 +7,7 @@ This folder holds project-level documentation that is useful but should not sit 
 - `KIRI_LV_pilns_plans_un_arhitektura.docx` - original full planning and architecture document.
 - `github-pages.md` - deployment notes for GitHub Pages.
 - `next-steps.md` - practical development order after v0.1.2.
+- `security.md` - credential handling and rotation notes.
 
 ## Canonical Technical Docs
 

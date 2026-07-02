@@ -4,6 +4,25 @@ __pycache__/
 .Rhistory
 .RData
 
+# Secrets / local credentials
+.env
+.env.*
+*.env
+*.pem
+*.key
+credentials.*
+credential.*
+secrets.*
+secret.*
+tokens.*
+token.*
+passwords.*
+password.*
+oracle_wallet/
+wallet/
+tnsnames.ora
+sqlnet.ora
+
 # Local raw and intermediate data products
 DATA_LAST_60/
 DEMO_STUFFS/
