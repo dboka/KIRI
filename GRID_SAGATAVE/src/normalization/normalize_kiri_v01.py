@@ -78,75 +78,167 @@ def add_variable_risks(df: pd.DataFrame, config: dict[str, Any]) -> tuple[pd.Dat
     return out, qc
 
 
-def second_highest(values: list[int]) -> int | None:
-    valid = sorted([int(value) for value in values if pd.notna(value)], reverse=True)
-    if len(valid) < 3:
-        return None
-    return valid[1]
+def clamp_risk(value: int | float, lower: int = 1, upper: int = 5) -> int:
+    return max(lower, min(upper, int(round(float(value)))))
 
 
-def confidence_for(valid_count: int) -> str:
-    if valid_count < 3:
+def confidence_for(row: pd.Series) -> str:
+    hsaf = row.get("hsaf_ssm_risk")
+    swi = row.get("swi_risk")
+    p30 = row.get("p30_risk")
+    p90 = row.get("p90_risk")
+    hsaf_age = row.get("hsaf_age_days", 0)
+    hsaf_is_stale = bool(row.get("hsaf_is_stale", False)) and pd.notna(hsaf_age) and int(hsaf_age) > 0
+    active_valid_count = sum(pd.notna(value) for value in [hsaf, swi, p30, p90])
+
+    if pd.isna(hsaf) or active_valid_count < 3:
         return "low"
-    if valid_count < 5:
-        return "medium"
-    return "high"
+    if pd.notna(swi) and pd.notna(p30) and pd.notna(p90):
+        return "medium" if hsaf_is_stale else "high"
+    if pd.notna(p30) and pd.notna(p90):
+        return "low" if hsaf_is_stale else "medium"
+    return "low"
 
 
-def reason_code(prefix: str, risk: int) -> str | None:
-    if risk == 5:
-        return f"{prefix}_very_high"
-    if risk == 4:
-        return f"{prefix}_high"
-    return None
+def pipe_join(values: list[str]) -> str:
+    return "|".join(value for value in values if value)
 
 
 def add_combined_risk(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
     out = df.copy()
-    risk_cols = [variable["output_column"] for variable in config["variables"].values()]
-    reason_prefixes = {
-        variable["output_column"]: variable["reason_prefix"]
-        for variable in config["variables"].values()
-    }
-
     labels = {int(level): label for level, label in config["risk_labels_lv"].items()}
     method = config["normalization_method"]
     legal = config["legal_placeholder"]
 
-    combined_levels = []
+    active_risks = []
+    p730_contexts = []
+    p730_modifiers = []
+    final_levels = []
     labels_lv = []
-    reasons = []
-    valid_counts = []
+    active_reasons = []
+    context_reasons = []
+    data_warnings = []
     confidences = []
+    map_visible_values = []
+    active_indicator_counts = []
 
     for _, row in out.iterrows():
-        risks = [row[col] for col in risk_cols]
-        valid_risks = [int(value) for value in risks if pd.notna(value)]
-        valid_count = len(valid_risks)
-        level = second_highest(valid_risks)
+        hsaf = row.get("hsaf_ssm_risk")
+        swi = row.get("swi_risk")
+        p30 = row.get("p30_risk")
+        p90 = row.get("p90_risk")
+        p730 = row.get("p730_risk")
+        active_valid_count = sum(pd.notna(value) for value in [hsaf, swi, p30, p90])
+        confidence = confidence_for(row)
 
-        row_reasons: list[str] = []
-        if level is None:
-            row_reasons.append("insufficient_valid_inputs")
+        row_active_reasons: list[str] = []
+        row_context_reasons: list[str] = []
+        row_warnings: list[str] = []
+
+        if pd.isna(hsaf):
+            active_risk = None
+            final_level = None
+            p730_modifier = 0
+            map_visible = False
+            label = "Nav H-SAF augsnes mitruma datu"
+            row_warnings.append("Nav H-SAF augsnes mitruma datu; šūna netiek attēlota")
         else:
-            for col in risk_cols:
-                value = row[col]
-                if pd.isna(value):
-                    continue
-                code = reason_code(reason_prefixes[col], int(value))
-                if code and int(value) >= int(level):
-                    row_reasons.append(code)
+            hsaf_i = int(hsaf)
+            p30_i = int(p30) if pd.notna(p30) else 1
+            p90_i = int(p90) if pd.notna(p90) else 1
 
-        combined_levels.append(level)
-        labels_lv.append(labels.get(int(level), None) if level is not None else None)
-        reasons.append("|".join(row_reasons))
-        valid_counts.append(valid_count)
-        confidences.append(confidence_for(valid_count))
+            if pd.notna(swi):
+                swi_i = int(swi)
+                score = (0.40 * hsaf_i) + (0.25 * swi_i) + (0.25 * p30_i) + (0.10 * p90_i)
+            else:
+                swi_i = None
+                score = (0.50 * hsaf_i) + (0.35 * p30_i) + (0.15 * p90_i)
+                row_warnings.append("SWI nav pieejams, uzticamība samazināta")
 
-    out["valid_variable_count"] = valid_counts
-    out["kiri_risk_level"] = pd.Series(combined_levels, dtype="Int64")
-    out["kiri_risk_label_lv"] = labels_lv
-    out["main_reasons"] = reasons
+            hsaf_age = row.get("hsaf_age_days", 0)
+            if pd.notna(hsaf_age) and int(hsaf_age) > 0:
+                row_warnings.append(f"H-SAF dati {int(hsaf_age)} dienas veci; uzticamība samazināta")
+
+            active_risk = clamp_risk(score)
+
+            if hsaf_i <= 2 and p30_i <= 3:
+                active_risk = min(active_risk, 2)
+            if hsaf_i <= 2 and p30_i >= 4:
+                active_risk = min(active_risk, 3)
+            if hsaf_i >= 4 and p30_i >= 3:
+                active_risk = max(active_risk, 4)
+            if hsaf_i >= 4 and swi_i is not None and swi_i >= 4:
+                active_risk = max(active_risk, 4)
+            if hsaf_i >= 5 and p30_i >= 4:
+                active_risk = 5
+            if hsaf_i >= 5 and swi_i is not None and swi_i >= 4:
+                active_risk = 5
+
+            if pd.notna(p730) and int(p730) >= 4 and active_risk >= 3:
+                p730_modifier = 1
+            else:
+                p730_modifier = 0
+
+            final_level = active_risk
+            if p730_modifier and active_risk > 2:
+                final_level = min(active_risk + 1, 4)
+            if hsaf_i <= 2 and (swi_i is None or swi_i <= 2):
+                final_level = min(final_level, 3)
+
+            map_visible = True
+            label = labels.get(int(final_level))
+
+            if hsaf_i >= 3:
+                row_active_reasons.append("H-SAF virsmas mitrums paaugstināts")
+            if swi_i is not None and swi_i >= 3:
+                row_active_reasons.append("Copernicus SWI rāda paaugstinātu profila mitrumu")
+            if p30_i >= 3:
+                row_active_reasons.append("P30 nokrišņi paaugstināti")
+            if p90_i >= 4:
+                row_active_reasons.append("P90 nokrišņu uzkrājums augsts")
+
+        if pd.notna(p730) and int(p730) >= 4:
+            p730_context = "high_long_term_precipitation_background"
+            row_context_reasons.extend(
+                [
+                    "Ilgtermiņa nokrišņu fons paaugstināts",
+                    "P730 izmantots tikai kā konteksta modifikators",
+                ]
+            )
+        else:
+            p730_context = "normal"
+
+        if active_valid_count < 3:
+            row_warnings.append("Nepilnīgs indikatoru komplekts")
+
+        active_risks.append(active_risk)
+        p730_contexts.append(p730_context)
+        p730_modifiers.append(p730_modifier)
+        final_levels.append(final_level)
+        labels_lv.append(label)
+        active_reasons.append(pipe_join(row_active_reasons))
+        context_reasons.append(pipe_join(row_context_reasons))
+        data_warnings.append(pipe_join(row_warnings))
+        confidences.append(confidence)
+        map_visible_values.append(map_visible)
+        active_indicator_counts.append(active_valid_count)
+
+    out["active_indicator_count"] = active_indicator_counts
+    out["valid_variable_count"] = active_indicator_counts
+    out["active_risk"] = pd.Series(active_risks, dtype="Int64")
+    out["p730_context"] = p730_contexts
+    out["p730_modifier"] = pd.Series(p730_modifiers, dtype="Int64")
+    out["final_risk_level"] = pd.Series(final_levels, dtype="Int64")
+    out["final_risk_label_lv"] = labels_lv
+    out["active_reasons"] = active_reasons
+    out["context_reasons"] = context_reasons
+    out["data_warnings"] = data_warnings
+    out["map_visible"] = map_visible_values
+    out["hsaf_ssm"] = out["HSAF_SSM_pct"] if "HSAF_SSM_pct" in out.columns else np.nan
+    out["swi"] = out["SWI010_pct"] if "SWI010_pct" in out.columns else np.nan
+    out["kiri_risk_level"] = out["final_risk_level"]
+    out["kiri_risk_label_lv"] = out["final_risk_label_lv"]
+    out["main_reasons"] = out["active_reasons"]
     out["normalization_method"] = method
     out["confidence"] = confidences
     out["legal_status"] = legal["legal_status"]
@@ -165,7 +257,16 @@ def cell_geometries(df: pd.DataFrame, cell_size_m: float) -> gpd.GeoSeries:
 
 
 def municipality_summary(df: pd.DataFrame) -> pd.DataFrame:
-    valid = df[df["municipality_code"].notna() & df["kiri_risk_level"].notna()].copy()
+    visible_mask = (
+        df["map_visible"].astype(bool)
+        if "map_visible" in df.columns
+        else pd.Series(True, index=df.index)
+    )
+    valid = df[
+        df["municipality_code"].notna()
+        & df["kiri_risk_level"].notna()
+        & visible_mask
+    ].copy()
     if valid.empty:
         return pd.DataFrame()
 
@@ -193,7 +294,8 @@ def municipality_summary(df: pd.DataFrame) -> pd.DataFrame:
         p90_kiri_risk=("kiri_risk_level", lambda s: float(np.nanpercentile(s.astype(float), 90))),
         max_kiri_risk=("kiri_risk_level", "max"),
         percent_cells_risk_4_5=("kiri_risk_level", lambda s: float((s.astype(float) >= 4).mean() * 100)),
-        dominant_reasons=("main_reasons", dominant_reasons),
+        dominant_reasons=("active_reasons", dominant_reasons),
+        dominant_context_reasons=("context_reasons", dominant_reasons),
         confidence_summary=("confidence", confidence_summary),
     ).reset_index()
 
@@ -211,9 +313,44 @@ def municipality_summary(df: pd.DataFrame) -> pd.DataFrame:
             "max_kiri_risk",
             "percent_cells_risk_4_5",
             "dominant_reasons",
+            "dominant_context_reasons",
             "confidence_summary",
         ]
     ]
+
+
+def validation_summary(df: pd.DataFrame) -> dict[str, Any]:
+    visible_mask = (
+        df["map_visible"].astype(bool)
+        if "map_visible" in df.columns
+        else pd.Series(True, index=df.index)
+    )
+    visible = df[visible_mask].copy()
+    hidden = df[~visible_mask].copy()
+
+    def split_counts(series: pd.Series) -> dict[str, int]:
+        counts: dict[str, int] = {}
+        for value in series.dropna():
+            for part in str(value).split("|"):
+                part = part.strip()
+                if part:
+                    counts[part] = counts.get(part, 0) + 1
+        return dict(sorted(counts.items(), key=lambda item: (-item[1], item[0]))[:10])
+
+    return {
+        "total_visible_cells": int(len(visible)),
+        "hidden_no_hsaf_cells": int(len(hidden)),
+        "risk_distribution": {
+            str(level): int((visible["final_risk_level"] == level).sum())
+            for level in range(1, 6)
+        },
+        "confidence_distribution": {
+            str(key): int(value)
+            for key, value in visible["confidence"].value_counts(dropna=False).to_dict().items()
+        },
+        "top_active_reasons": split_counts(visible["active_reasons"]),
+        "top_context_reasons": split_counts(visible["context_reasons"]),
+    }
 
 
 def main() -> None:
@@ -278,6 +415,7 @@ def main() -> None:
             for key, value in normalized["confidence"].value_counts(dropna=False).to_dict().items()
         },
         "data_quality": qc,
+        "validation_summary": validation_summary(normalized),
     }
     metadata_path = output_dir / config["output"]["metadata_json"]
     metadata_path.write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8")

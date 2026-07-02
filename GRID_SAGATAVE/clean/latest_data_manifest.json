@@ -1,0 +1,20 @@
+{
+  "release": "v0.1.2",
+  "status": "latest-clean",
+  "default_date": "2026-06-30",
+  "date_range": {
+    "start": "2026-05-02",
+    "end": "2026-06-30",
+    "date_count": 60
+  },
+  "frontend_data_root": "../frontend/data",
+  "canonical_grid_geometry": "../frontend/data/grid_static",
+  "daily_grid_values": "../frontend/data/grid_values",
+  "daily_overviews": "../frontend/data/dates",
+  "municipality_boundaries": "../frontend/data/municipality_boundaries",
+  "calendar_manifest": "../frontend/data/calendar_manifest.json",
+  "data_contract": "Grid geometry is stored once in grid_static. Daily grid_values files contain values only and are merged with static geometry in the browser.",
+  "obsolete_removed": [
+    "../frontend/data/municipality_grids"
+  ]
+}

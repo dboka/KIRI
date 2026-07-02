@@ -1,81 +1,81 @@
 # KIRI-LV Grid Sagatave
 
-Šī mape satur KIRI-LV v0.1 telpisko un frontend datu sagatavošanas plūsmu.
+This folder contains the KIRI-LV v0.1.2 spatial and frontend data preparation flow.
 
-## Galvenais frontend prototips
+## Folder Map
 
-Lokāli:
+- `frontend` - GitHub Pages app and production frontend data.
+- `frontend/data/grid_static` - the only canonical 1 km grid geometry set.
+- `frontend/data/grid_values` - daily values by date and municipality, without geometry.
+- `frontend/data/dates` - daily municipality overview layers and manifests.
+- `frontend/data/municipality_boundaries` - municipality boundary geometry.
+- `config` - KIRI normalization configuration.
+- `src/normalization` - risk normalization code.
+- `clean` - latest v0.1.2 handoff manifest; it points to the production data instead of duplicating it.
+- `ARCHITECTURE.md` - current architecture and daily update contract.
+
+## Local Frontend
 
 ```powershell
 cd C:\Users\deniss.boka\MESLI_PROJECT\KIRI\GRID_SAGATAVE\frontend
 python -m http.server 8000
 ```
 
-Atver:
+Open:
 
 ```text
 http://localhost:8000
 ```
 
-Frontend rāda:
+## Current Frontend Data
 
-- 60 dienu kalendāru no `2026-05-02` līdz `2026-06-30`;
-- pašvaldību sākuma karti katrai dienai;
-- klikšķi uz pašvaldību ar 1 km grid detalizēto skatu;
-- klikšķi uz grid šūnas ar `P30`, `P90`, `P730`, `H-SAF SSM`, `Copernicus SWI` un v0.1 riska klasēm.
+- 60 daily snapshots from `2026-05-02` to `2026-06-30`.
+- Default date: `2026-06-30`.
+- 43 municipality static grid geometry files.
+- 2,580 daily municipality value files.
+- Grid geometry is stored once and reused by every date.
 
-## GitHub Pages datu izkārtojums
+## Data Preparation
 
-Frontend dati ir optimizēti statiskai publicēšanai:
-
-- `frontend/data/dates/<date>/overview.geojson` - dienas pašvaldību overview slānis;
-- `frontend/data/dates/<date>/manifest.json` - dienas pašvaldību metadati;
-- `frontend/data/grid_static/<municipality_code>.geojson` - pašvaldības grid ģeometrija, glabāta vienu reizi;
-- `frontend/data/grid_values/<date>/<municipality_code>.json` - konkrētās dienas grid vērtības bez atkārtotas ģeometrijas.
-
-Šī pieeja samazina Pages datu pakotni no vairākiem GB līdz aptuveni 421 MB.
-
-## Datu sagatavošanas komandas
-
-Grid piesaiste pašvaldībām:
+Grid assignment to municipalities:
 
 ```powershell
 python prepare_grid_municipalities.py
 ```
 
-Pēdējo 60 dienu CLIDATA nokrišņu logi:
+Last 60 days CLIDATA precipitation windows:
 
 ```powershell
 python prepare_last_60_precip_obs.py
 ```
 
-P30/P90/P730 interpolācija uz 1 km grid:
+P30/P90/P730 interpolation to 1 km grid:
 
 ```powershell
 Rscript run_last_60_precip_interpolation.R
 ```
 
-H-SAF un SWI pievienošana:
+H-SAF and SWI extraction:
 
 ```powershell
 python build_last_60_indicator_grids.py
 ```
 
-Pašvaldību nosaukumu UTF-8 labošana raw CSV izvados:
+Municipality UTF-8 name repair for raw CSV outputs:
 
 ```powershell
 python repair_last_60_municipality_names.py
 ```
 
-Frontend 60 dienu riska slāņu sagatavošana:
+Frontend compact data:
 
 ```powershell
 python prepare_frontend_last_60_kiri_data.py
 python prepare_frontend_compact_pages_data.py
 ```
 
-## Piezīmes
+## Notes
 
-- v0.1 normalizācija vēl izmanto pagaidu sliekšņus.
-- Juridiskie hard-stop noteikumi vēl nav vērtēti.
-- Raw un intermediate izvades (`DATA_LAST_60`, `outputs`, `precip_outputs`, `indicator_outputs`) netiek liktas git repozitorijā.
+- `frontend/data/municipality_grids` was the old duplicated geometry layout and has been removed.
+- Raw and intermediate outputs (`DATA_LAST_60`, `outputs`, `precip_outputs`, `indicator_outputs`) stay local and are ignored by git.
+- New daily automation should rewrite date manifests and value files while reusing `frontend/data/grid_static`.

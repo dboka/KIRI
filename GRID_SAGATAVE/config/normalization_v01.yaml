@@ -1,5 +1,5 @@
 target_date: "2026-06-15"
-normalization_method: "provisional_thresholds_v0.1"
+normalization_method: "moisture_first_v0.1.2"
 
 input:
   indicator_csv: "indicator_outputs/grid_indicators_P30_P90_P730_HSAF_SWI_2026-06-15.csv"
@@ -15,18 +15,18 @@ output:
   metadata_json: "normalization_metadata_2026_06_15.json"
 
 risk_labels_lv:
-  1: "Zems risks"
-  2: "Neliels risks"
-  3: "Paaugstināts risks"
+  1: "Ļoti zems risks"
+  2: "Zems risks"
+  3: "Vidējs risks / piesardzība"
   4: "Augsts risks"
-  5: "Ļoti augsts risks"
+  5: "Ļoti augsts risks / neizkliedēt"
 
 variables:
   p30:
     input_column: "P30_mm"
     output_column: "p30_risk"
     unit: "mm"
-    thresholds: [40, 70, 100, 140]
+    thresholds: [20, 40, 70, 100]
     direction: "higher_is_riskier"
     reason_prefix: "p30"
 
@@ -34,7 +34,7 @@ variables:
     input_column: "P90_mm"
     output_column: "p90_risk"
     unit: "mm"
-    thresholds: [120, 180, 240, 320]
+    thresholds: [80, 140, 220, 320]
     direction: "higher_is_riskier"
     reason_prefix: "p90"
 
@@ -51,7 +51,7 @@ variables:
     output_column: "hsaf_ssm_risk"
     unit: "percent"
     unit_handling: "auto_fraction_to_percent"
-    thresholds: [40, 55, 70, 85]
+    thresholds: [25, 40, 55, 70]
     direction: "higher_is_riskier"
     reason_prefix: "hsaf_ssm"
 
@@ -60,15 +60,13 @@ variables:
     output_column: "swi_risk"
     unit: "percent"
     unit_handling: "auto_fraction_to_percent"
-    thresholds: [35, 50, 65, 80]
+    thresholds: [30, 45, 60, 75]
     direction: "higher_is_riskier"
     reason_prefix: "swi"
 
 combination:
-  rule: "second_highest_valid"
-  minimum_valid_variables: 3
-  medium_confidence_valid_variables: [3, 4]
-  high_confidence_valid_variables: 5
+  rule: "moisture_first_weighted"
+  minimum_active_indicators: 3
 
 legal_placeholder:
   legal_status: "not_evaluated"

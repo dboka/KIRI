@@ -1,17 +1,17 @@
 const riskColors = {
-  1: "#9ccfb0",
-  2: "#f3df83",
-  3: "#f3a64d",
-  4: "#d9684a",
-  5: "#8e3f36",
+  1: "#69b88f",
+  2: "#cfe89a",
+  3: "#f4d35e",
+  4: "#f08a4b",
+  5: "#c94f44",
 };
 
 const riskLabels = {
-  1: "Zems risks",
-  2: "Neliels risks",
-  3: "Paaugstināts risks",
+  1: "Ļoti zems risks",
+  2: "Zems risks",
+  3: "Vidējs risks / piesardzība",
   4: "Augsts risks",
-  5: "Ļoti augsts risks",
+  5: "Ļoti augsts risks / neizkliedēt",
 };
 
 const monthNames = {
@@ -87,7 +87,7 @@ function boundaryStyle() {
 }
 
 function gridStyle(feature) {
-  const level = feature.properties.kiri_risk_level;
+  const level = feature.properties.final_risk_level ?? feature.properties.kiri_risk_level;
   return {
     renderer: canvasRenderer,
     color: "rgba(255,255,255,0.2)",
@@ -138,9 +138,23 @@ function formatRisk(value) {
 
 function normalizeFactors(factors) {
   if (!factors || !factors.length) {
-    return ["nav dominējošu augsta riska faktoru"];
+    return [];
+  }
+  if (typeof factors === "string") {
+    return factors.split("|").filter(Boolean);
   }
   return factors;
+}
+
+function renderList(elementId, values, fallback) {
+  const element = document.querySelector(elementId);
+  element.innerHTML = "";
+  const items = normalizeFactors(values);
+  (items.length ? items : [fallback]).forEach((factor) => {
+    const item = document.createElement("li");
+    item.textContent = String(factor).replaceAll("_", " ");
+    element.appendChild(item);
+  });
 }
 
 function setLoading(isLoading) {
@@ -154,31 +168,43 @@ function setPanelContent(summary, cellProperties = null) {
     : `${activeDate} · Pašvaldības skats`;
   document.querySelector("#panelTitle").textContent = summary.municipality_name;
   document.querySelector("#overallRisk").textContent = isCell
-    ? cellProperties.kiri_risk_level
+    ? (cellProperties.final_risk_level ?? cellProperties.kiri_risk_level ?? "-")
     : summary.overall_risk;
+  document.querySelector("#activeRisk").textContent = isCell
+    ? (cellProperties.active_risk ?? "-")
+    : "klikšķini uz grid";
   document.querySelector("#highRiskPercent").textContent = summary.high_risk_percent;
   document.querySelector("#recommendation").textContent = summary.recommendation;
 
-  const dominantFactors = document.querySelector("#dominantFactors");
-  dominantFactors.innerHTML = "";
-  const factors = normalizeFactors(isCell ? cellProperties.main_reasons : summary.dominant_factors);
-  factors.forEach((factor) => {
-    const item = document.createElement("li");
-    item.textContent = factor.replaceAll("_", " ");
-    dominantFactors.appendChild(item);
-  });
+  renderList(
+    "#dominantFactors",
+    isCell ? cellProperties.active_reasons : summary.dominant_factors,
+    "nav dominējošu aktīvu augsta riska faktoru",
+  );
+  renderList(
+    "#contextFactors",
+    isCell ? cellProperties.context_reasons : summary.context_factors,
+    "ilgtermiņa fons normas robežās",
+  );
 
   if (isCell) {
+    const swiValue = cellProperties.SWI010_pct ?? cellProperties.swi;
+    const hsafValue = cellProperties.HSAF_SSM_pct ?? cellProperties.hsaf_ssm;
+    const hsafAge = Number(cellProperties.hsaf_age_days || 0);
+    const hsafAgeText = hsafAge > 0
+      ? `iepriekšējais pārlidojums, ${hsafAge} d. vecs`
+      : "šodienas pārlidojums";
     document.querySelector("#p30Card").textContent =
       `${formatMetric(cellProperties.P30_mm, " mm")}, ${formatRisk(cellProperties.p30_risk)}`;
     document.querySelector("#p90Card").textContent =
       `${formatMetric(cellProperties.P90_mm, " mm")}, ${formatRisk(cellProperties.p90_risk)}`;
     document.querySelector("#p730Card").textContent =
-      `${formatMetric(cellProperties.P730_mm, " mm")}, ${formatRisk(cellProperties.p730_risk)}`;
+      `${formatMetric(cellProperties.P730_mm, " mm")}, ${cellProperties.p730_context || "normal"}`;
     document.querySelector("#hsafCard").textContent =
-      `${formatMetric(cellProperties.HSAF_SSM_pct, "%")}, ${formatRisk(cellProperties.hsaf_ssm_risk)}`;
+      `${formatMetric(hsafValue, "%")}, ${formatRisk(cellProperties.hsaf_ssm_risk)} · ${hsafAgeText}`;
     document.querySelector("#swiCard").textContent =
-      `${formatMetric(cellProperties.SWI010_pct, "%")}, ${formatRisk(cellProperties.swi_risk)}`;
+      `${formatMetric(swiValue, "%")}, ${formatRisk(cellProperties.swi_risk)}`;
+    document.querySelector("#confidenceCard").textContent = cellProperties.confidence || "-";
     return;
   }
 
@@ -187,6 +213,7 @@ function setPanelContent(summary, cellProperties = null) {
   document.querySelector("#p730Card").textContent = "klikšķini uz grid";
   document.querySelector("#hsafCard").textContent = "klikšķini uz grid";
   document.querySelector("#swiCard").textContent = "klikšķini uz grid";
+  document.querySelector("#confidenceCard").textContent = "klikšķini uz grid";
 }
 
 function clearDetailLayers() {
@@ -246,7 +273,7 @@ async function openMunicipalityByCode(code, { fit = true } = {}) {
   try {
     const [boundaryGeojson, staticGridGeojson, gridValues] = await Promise.all([
       loadJson(`data/${summary.boundary_file}`),
-      loadJson(`data/${summary.static_grid_file || summary.grid_file}`),
+      loadJson(`data/${summary.static_grid_file}`),
       summary.grid_values_file ? loadJson(`data/${summary.grid_values_file}`) : null,
     ]);
 
@@ -299,21 +326,23 @@ function mergeGridValues(staticGridGeojson, gridValues) {
 
   return {
     type: "FeatureCollection",
-    features: staticGridGeojson.features.map((feature) => {
-      const gridId = String(feature.properties.grid_id);
-      const row = valuesByGridId.get(gridId);
-      const properties = { grid_id: gridId };
-      if (row) {
-        gridValues.fields.forEach((field, index) => {
-          properties[field] = row[index];
-        });
-      }
-      return {
-        type: "Feature",
-        properties,
-        geometry: feature.geometry,
-      };
-    }),
+    features: staticGridGeojson.features
+      .map((feature) => {
+        const gridId = String(feature.properties.grid_id);
+        const row = valuesByGridId.get(gridId);
+        const properties = { grid_id: gridId };
+        if (row) {
+          gridValues.fields.forEach((field, index) => {
+            properties[field] = row[index];
+          });
+        }
+        return {
+          type: "Feature",
+          properties,
+          geometry: feature.geometry,
+        };
+      })
+      .filter((feature) => feature.properties.map_visible !== false),
   };
 }
 

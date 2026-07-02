@@ -5,11 +5,11 @@
   --text: #eef6f8;
   --muted: #9fb2bd;
   --line: rgba(255, 255, 255, 0.18);
-  --risk-1: #9ccfb0;
-  --risk-2: #f3df83;
-  --risk-3: #f3a64d;
-  --risk-4: #d9684a;
-  --risk-5: #8e3f36;
+  --risk-1: #69b88f;
+  --risk-2: #cfe89a;
+  --risk-3: #f4d35e;
+  --risk-4: #f08a4b;
+  --risk-5: #c94f44;
 }
 
 * {

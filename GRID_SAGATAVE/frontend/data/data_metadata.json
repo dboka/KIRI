@@ -1,16 +1,33 @@
 {
-  "purpose": "KIRI-LV map UI prototype data. Risk fields are deterministic placeholders only.",
-  "source_outputs": "C:\\Users\\deniss.boka\\MESLI_PROJECT\\KIRI\\GRID_SAGATAVE\\outputs",
+  "release": "v0.1.2",
+  "purpose": "KIRI-LV compact GitHub Pages frontend data.",
+  "date_range": {
+    "start": "2026-05-02",
+    "end": "2026-06-30",
+    "date_count": 60,
+    "default_date": "2026-06-30"
+  },
   "municipality_count": 43,
-  "grid_geojson_count": 43,
+  "static_grid_geojson_count": 43,
+  "daily_grid_value_file_count": 2580,
   "boundary_geojson_count": 43,
-  "overview_simplify_tolerance_m": 250.0,
-  "detail_boundary_simplify_tolerance_m": 60.0,
+  "data_layout": {
+    "calendar_manifest": "calendar_manifest.json",
+    "daily_overviews": "dates/<date>/overview.geojson",
+    "daily_manifests": "dates/<date>/manifest.json",
+    "static_grid_geometry": "grid_static/<municipality_code>.geojson",
+    "daily_grid_values": "grid_values/<date>/<municipality_code>.json",
+    "municipality_boundaries": "municipality_boundaries/<municipality_code>.geojson"
+  },
+  "data_contract": "Static grid geometry is stored once. Daily value files do not contain geometry and are merged with grid_static in the browser.",
+  "removed_legacy_layouts": [
+    "municipality_grids"
+  ],
   "risk_palette": {
-    "1": "#9ccfb0",
-    "2": "#f3df83",
-    "3": "#f3a64d",
-    "4": "#d9684a",
-    "5": "#8e3f36"
+    "1": "#69b88f",
+    "2": "#cfe89a",
+    "3": "#f4d35e",
+    "4": "#f08a4b",
+    "5": "#c94f44"
   }
 }

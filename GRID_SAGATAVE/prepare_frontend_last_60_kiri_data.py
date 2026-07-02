@@ -14,6 +14,7 @@ from src.normalization.normalize_kiri_v01 import (
     add_variable_risks,
     load_config,
     municipality_summary,
+    validation_summary,
 )
 from repair_last_60_municipality_names import load_name_map
 
@@ -24,11 +25,49 @@ LAST_60_DIR = PROJECT_DIR / "DATA_LAST_60"
 INDICATOR_DIR = LAST_60_DIR / "indicator_grids"
 FRONTEND_DATA = BASE_DIR / "frontend" / "data"
 DATE_DATA_DIR = FRONTEND_DATA / "dates"
-SOURCE_GRID_DIR = FRONTEND_DATA / "municipality_grids"
+STATIC_DIR = FRONTEND_DATA / "grid_static"
+VALUES_DIR = FRONTEND_DATA / "grid_values"
 SOURCE_MUNICIPALITIES = FRONTEND_DATA / "municipalities.geojson"
 SOURCE_MANIFEST = FRONTEND_DATA / "municipality_manifest.json"
 CONFIG_PATH = BASE_DIR / "config" / "normalization_v01.yaml"
 GRID_ASSIGNMENT_CSV = BASE_DIR / "outputs" / "grid_1km_municipalities_centroid.csv"
+HSAF_FALLBACK_DAYS = 3
+
+VALUE_FIELDS = [
+    "cell_id",
+    "date",
+    "grid_id",
+    "kiri_risk_level",
+    "kiri_risk_label_lv",
+    "active_risk",
+    "p730_context",
+    "p730_modifier",
+    "final_risk_level",
+    "final_risk_label_lv",
+    "main_reasons",
+    "active_reasons",
+    "context_reasons",
+    "data_warnings",
+    "confidence",
+    "p30_risk",
+    "p90_risk",
+    "p730_risk",
+    "hsaf_ssm_risk",
+    "swi_risk",
+    "P30_mm",
+    "P90_mm",
+    "P730_mm",
+    "hsaf_ssm",
+    "swi",
+    "HSAF_SSM_pct",
+    "SWI010_pct",
+    "hsaf_source_date",
+    "hsaf_age_days",
+    "hsaf_is_stale",
+    "hsaf_fallback_used",
+    "legal_status",
+    "map_visible",
+]
 
 
 def read_json(path: Path) -> dict:
@@ -73,38 +112,36 @@ def recommendation_for(row: pd.Series) -> str:
     return "Risks pārsvarā zemāks; turpini pārbaudīt lokālos apstākļus pirms lēmuma."
 
 
-def grid_feature(row: pd.Series, geometry: dict) -> dict:
-    return {
-        "type": "Feature",
-        "properties": {
-            "grid_id": str(row["grid_id"]),
-            "kiri_risk_level": safe_int(row.get("kiri_risk_level")),
-            "kiri_risk_label_lv": row.get("kiri_risk_label_lv"),
-            "main_reasons": clean_reason_text(row.get("main_reasons")),
-            "confidence": row.get("confidence"),
-            "p30_risk": safe_int(row.get("p30_risk")),
-            "p90_risk": safe_int(row.get("p90_risk")),
-            "p730_risk": safe_int(row.get("p730_risk")),
-            "hsaf_ssm_risk": safe_int(row.get("hsaf_ssm_risk")),
-            "swi_risk": safe_int(row.get("swi_risk")),
-            "P30_mm": safe_float(row.get("P30_mm"), 1),
-            "P90_mm": safe_float(row.get("P90_mm"), 1),
-            "P730_mm": safe_float(row.get("P730_mm"), 1),
-            "HSAF_SSM_pct": safe_float(row.get("HSAF_SSM_pct"), 1),
-            "SWI010_pct": safe_float(row.get("SWI010_pct"), 1),
-            "legal_status": row.get("legal_status"),
-        },
-        "geometry": geometry,
-    }
+def compact_value(value):
+    if value is None or pd.isna(value):
+        return None
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, float):
+        return round(value, 2)
+    if hasattr(value, "item"):
+        return compact_value(value.item())
+    return value
 
 
-def rebuild_source_municipality_grids() -> None:
+def compact_row(row: pd.Series) -> list:
+    values = []
+    for field in VALUE_FIELDS:
+        value = row.get(field)
+        if field in {"main_reasons", "active_reasons", "context_reasons", "data_warnings"}:
+            values.append(clean_reason_text(value))
+        else:
+            values.append(compact_value(value))
+    return values
+
+
+def rebuild_static_grid_geometries() -> None:
     if not GRID_ASSIGNMENT_CSV.exists():
         raise FileNotFoundError(
-            f"Missing source grid geometry. Expected {SOURCE_GRID_DIR} or {GRID_ASSIGNMENT_CSV}"
+            f"Missing static grid geometry. Expected {STATIC_DIR} or {GRID_ASSIGNMENT_CSV}"
         )
 
-    print(f"Rebuilding source municipality grid geometries from {GRID_ASSIGNMENT_CSV}")
+    print(f"Rebuilding static grid geometries from {GRID_ASSIGNMENT_CSV}")
     df = pd.read_csv(
         GRID_ASSIGNMENT_CSV,
         dtype={
@@ -128,9 +165,9 @@ def rebuild_source_municipality_grids() -> None:
         "EPSG:4326"
     )
 
-    if SOURCE_GRID_DIR.exists():
-        shutil.rmtree(SOURCE_GRID_DIR)
-    SOURCE_GRID_DIR.mkdir(parents=True, exist_ok=True)
+    if STATIC_DIR.exists():
+        shutil.rmtree(STATIC_DIR)
+    STATIC_DIR.mkdir(parents=True, exist_ok=True)
 
     for code, part in gdf.groupby("municipality_code", sort=True):
         features = [
@@ -141,24 +178,17 @@ def rebuild_source_municipality_grids() -> None:
             }
             for row in part.itertuples(index=False)
         ]
-        write_json(SOURCE_GRID_DIR / f"{code}.geojson", {"type": "FeatureCollection", "features": features})
+        write_json(STATIC_DIR / f"{code}.geojson", {"type": "FeatureCollection", "features": features})
 
 
-def load_grid_geometries() -> tuple[dict[str, dict], dict[str, list[str]]]:
-    if not any(SOURCE_GRID_DIR.glob("*.geojson")):
-        rebuild_source_municipality_grids()
+def ensure_static_grid_geometries() -> None:
+    if not any(STATIC_DIR.glob("*.geojson")):
+        rebuild_static_grid_geometries()
 
-    geometry_by_grid_id: dict[str, dict] = {}
-    grid_ids_by_code: dict[str, list[str]] = {}
-    for path in sorted(SOURCE_GRID_DIR.glob("*.geojson")):
-        code = path.stem
-        payload = read_json(path)
-        grid_ids_by_code[code] = []
-        for feature in payload["features"]:
-            grid_id = str(feature["properties"]["grid_id"])
-            geometry_by_grid_id[grid_id] = feature["geometry"]
-            grid_ids_by_code[code].append(grid_id)
-    return geometry_by_grid_id, grid_ids_by_code
+
+def build_static_grid_geometry() -> int:
+    ensure_static_grid_geometries()
+    return len(list(STATIC_DIR.glob("*.geojson")))
 
 
 def build_overview(template: dict, summary: pd.DataFrame) -> dict:
@@ -195,7 +225,8 @@ def build_manifest(old_manifest: dict, summary: pd.DataFrame, date_text: str) ->
             "date": date_text,
             "municipality_code": code,
             "municipality_name": row["municipality_name"],
-            "grid_file": f"dates/{date_text}/municipality_grids/{code}.geojson",
+            "static_grid_file": f"grid_static/{code}.geojson",
+            "grid_values_file": f"grid_values/{date_text}/{code}.json",
             "boundary_file": old_manifest[code]["boundary_file"],
             "grid_cell_count": int(row["grid_cell_count"]),
             "valid_grid_cell_count": int(row["valid_grid_cell_count"]),
@@ -205,18 +236,21 @@ def build_manifest(old_manifest: dict, summary: pd.DataFrame, date_text: str) ->
             "max_kiri_risk": safe_int(row["max_kiri_risk"]),
             "high_risk_percent": high_percent,
             "dominant_factors": clean_reason_text(row.get("dominant_reasons"))[:5],
+            "context_factors": clean_reason_text(row.get("dominant_context_reasons"))[:5],
             "recommendation": recommendation_for(pd.Series(row)),
             "confidence_summary": row.get("confidence_summary"),
         }
     return manifest
 
 
-def write_date_grids(date_dir: Path, normalized: pd.DataFrame, geometry_by_grid_id: dict[str, dict]) -> int:
-    grid_dir = date_dir / "municipality_grids"
-    grid_dir.mkdir(parents=True, exist_ok=True)
+def write_daily_values(date_text: str, normalized: pd.DataFrame) -> int:
+    values_dir = VALUES_DIR / date_text
+    if values_dir.exists():
+        shutil.rmtree(values_dir)
+    values_dir.mkdir(parents=True, exist_ok=True)
+
     normalized = normalized[
         normalized["municipality_code"].notna()
-        & normalized["kiri_risk_level"].notna()
         & normalized["grid_id"].notna()
     ].copy()
     normalized["municipality_code"] = normalized["municipality_code"].astype(str)
@@ -224,18 +258,68 @@ def write_date_grids(date_dir: Path, normalized: pd.DataFrame, geometry_by_grid_
 
     count = 0
     for code, part in normalized.groupby("municipality_code", sort=True):
-        features = []
-        for _, row in part.iterrows():
-            geometry = geometry_by_grid_id.get(str(row["grid_id"]))
-            if geometry is None:
-                continue
-            features.append(grid_feature(row, geometry))
-        write_json(grid_dir / f"{code}.geojson", {"type": "FeatureCollection", "features": features})
+        rows = [compact_row(row) for _, row in part.iterrows()]
+        write_json(values_dir / f"{code}.json", {"fields": VALUE_FIELDS, "rows": rows})
         count += 1
     return count
 
 
-def normalize_indicator_file(path: Path, config: dict, name_map: dict[str, str]) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
+def apply_hsaf_fallback(
+    df: pd.DataFrame,
+    date_text: str,
+    hsaf_history: dict[str, tuple[pd.Timestamp, float]],
+) -> tuple[pd.DataFrame, dict]:
+    out = df.copy()
+    date = pd.Timestamp(date_text)
+    out["grid_id"] = out["grid_id"].astype(str)
+    out["HSAF_SSM_pct"] = pd.to_numeric(out["HSAF_SSM_pct"], errors="coerce")
+    out["hsaf_source_date"] = date_text
+    out["hsaf_age_days"] = 0
+    out["hsaf_is_stale"] = False
+    out["hsaf_fallback_used"] = False
+
+    missing_mask = out["HSAF_SSM_pct"].isna()
+    filled_count = 0
+    still_missing_count = 0
+    for idx in out.index[missing_mask]:
+        grid_id = str(out.at[idx, "grid_id"])
+        previous = hsaf_history.get(grid_id)
+        if previous is None:
+            still_missing_count += 1
+            out.at[idx, "hsaf_source_date"] = None
+            out.at[idx, "hsaf_age_days"] = None
+            continue
+        source_date, value = previous
+        age_days = int((date - source_date).days)
+        if 1 <= age_days <= HSAF_FALLBACK_DAYS:
+            out.at[idx, "HSAF_SSM_pct"] = value
+            out.at[idx, "hsaf_source_date"] = source_date.strftime("%Y-%m-%d")
+            out.at[idx, "hsaf_age_days"] = age_days
+            out.at[idx, "hsaf_is_stale"] = True
+            out.at[idx, "hsaf_fallback_used"] = True
+            filled_count += 1
+        else:
+            still_missing_count += 1
+            out.at[idx, "hsaf_source_date"] = None
+            out.at[idx, "hsaf_age_days"] = None
+
+    current_valid = out["HSAF_SSM_pct"].notna() & ~out["hsaf_fallback_used"].astype(bool)
+    for grid_id, value in out.loc[current_valid, ["grid_id", "HSAF_SSM_pct"]].itertuples(index=False):
+        hsaf_history[str(grid_id)] = (date, float(value))
+
+    return out, {
+        "hsaf_fallback_filled": filled_count,
+        "hsaf_missing_after_fallback": still_missing_count,
+        "hsaf_fallback_max_age_days": HSAF_FALLBACK_DAYS,
+    }
+
+
+def normalize_indicator_file(
+    path: Path,
+    config: dict,
+    name_map: dict[str, str],
+    hsaf_history: dict[str, tuple[pd.Timestamp, float]],
+) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     df = pd.read_csv(
         path,
         dtype={
@@ -246,12 +330,15 @@ def normalize_indicator_file(path: Path, config: dict, name_map: dict[str, str])
         },
         low_memory=False,
     )
+    date_text = path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "")
+    df, hsaf_qc = apply_hsaf_fallback(df, date_text, hsaf_history)
     codes = df["municipality_code"].astype(str).str.replace(r"\.0$", "", regex=True)
     repaired_names = codes.map(name_map)
     mask = repaired_names.notna()
     df.loc[mask, "municipality_name"] = repaired_names[mask]
     normalized, qc = add_variable_risks(df, config)
     normalized = add_combined_risk(normalized, config)
+    qc["hsaf_ssm"].update(hsaf_qc)
     summary = municipality_summary(normalized)
     return normalized, summary, qc
 
@@ -261,32 +348,43 @@ def main() -> None:
     name_map = load_name_map()
     overview_template = read_json(SOURCE_MUNICIPALITIES)
     old_manifest = read_json(SOURCE_MANIFEST)
-    geometry_by_grid_id, _grid_ids_by_code = load_grid_geometries()
+    static_grid_count = build_static_grid_geometry()
 
     if DATE_DATA_DIR.exists():
         shutil.rmtree(DATE_DATA_DIR)
     DATE_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    if VALUES_DIR.exists():
+        shutil.rmtree(VALUES_DIR)
+    VALUES_DIR.mkdir(parents=True, exist_ok=True)
 
     indicator_files = sorted(INDICATOR_DIR.glob("grid_indicators_P30_P90_P730_HSAF_SWI_*.csv"))
     if not indicator_files:
         raise FileNotFoundError(f"No daily indicator CSV files found in {INDICATOR_DIR}")
 
     dates = []
+    hsaf_history: dict[str, tuple[pd.Timestamp, float]] = {}
     for path in indicator_files:
         date_text = path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "")
         print(f"Preparing frontend date {date_text}")
         date_dir = DATE_DATA_DIR / date_text
         date_dir.mkdir(parents=True, exist_ok=True)
 
-        normalized, summary, qc = normalize_indicator_file(path, config, name_map)
-        grid_file_count = write_date_grids(date_dir, normalized, geometry_by_grid_id)
+        normalized, summary, qc = normalize_indicator_file(path, config, name_map, hsaf_history)
+        normalized["date"] = date_text
+        normalized["cell_id"] = normalized["grid_id"].astype(str)
+        grid_file_count = write_daily_values(date_text, normalized)
         overview = build_overview(overview_template, summary)
         manifest = build_manifest(old_manifest, summary, date_text)
         write_json(date_dir / "overview.geojson", overview)
         write_json(date_dir / "manifest.json", manifest)
 
+        visible_normalized = normalized[normalized["map_visible"].astype(bool)].copy()
         risk_counts = {
             str(level): int((normalized["kiri_risk_level"] == level).sum())
+            for level in range(1, 6)
+        }
+        visible_risk_counts = {
+            str(level): int((visible_normalized["final_risk_level"] == level).sum())
             for level in range(1, 6)
         }
         dates.append(
@@ -298,10 +396,12 @@ def main() -> None:
                 "grid_file_count": grid_file_count,
                 "municipality_count": int(len(summary)),
                 "row_count": int(len(normalized)),
-                "risk_counts": risk_counts,
+                "risk_counts": visible_risk_counts,
+                "raw_risk_counts": risk_counts,
                 "swi_missing": int(pd.to_numeric(normalized["SWI010_pct"], errors="coerce").isna().sum()),
                 "hsaf_missing": int(pd.to_numeric(normalized["HSAF_SSM_pct"], errors="coerce").isna().sum()),
                 "data_quality": qc,
+                "validation_summary": validation_summary(normalized),
             }
         )
 
@@ -310,10 +410,24 @@ def main() -> None:
         "date_count": len(dates),
         "default_date": dates[-1]["date"],
         "dates": dates,
-        "performance_note": "The browser loads one date overview and one municipality grid at a time.",
+        "performance_note": "Static geometry is generated once; the browser loads one date overview and one municipality value file at a time.",
+        "data_layout": {
+            "overview": "dates/<date>/overview.geojson",
+            "municipality_manifest": "dates/<date>/manifest.json",
+            "static_grid_geometry": "grid_static/<municipality_code>.geojson",
+            "daily_grid_values": "grid_values/<date>/<municipality_code>.json",
+        },
     }
     write_json(FRONTEND_DATA / "calendar_manifest.json", calendar)
-    print(json.dumps({k: calendar[k] for k in ["date_count", "default_date", "performance_note"]}, indent=2))
+    print(
+        json.dumps(
+            {
+                **{k: calendar[k] for k in ["date_count", "default_date", "performance_note"]},
+                "static_grid_files": static_grid_count,
+            },
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ __pycache__/
 
 # Local raw and intermediate data products
 DATA_LAST_60/
+DEMO_STUFFS/
 GRID_SAGATAVE/outputs/
 GRID_SAGATAVE/precip_outputs/
 GRID_SAGATAVE/indicator_outputs/

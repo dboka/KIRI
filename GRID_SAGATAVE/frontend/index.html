@@ -6,7 +6,7 @@
     <title>KIRI-LV | Kūtsmēslu izkliedes riska karte</title>
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
-    <link rel="stylesheet" href="src/styles.css?v=6" />
+    <link rel="stylesheet" href="src/styles.css?v=8" />
   </head>
   <body>
     <main class="app-shell">
@@ -15,7 +15,7 @@
 
         <div class="topbar">
           <div>
-            <div class="eyebrow">KIRI-LV</div>
+            <div class="eyebrow">KIRI-LV v0.1.2</div>
             <h1>Kūtsmēslu izkliedes riska karte</h1>
           </div>
           <div class="toolbar">
@@ -31,7 +31,7 @@
         <section id="calendarPanel" class="calendar-panel" aria-label="Datuma izvēle">
           <div class="calendar-head">
             <div>
-              <div class="panel-kicker">60 dienu v0.1 apskats</div>
+              <div class="panel-kicker">60 dienu mitruma-first apskats</div>
               <strong>Izvēlies datumu</strong>
             </div>
             <div id="dateCoverage" class="coverage-pill">-</div>
@@ -41,11 +41,11 @@
 
         <div class="legend">
           <div class="legend-title">Riska līmenis</div>
-          <div><span class="swatch risk-1"></span>1. Zems risks</div>
-          <div><span class="swatch risk-2"></span>2. Neliels risks</div>
-          <div><span class="swatch risk-3"></span>3. Paaugstināts risks</div>
+          <div><span class="swatch risk-1"></span>1. Ļoti zems risks</div>
+          <div><span class="swatch risk-2"></span>2. Zems risks</div>
+          <div><span class="swatch risk-3"></span>3. Vidējs risks / piesardzība</div>
           <div><span class="swatch risk-4"></span>4. Augsts risks</div>
-          <div><span class="swatch risk-5"></span>5. Ļoti augsts risks</div>
+          <div><span class="swatch risk-5"></span>5. Ļoti augsts risks / neizkliedēt</div>
         </div>
 
         <aside id="detailPanel" class="detail-panel" hidden>
@@ -54,13 +54,23 @@
           <div class="risk-badge">Kopējais risks: <strong id="overallRisk">-</strong></div>
 
           <div class="panel-section">
-            <div class="metric-label">Augsta riska grid šūnas</div>
+            <div class="metric-label">Aktīvais mitruma risks</div>
+            <div class="metric-value"><span id="activeRisk">-</span></div>
+          </div>
+
+          <div class="panel-section">
+            <div class="metric-label">Augsta riska redzamās šūnas</div>
             <div class="metric-value"><span id="highRiskPercent">-</span>%</div>
           </div>
 
           <div class="panel-section">
-            <div class="panel-label">Dominējošie faktori</div>
+            <div class="panel-label">Dominējošie aktīvie faktori</div>
             <ul id="dominantFactors"></ul>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-label">Konteksts</div>
+            <ul id="contextFactors"></ul>
           </div>
 
           <div class="panel-section">
@@ -70,6 +80,14 @@
 
           <div class="indicator-grid">
             <div class="indicator-card">
+              <span>H-SAF SSM</span>
+              <strong id="hsafCard">-</strong>
+            </div>
+            <div class="indicator-card">
+              <span>Copernicus SWI</span>
+              <strong id="swiCard">-</strong>
+            </div>
+            <div class="indicator-card">
               <span>P30</span>
               <strong id="p30Card">-</strong>
             </div>
@@ -78,21 +96,17 @@
               <strong id="p90Card">-</strong>
             </div>
             <div class="indicator-card">
-              <span>P730</span>
+              <span>P730 ilgtermiņa fons</span>
               <strong id="p730Card">-</strong>
             </div>
             <div class="indicator-card">
-              <span>H-SAF SSM</span>
-              <strong id="hsafCard">-</strong>
-            </div>
-            <div class="indicator-card">
-              <span>Copernicus SWI</span>
-              <strong id="swiCard">-</strong>
+              <span>Uzticamība</span>
+              <strong id="confidenceCard">-</strong>
             </div>
           </div>
 
           <p class="demo-note">
-            v0.1: riska klases veidotas ar pagaidu sliekšņiem; juridiskie hard-stop noteikumi vēl nav vērtēti.
+            v0.1.2: H-SAF ir galvenais mitruma indikators; P730 tiek izmantots tikai kā ilgtermiņa konteksts.
           </p>
         </aside>
 
@@ -104,6 +118,6 @@
     </main>
 
     <script src="vendor/leaflet/leaflet.js"></script>
-    <script src="src/main.js?v=7"></script>
+    <script src="src/main.js?v=8"></script>
   </body>
 </html>
