@@ -75,9 +75,9 @@ def open_oracle():
 
     user = os.getenv("CLIDATA_ORACLE_USER")
     password = os.getenv("CLIDATA_ORACLE_PASSWORD")
-    if not user or not password:
+    if not user or not password or not ORACLE_DSN or not ELEMENT:
         raise RuntimeError(
-            "Set CLIDATA_ORACLE_USER and CLIDATA_ORACLE_PASSWORD before downloading CLIDATA data."
+            "Set CLIDATA_ORACLE_USER, CLIDATA_ORACLE_PASSWORD, CLIDATA_ORACLE_DSN, and CLIDATA_ELEMENT before downloading CLIDATA data."
         )
 
     if ORACLE_INSTANTCLIENT:
