@@ -1,16 +1,43 @@
 # KIRI-LV
 
-KIRI-LV is a prototype for a manure spreading risk map for Latvia.
+KIRI-LV is a static GitHub Pages prototype for manure spreading risk mapping in Latvia.
 
-Current v0.1 frontend:
+## Current Release
 
-- 60 daily risk snapshots from `2026-05-02` to `2026-06-30`
-- Latvia municipality overview map
-- click a municipality to load only that municipality grid
-- click a 1 km grid cell to show P30, P90, P730, H-SAF SSM, and Copernicus SWI values
-- compact GitHub Pages data layout: grid geometry is stored once, daily risk values are stored separately
+- Release: `v0.1.2`
+- Default frontend date: `2026-06-30`
+- Daily snapshots: `2026-05-02` to `2026-06-30`
+- Municipality count: 43
+- Frontend deploy path: `GRID_SAGATAVE/frontend`
+- Data layout: one static 1 km grid geometry set plus daily value files
 
-## Local Run
+## Root Folder Map
+
+- `.github/workflows/pages.yml` - GitHub Pages deployment workflow.
+- `GRID_SAGATAVE` - main product, frontend, data preparation scripts, static data, and architecture notes.
+- `GRID_SAGATAVE/frontend` - deployed static web tool.
+- `GRID_SAGATAVE/frontend/data/grid_static` - canonical grid geometry stored once.
+- `GRID_SAGATAVE/frontend/data/grid_values` - daily grid values by date and municipality.
+- `GRID_SAGATAVE/frontend/data/dates` - daily overview and manifest files.
+- `GRID_SAGATAVE/clean` - latest clean data handoff manifest.
+- `docs` - planning and project documentation.
+- `DATA_LAST_60` - local raw/intermediate latest data source; ignored by git.
+
+## GitHub Pages
+
+On every push to `main`, GitHub Actions deploys:
+
+```text
+GRID_SAGATAVE/frontend
+```
+
+The expected public URL is:
+
+```text
+https://dboka.github.io/KIRI/
+```
+
+Manual local run:
 
 ```powershell
 cd C:\Users\deniss.boka\MESLI_PROJECT\KIRI\GRID_SAGATAVE\frontend
@@ -23,28 +50,11 @@ Open:
 http://localhost:8000
 ```
 
-## GitHub Pages
+## Development Order
 
-The repository includes a GitHub Actions workflow:
+1. Frontend improvements: edit `GRID_SAGATAVE/frontend`.
+2. Risk logic changes: edit `GRID_SAGATAVE/src/normalization` and `GRID_SAGATAVE/config`.
+3. Data generation changes: edit `GRID_SAGATAVE/prepare_frontend_last_60_kiri_data.py`.
+4. Daily automation: build around the existing `grid_static` plus `grid_values/<date>` contract.
 
-```text
-.github/workflows/pages.yml
-```
-
-On push to `main`, it deploys:
-
-```text
-GRID_SAGATAVE/frontend
-```
-
-as the GitHub Pages site.
-
-## Data Notes
-
-The tracked frontend data is optimized for static hosting:
-
-- `GRID_SAGATAVE/frontend/data/grid_static` stores municipality grid geometry once.
-- `GRID_SAGATAVE/frontend/data/grid_values` stores daily values by date and municipality.
-- `GRID_SAGATAVE/frontend/data/dates` stores daily overview and manifest files.
-
-Large raw/intermediate outputs are ignored by git and stay local.
+Do not restore old per-day grid geometry. The frontend must keep loading one static geometry file and one daily values file per municipality.

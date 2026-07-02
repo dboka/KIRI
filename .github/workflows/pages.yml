@@ -27,6 +27,36 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Validate static frontend
+        run: |
+          test -f GRID_SAGATAVE/frontend/index.html
+          test -f GRID_SAGATAVE/frontend/.nojekyll
+          node --check GRID_SAGATAVE/frontend/src/main.js
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("GRID_SAGATAVE/frontend/data")
+          calendar = json.loads((root / "calendar_manifest.json").read_text(encoding="utf-8"))
+          assert calendar["date_count"] == len(calendar["dates"]) == 60
+          assert calendar["default_date"] == "2026-06-30"
+          assert len(list((root / "grid_static").glob("*.geojson"))) == 43
+
+          value_files = 0
+          for item in calendar["dates"]:
+              manifest = json.loads((root / item["manifest_file"]).read_text(encoding="utf-8"))
+              assert len(manifest) == 43, item["date"]
+              for code, row in manifest.items():
+                  assert row["static_grid_file"] == f"grid_static/{code}.geojson"
+                  assert row["grid_values_file"] == f"grid_values/{item['date']}/{code}.json"
+                  assert (root / row["static_grid_file"]).exists()
+                  assert (root / row["grid_values_file"]).exists()
+                  value_files += 1
+
+          assert value_files == 2580
+          print("KIRI-LV static frontend validation passed.")
+          PY
+
       - name: Upload static frontend
         uses: actions/upload-pages-artifact@v3
         with:
