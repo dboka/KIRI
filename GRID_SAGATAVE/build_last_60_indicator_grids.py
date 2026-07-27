@@ -19,7 +19,7 @@ OUT_ROOT = PROJECT_DIR / "DATA_LAST_60"
 HSAF_ROOT = PROJECT_DIR.parent / "FTP_TRYING" / "data" / "h28_latvia_nc"
 SWI_DAILY_DIR = PROJECT_DIR.parent / "COPERNICUS_SWI" / "data" / "grid_tiffs" / "daily_swi"
 GRID_BASE = BASE_DIR / "outputs" / "grid_1km_municipalities_centroid.csv"
-DATE_DIR_RE = re.compile(r"\\(20\d{2})\\([01]\d)\\([0-3]\d)\\")
+DATE_DIR_RE = re.compile(r"[\\/](20\d{2})[\\/]([01]\d)[\\/]([0-3]\d)[\\/]")
 SWI_DATE_RE = re.compile(r"_(20\d{6})\.tif$", re.IGNORECASE)
 
 

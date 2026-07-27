@@ -37,7 +37,10 @@ def run_optional_env_command(name: str, env_name: str) -> None:
         print(f"\n== {name} ==")
         print(f"{env_name} is not set; using existing local source archive.")
         return
-    run_step(name, ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command], PROJECT_DIR)
+    if os.name == "nt":
+        run_step(name, ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command], PROJECT_DIR)
+    else:
+        run_step(name, ["bash", "-lc", command], PROJECT_DIR)
 
 
 def git_commit_and_push(branch: str) -> None:

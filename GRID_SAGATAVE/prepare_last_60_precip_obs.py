@@ -57,7 +57,7 @@ BASE_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = BASE_DIR.parent
 HSAF_ROOT = PROJECT_DIR.parent / "FTP_TRYING" / "data" / "h28_latvia_nc"
 OUT_ROOT = PROJECT_DIR / "DATA_LAST_60"
-DATE_DIR_RE = re.compile(r"\\(20\d{2})\\([01]\d)\\([0-3]\d)\\")
+DATE_DIR_RE = re.compile(r"[\\/](20\d{2})[\\/]([01]\d)[\\/]([0-3]\d)[\\/]")
 
 
 @dataclass(frozen=True)
