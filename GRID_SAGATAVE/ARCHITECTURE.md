@@ -1,4 +1,4 @@
-# KIRI-LV v0.1.2 Architecture
+# KIRI-LV v0.1.3 Architecture
 
 This repository now keeps one production frontend data layout. The goal is fast map loading and easy daily updates without regenerating or duplicating grid geometry.
 
@@ -11,7 +11,8 @@ This repository now keeps one production frontend data layout. The goal is fast 
 
 - `GRID_SAGATAVE/frontend/data`
   - Production data payload for GitHub Pages.
-  - `calendar_manifest.json` is the date index and default date selector.
+  - `calendar_manifest.json` is the latest 60-day date index and default date selector.
+  - `archive_manifest.json` lists older processed dates outside the latest 60-day calendar window.
   - `data_metadata.json` is the compact data release metadata.
   - `municipalities.geojson` and `municipality_boundaries` are municipality overview/boundary geometry.
   - `grid_static` is the only canonical 1 km grid geometry folder.
@@ -44,10 +45,10 @@ The frontend never expects per-day grid geometry. For a municipality detail view
 ## Daily Update Flow
 
 1. Add or refresh daily indicator CSV files under `DATA_LAST_60/indicator_grids`.
-2. Run `python GRID_SAGATAVE/prepare_frontend_last_60_kiri_data.py`.
+2. Run `python GRID_SAGATAVE/prepare_frontend_last_60_kiri_data.py --visible-days 60`.
 3. The script rewrites `frontend/data/dates`, `frontend/data/grid_values`, and `calendar_manifest.json`.
 4. `frontend/data/grid_static` is reused. It is rebuilt only if missing, from `GRID_SAGATAVE/outputs/grid_1km_municipalities_centroid.csv`.
-5. Commit and push the changed frontend data.
+5. Commit and push the changed frontend data to `main`; GitHub Pages deploys from `GRID_SAGATAVE/frontend`.
 
 ## Removed Legacy Layout
 

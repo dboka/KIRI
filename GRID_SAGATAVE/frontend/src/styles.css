@@ -131,7 +131,8 @@ h1 {
   background: rgba(20, 41, 55, 0.92);
 }
 
-.calendar-panel {
+.calendar-panel,
+.archive-panel {
   position: absolute;
   z-index: 505;
   top: 108px;
@@ -143,6 +144,11 @@ h1 {
   background: rgba(5, 17, 27, 0.9);
   box-shadow: 0 20px 58px rgba(0, 0, 0, 0.38);
   backdrop-filter: blur(12px);
+}
+
+.archive-panel {
+  left: 476px;
+  width: min(360px, calc(100vw - 48px));
 }
 
 .calendar-head {
@@ -178,6 +184,36 @@ h1 {
   grid-template-columns: 1fr 1fr;
   gap: 14px;
   margin-top: 12px;
+}
+
+.archive-list {
+  display: grid;
+  gap: 8px;
+  max-height: min(420px, calc(100vh - 190px));
+  margin-top: 12px;
+  overflow: auto;
+  scrollbar-color: rgba(155, 177, 190, 0.5) rgba(7, 20, 31, 0.35);
+  scrollbar-width: thin;
+}
+
+.archive-row {
+  display: grid;
+  gap: 4px;
+  padding: 9px 10px;
+  border: 1px solid rgba(217, 231, 238, 0.12);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.archive-row strong {
+  font-size: 13px;
+}
+
+.archive-row span,
+.archive-empty {
+  color: rgba(238, 246, 248, 0.7);
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .calendar-month-title {
@@ -469,6 +505,13 @@ h1 {
   }
 
   .calendar-panel {
+    top: 96px;
+    left: 14px;
+    right: 14px;
+    width: auto;
+  }
+
+  .archive-panel {
     top: 96px;
     left: 14px;
     right: 14px;

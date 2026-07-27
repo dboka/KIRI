@@ -31,7 +31,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--hsaf-root", default=str(HSAF_ROOT))
     parser.add_argument("--swi-dir", default=str(SWI_DAILY_DIR))
     parser.add_argument("--grid-base", default=str(GRID_BASE))
-    parser.add_argument("--limit-days", type=int, default=None)
+    parser.add_argument("--days", type=int, default=60, help="Use the latest N H-SAF dates.")
+    parser.add_argument("--limit-days", type=int, default=None, help="Backward-compatible alias for --days.")
     return parser.parse_args()
 
 
@@ -228,8 +229,9 @@ def main() -> None:
     hsaf_by_date = group_hsaf_files(Path(args.hsaf_root))
     swi_by_date = index_swi_files(Path(args.swi_dir))
     dates = sorted(hsaf_by_date)
-    if args.limit_days:
-        dates = dates[: args.limit_days]
+    days = args.limit_days if args.limit_days is not None else args.days
+    if days:
+        dates = dates[-days:]
 
     metadata_rows = []
     for target_date in dates:

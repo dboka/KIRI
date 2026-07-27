@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 import math
 import shutil
+import argparse
+import time
 from pathlib import Path
 
 import geopandas as gpd
@@ -27,11 +29,20 @@ FRONTEND_DATA = BASE_DIR / "frontend" / "data"
 DATE_DATA_DIR = FRONTEND_DATA / "dates"
 STATIC_DIR = FRONTEND_DATA / "grid_static"
 VALUES_DIR = FRONTEND_DATA / "grid_values"
+ARCHIVE_MANIFEST = FRONTEND_DATA / "archive_manifest.json"
 SOURCE_MUNICIPALITIES = FRONTEND_DATA / "municipalities.geojson"
 SOURCE_MANIFEST = FRONTEND_DATA / "municipality_manifest.json"
 CONFIG_PATH = BASE_DIR / "config" / "normalization_v01.yaml"
 GRID_ASSIGNMENT_CSV = BASE_DIR / "outputs" / "grid_1km_municipalities_centroid.csv"
 HSAF_FALLBACK_DAYS = 3
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Prepare KIRI-LV frontend data while keeping only the latest visible date window."
+    )
+    parser.add_argument("--visible-days", type=int, default=60)
+    return parser.parse_args()
 
 VALUE_FIELDS = [
     "cell_id",
@@ -76,7 +87,21 @@ def read_json(path: Path) -> dict:
 
 def write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    data = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8", errors="replace")
+    temp_path = path.with_name(f"{path.name}.tmp")
+    temp_path.write_bytes(data)
+    temp_path.replace(path)
+
+
+def remove_tree(path: Path) -> None:
+    for attempt in range(3):
+        try:
+            shutil.rmtree(path)
+            return
+        except OSError:
+            if attempt == 2:
+                raise
+            time.sleep(0.5)
 
 
 def clean_reason_text(value: object) -> list[str]:
@@ -166,7 +191,7 @@ def rebuild_static_grid_geometries() -> None:
     )
 
     if STATIC_DIR.exists():
-        shutil.rmtree(STATIC_DIR)
+        remove_tree(STATIC_DIR)
     STATIC_DIR.mkdir(parents=True, exist_ok=True)
 
     for code, part in gdf.groupby("municipality_code", sort=True):
@@ -246,7 +271,7 @@ def build_manifest(old_manifest: dict, summary: pd.DataFrame, date_text: str) ->
 def write_daily_values(date_text: str, normalized: pd.DataFrame) -> int:
     values_dir = VALUES_DIR / date_text
     if values_dir.exists():
-        shutil.rmtree(values_dir)
+        remove_tree(values_dir)
     values_dir.mkdir(parents=True, exist_ok=True)
 
     normalized = normalized[
@@ -262,6 +287,43 @@ def write_daily_values(date_text: str, normalized: pd.DataFrame) -> int:
         write_json(values_dir / f"{code}.json", {"fields": VALUE_FIELDS, "rows": rows})
         count += 1
     return count
+
+
+def build_archive_manifest(all_dates: list[str], visible_dates: set[str], archive_rows: list[dict]) -> dict:
+    archived_dates = [date_text for date_text in all_dates if date_text not in visible_dates]
+    rows_by_date = {row["date"]: row for row in archive_rows}
+    dates = []
+    for date_text in all_dates:
+        row = rows_by_date.get(date_text, {})
+        dates.append(
+            {
+                "date": date_text,
+                "label": date_text,
+                "visible_in_calendar": date_text in visible_dates,
+                "archived": date_text in archived_dates,
+                "row_count": row.get("row_count"),
+                "risk_counts": row.get("risk_counts"),
+                "swi_missing": row.get("swi_missing"),
+                "hsaf_missing": row.get("hsaf_missing"),
+                "validation_summary": row.get("validation_summary"),
+            }
+        )
+    return {
+        "version": "v0.1.3",
+        "visible_date_count": len(visible_dates),
+        "archived_date_count": len(archived_dates),
+        "archive_policy": "Only the latest visible window is loaded by the map calendar; older processed dates are listed here.",
+        "dates": dates,
+    }
+
+
+def has_complete_municipalities(path: Path, expected_codes: set[str]) -> bool:
+    try:
+        codes = pd.read_csv(path, usecols=["municipality_code"], dtype={"municipality_code": "string"}, low_memory=False)
+    except ValueError:
+        return False
+    found = set(codes["municipality_code"].dropna().astype(str).str.replace(r"\.0$", "", regex=True))
+    return expected_codes.issubset(found)
 
 
 def apply_hsaf_fallback(
@@ -344,6 +406,7 @@ def normalize_indicator_file(
 
 
 def main() -> None:
+    args = parse_args()
     config = load_config(CONFIG_PATH)
     name_map = load_name_map()
     overview_template = read_json(SOURCE_MUNICIPALITIES)
@@ -351,19 +414,35 @@ def main() -> None:
     static_grid_count = build_static_grid_geometry()
 
     if DATE_DATA_DIR.exists():
-        shutil.rmtree(DATE_DATA_DIR)
+        remove_tree(DATE_DATA_DIR)
     DATE_DATA_DIR.mkdir(parents=True, exist_ok=True)
     if VALUES_DIR.exists():
-        shutil.rmtree(VALUES_DIR)
+        remove_tree(VALUES_DIR)
     VALUES_DIR.mkdir(parents=True, exist_ok=True)
 
     indicator_files = sorted(INDICATOR_DIR.glob("grid_indicators_P30_P90_P730_HSAF_SWI_*.csv"))
     if not indicator_files:
         raise FileNotFoundError(f"No daily indicator CSV files found in {INDICATOR_DIR}")
 
+    expected_codes = set(old_manifest)
+    complete_files = [path for path in indicator_files if has_complete_municipalities(path, expected_codes)]
+    visible_files = complete_files[-args.visible_days :] if args.visible_days else complete_files
+    if len(visible_files) < args.visible_days:
+        raise ValueError(
+            f"Only {len(visible_files)} complete indicator dates available; requested {args.visible_days}."
+        )
+    visible_dates = {
+        path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "")
+        for path in visible_files
+    }
+    all_dates = [
+        path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "")
+        for path in indicator_files
+    ]
     dates = []
+    archive_rows = []
     hsaf_history: dict[str, tuple[pd.Timestamp, float]] = {}
-    for path in indicator_files:
+    for path in visible_files:
         date_text = path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "")
         print(f"Preparing frontend date {date_text}")
         date_dir = DATE_DATA_DIR / date_text
@@ -387,13 +466,13 @@ def main() -> None:
             str(level): int((visible_normalized["final_risk_level"] == level).sum())
             for level in range(1, 6)
         }
-        dates.append(
+        date_row = (
             {
                 "date": date_text,
                 "label": date_text,
                 "overview_file": f"dates/{date_text}/overview.geojson",
                 "manifest_file": f"dates/{date_text}/manifest.json",
-                "grid_file_count": grid_file_count,
+                "grid_file_count": len(manifest),
                 "municipality_count": int(len(summary)),
                 "row_count": int(len(normalized)),
                 "risk_counts": visible_risk_counts,
@@ -404,6 +483,8 @@ def main() -> None:
                 "validation_summary": validation_summary(normalized),
             }
         )
+        dates.append(date_row)
+        archive_rows.append(date_row)
 
     calendar = {
         "generated_from": str(INDICATOR_DIR),
@@ -419,6 +500,7 @@ def main() -> None:
         },
     }
     write_json(FRONTEND_DATA / "calendar_manifest.json", calendar)
+    write_json(ARCHIVE_MANIFEST, build_archive_manifest(all_dates, visible_dates, archive_rows))
     print(
         json.dumps(
             {

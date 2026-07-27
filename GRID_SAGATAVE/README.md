@@ -1,6 +1,6 @@
 # KIRI-LV Grid Sagatave
 
-This folder contains the KIRI-LV v0.1.2 spatial and frontend data preparation flow.
+This folder contains the KIRI-LV v0.1.3 spatial and frontend data preparation flow.
 
 ## Folder Map
 
@@ -29,8 +29,9 @@ http://localhost:8000
 
 ## Current Frontend Data
 
-- 60 daily snapshots from `2026-05-02` to `2026-06-30`.
-- Default date: `2026-06-30`.
+- 60 daily calendar snapshots from `2026-05-28` to `2026-07-26`.
+- Archive index for older processed dates from `2026-05-02` to `2026-05-27`.
+- Default date: `2026-07-26`.
 - 43 municipality static grid geometry files.
 - 2,580 daily municipality value files.
 - Grid geometry is stored once and reused by every date.
@@ -72,6 +73,18 @@ Frontend compact data:
 ```powershell
 python prepare_frontend_last_60_kiri_data.py
 python prepare_frontend_compact_pages_data.py
+```
+
+## Daily Automation
+
+```powershell
+.\run_daily_v013.ps1 --commit-and-push
+```
+
+Register the Windows scheduled task:
+
+```powershell
+.\register_daily_v013_task.ps1 -Time 08:00
 ```
 
 ## Notes

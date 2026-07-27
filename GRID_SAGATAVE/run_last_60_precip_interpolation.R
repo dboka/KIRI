@@ -91,7 +91,7 @@ manifest <- readr::read_csv(manifest_path, show_col_types = FALSE, locale = read
 
 target_dates <- sort(unique(as.character(manifest$target_date)))
 if (!is.na(limit_dates)) {
-  target_dates <- head(target_dates, limit_dates)
+  target_dates <- tail(target_dates, limit_dates)
 }
 
 grid_sf <- read_grid_kiri(grid_csv)

@@ -15,7 +15,7 @@
 
         <div class="topbar">
           <div>
-            <div class="eyebrow">KIRI-LV v0.1.2</div>
+            <div class="eyebrow">KIRI-LV v0.1.3</div>
             <h1>Kūtsmēslu izkliedes riska karte</h1>
           </div>
           <div class="toolbar">
@@ -24,6 +24,9 @@
             </button>
             <button id="calendarToggle" class="date-button" type="button" aria-expanded="true">
               <span id="activeDateLabel">-</span>
+            </button>
+            <button id="archiveToggle" class="date-button" type="button" aria-expanded="false">
+              Arhīvs
             </button>
           </div>
         </div>
@@ -37,6 +40,17 @@
             <div id="dateCoverage" class="coverage-pill">-</div>
           </div>
           <div id="calendarMonths" class="calendar-months"></div>
+        </section>
+
+        <section id="archivePanel" class="archive-panel" aria-label="Arhīva dati" hidden>
+          <div class="calendar-head">
+            <div>
+              <div class="panel-kicker">Vecākie apstrādātie datumi</div>
+              <strong>Arhīvs</strong>
+            </div>
+            <div id="archiveCoverage" class="coverage-pill">-</div>
+          </div>
+          <div id="archiveList" class="archive-list"></div>
         </section>
 
         <div class="legend">
@@ -106,7 +120,7 @@
           </div>
 
           <p class="demo-note">
-            v0.1.2: H-SAF ir galvenais mitruma indikators; P730 tiek izmantots tikai kā ilgtermiņa konteksts.
+            v0.1.3: H-SAF ir galvenais mitruma indikators; P730 tiek izmantots tikai kā ilgtermiņa konteksts.
           </p>
         </aside>
 
@@ -118,6 +132,6 @@
     </main>
 
     <script src="vendor/leaflet/leaflet.js"></script>
-    <script src="src/main.js?v=8"></script>
+    <script src="src/main.js?v=9"></script>
   </body>
 </html>

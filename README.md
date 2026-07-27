@@ -4,9 +4,10 @@ KIRI-LV is a static GitHub Pages prototype for manure spreading risk mapping in 
 
 ## Current Release
 
-- Release: `v0.1.2`
-- Default frontend date: `2026-06-30`
-- Daily snapshots: `2026-05-02` to `2026-06-30`
+- Release: `v0.1.3`
+- Default frontend date: `2026-07-26`
+- Daily calendar snapshots: `2026-05-28` to `2026-07-26`
+- Archive index: `2026-05-02` to `2026-05-27`
 - Municipality count: 43
 - Frontend deploy path: `GRID_SAGATAVE/frontend`
 - Data layout: one static 1 km grid geometry set plus daily value files
@@ -55,6 +56,6 @@ http://localhost:8000
 1. Frontend improvements: edit `GRID_SAGATAVE/frontend`.
 2. Risk logic changes: edit `GRID_SAGATAVE/src/normalization` and `GRID_SAGATAVE/config`.
 3. Data generation changes: edit `GRID_SAGATAVE/prepare_frontend_last_60_kiri_data.py`.
-4. Daily automation: build around the existing `grid_static` plus `grid_values/<date>` contract.
+4. Daily automation: run `GRID_SAGATAVE/run_daily_v013.ps1` around the existing `grid_static` plus `grid_values/<date>` contract.
 
 Do not restore old per-day grid geometry. The frontend must keep loading one static geometry file and one daily values file per municipality.

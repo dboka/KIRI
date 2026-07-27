@@ -17,6 +17,7 @@ const riskLabels = {
 const monthNames = {
   "2026-05": "Maijs 2026",
   "2026-06": "Jūnijs 2026",
+  "2026-07": "Jūlijs 2026",
 };
 
 const weekdayLabels = ["P", "O", "T", "C", "P", "S", "Sv"];
@@ -40,6 +41,7 @@ const canvasRenderer = L.canvas({ padding: 0.35 });
 const dateCache = new Map();
 
 let calendarManifest = null;
+let archiveManifest = null;
 let activeDate = null;
 let activeDateMeta = null;
 let manifest = null;
@@ -56,6 +58,10 @@ const backButton = document.querySelector("#backButton");
 const calendarToggle = document.querySelector("#calendarToggle");
 const calendarPanel = document.querySelector("#calendarPanel");
 const calendarMonths = document.querySelector("#calendarMonths");
+const archiveToggle = document.querySelector("#archiveToggle");
+const archivePanel = document.querySelector("#archivePanel");
+const archiveCoverage = document.querySelector("#archiveCoverage");
+const archiveList = document.querySelector("#archiveList");
 const activeDateLabel = document.querySelector("#activeDateLabel");
 const dateCoverage = document.querySelector("#dateCoverage");
 const loadingState = document.querySelector("#loadingState");
@@ -100,6 +106,17 @@ function gridStyle(feature) {
 
 async function loadJson(path) {
   const response = await fetch(path);
+  if (!response.ok) {
+    throw new Error(`Could not load ${path}: ${response.status}`);
+  }
+  return response.json();
+}
+
+async function loadOptionalJson(path) {
+  const response = await fetch(path);
+  if (response.status === 404) {
+    return null;
+  }
   if (!response.ok) {
     throw new Error(`Could not load ${path}: ${response.status}`);
   }
@@ -492,6 +509,45 @@ function renderCalendar() {
   });
 }
 
+function renderArchive() {
+  if (!archiveManifest) {
+    archiveToggle.hidden = true;
+    return;
+  }
+
+  const archivedDates = archiveManifest.dates.filter((item) => item.archived);
+  archiveCoverage.textContent = `${archivedDates.length} datumi`;
+  archiveList.innerHTML = "";
+
+  if (!archivedDates.length) {
+    const empty = document.createElement("div");
+    empty.className = "archive-empty";
+    empty.textContent = "Arhīvs pagaidām tukšs";
+    archiveList.appendChild(empty);
+    return;
+  }
+
+  archivedDates.slice().reverse().forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "archive-row";
+
+    const dateText = document.createElement("strong");
+    dateText.textContent = item.date;
+
+    const status = document.createElement("span");
+    const swiText = item.swi_missing === null || item.swi_missing === undefined
+      ? "SWI statuss nav indeksēts"
+      : `SWI trūkst: ${item.swi_missing}`;
+    const hsafText = item.hsaf_missing === null || item.hsaf_missing === undefined
+      ? "H-SAF statuss nav indeksēts"
+      : `H-SAF trūkst: ${item.hsaf_missing}`;
+    status.textContent = `${swiText} · ${hsafText}`;
+
+    row.append(dateText, status);
+    archiveList.appendChild(row);
+  });
+}
+
 function updateCalendarSelection() {
   document.querySelectorAll(".calendar-day").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.date === activeDate);
@@ -500,7 +556,9 @@ function updateCalendarSelection() {
 
 async function boot() {
   calendarManifest = await loadJson("data/calendar_manifest.json");
+  archiveManifest = await loadOptionalJson("data/archive_manifest.json");
   renderCalendar();
+  renderArchive();
   await setActiveDate(calendarManifest.default_date, { fit: true, keepMunicipality: false });
 }
 
@@ -508,6 +566,11 @@ backButton.addEventListener("click", () => showOverview({ fit: true }));
 calendarToggle.addEventListener("click", () => {
   const hidden = calendarPanel.toggleAttribute("hidden");
   calendarToggle.setAttribute("aria-expanded", String(!hidden));
+});
+
+archiveToggle.addEventListener("click", () => {
+  const hidden = archivePanel.toggleAttribute("hidden");
+  archiveToggle.setAttribute("aria-expanded", String(!hidden));
 });
 
 boot().catch((error) => {
