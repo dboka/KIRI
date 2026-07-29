@@ -30,6 +30,8 @@ DATE_DATA_DIR = FRONTEND_DATA / "dates"
 STATIC_DIR = FRONTEND_DATA / "grid_static"
 VALUES_DIR = FRONTEND_DATA / "grid_values"
 ARCHIVE_MANIFEST = FRONTEND_DATA / "archive_manifest.json"
+CALENDAR_MANIFEST = FRONTEND_DATA / "calendar_manifest.json"
+DATA_METADATA = FRONTEND_DATA / "data_metadata.json"
 SOURCE_MUNICIPALITIES = FRONTEND_DATA / "municipalities.geojson"
 SOURCE_MANIFEST = FRONTEND_DATA / "municipality_manifest.json"
 CONFIG_PATH = BASE_DIR / "config" / "normalization_v01.yaml"
@@ -94,6 +96,8 @@ def write_json(path: Path, payload: dict) -> None:
 
 
 def remove_tree(path: Path) -> None:
+    if not path.exists():
+        return
     for attempt in range(3):
         try:
             shutil.rmtree(path)
@@ -102,6 +106,12 @@ def remove_tree(path: Path) -> None:
             if attempt == 2:
                 raise
             time.sleep(0.5)
+
+
+def read_optional_json(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    return read_json(path)
 
 
 def clean_reason_text(value: object) -> list[str]:
@@ -289,6 +299,38 @@ def write_daily_values(date_text: str, normalized: pd.DataFrame) -> int:
     return count
 
 
+def date_payload_complete(date_text: str, expected_codes: set[str]) -> bool:
+    date_dir = DATE_DATA_DIR / date_text
+    values_dir = VALUES_DIR / date_text
+    if not (date_dir / "overview.geojson").exists() or not (date_dir / "manifest.json").exists():
+        return False
+    if not values_dir.exists():
+        return False
+    return all((values_dir / f"{code}.json").exists() for code in expected_codes)
+
+
+def prune_to_visible_window(visible_dates: set[str]) -> None:
+    for root in [DATE_DATA_DIR, VALUES_DIR]:
+        root.mkdir(parents=True, exist_ok=True)
+        for child in root.iterdir():
+            if child.is_dir() and child.name not in visible_dates:
+                remove_tree(child)
+
+
+def update_hsaf_history_from_raw(
+    path: Path,
+    date_text: str,
+    hsaf_history: dict[str, tuple[pd.Timestamp, float]],
+) -> None:
+    df = pd.read_csv(path, usecols=["grid_id", "HSAF_SSM_pct"], dtype={"grid_id": "string"}, low_memory=False)
+    df["grid_id"] = df["grid_id"].astype(str)
+    df["HSAF_SSM_pct"] = pd.to_numeric(df["HSAF_SSM_pct"], errors="coerce")
+    source_date = pd.Timestamp(date_text)
+    valid = df["HSAF_SSM_pct"].notna()
+    for grid_id, value in df.loc[valid, ["grid_id", "HSAF_SSM_pct"]].itertuples(index=False):
+        hsaf_history[str(grid_id)] = (source_date, float(value))
+
+
 def build_archive_manifest(all_dates: list[str], visible_dates: set[str], archive_rows: list[dict]) -> dict:
     archived_dates = [date_text for date_text in all_dates if date_text not in visible_dates]
     rows_by_date = {row["date"]: row for row in archive_rows}
@@ -413,13 +455,6 @@ def main() -> None:
     old_manifest = read_json(SOURCE_MANIFEST)
     static_grid_count = build_static_grid_geometry()
 
-    if DATE_DATA_DIR.exists():
-        remove_tree(DATE_DATA_DIR)
-    DATE_DATA_DIR.mkdir(parents=True, exist_ok=True)
-    if VALUES_DIR.exists():
-        remove_tree(VALUES_DIR)
-    VALUES_DIR.mkdir(parents=True, exist_ok=True)
-
     indicator_files = sorted(INDICATOR_DIR.glob("grid_indicators_P30_P90_P730_HSAF_SWI_*.csv"))
     if not indicator_files:
         raise FileNotFoundError(f"No daily indicator CSV files found in {INDICATOR_DIR}")
@@ -439,12 +474,23 @@ def main() -> None:
         path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "")
         for path in indicator_files
     ]
+    prune_to_visible_window(visible_dates)
+    previous_calendar = read_optional_json(CALENDAR_MANIFEST)
+    previous_rows = {row.get("date"): row for row in previous_calendar.get("dates", []) if row.get("date")}
     dates = []
     archive_rows = []
     hsaf_history: dict[str, tuple[pd.Timestamp, float]] = {}
     for path in visible_files:
         date_text = path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "")
-        print(f"Preparing frontend date {date_text}")
+        previous_row = previous_rows.get(date_text)
+        if previous_row and date_payload_complete(date_text, expected_codes):
+            print(f"Keeping existing frontend date {date_text}")
+            update_hsaf_history_from_raw(path, date_text, hsaf_history)
+            dates.append(previous_row)
+            archive_rows.append(previous_row)
+            continue
+
+        print(f"Preparing new frontend date {date_text}")
         date_dir = DATE_DATA_DIR / date_text
         date_dir.mkdir(parents=True, exist_ok=True)
 
@@ -488,10 +534,12 @@ def main() -> None:
 
     calendar = {
         "generated_from": str(INDICATOR_DIR),
+        "version": "v0.1.3",
         "date_count": len(dates),
         "default_date": dates[-1]["date"],
         "dates": dates,
         "performance_note": "Static geometry is generated once; the browser loads one date overview and one municipality value file at a time.",
+        "update_policy": "Rolling 60-day JSON window: keep complete existing date payloads, remove dates outside the visible window, and generate only missing/new daily values.",
         "data_layout": {
             "overview": "dates/<date>/overview.geojson",
             "municipality_manifest": "dates/<date>/manifest.json",
@@ -499,12 +547,42 @@ def main() -> None:
             "daily_grid_values": "grid_values/<date>/<municipality_code>.json",
         },
     }
-    write_json(FRONTEND_DATA / "calendar_manifest.json", calendar)
+    metadata = {
+        "release": "v0.1.3",
+        "purpose": "KIRI-LV compact GitHub Pages frontend data.",
+        "date_range": {
+            "start": dates[0]["date"],
+            "end": dates[-1]["date"],
+            "date_count": len(dates),
+            "default_date": dates[-1]["date"],
+        },
+        "municipality_count": len(old_manifest),
+        "static_grid_geojson_count": static_grid_count,
+        "daily_grid_value_file_count": len(dates) * len(old_manifest),
+        "boundary_geojson_count": len(list((FRONTEND_DATA / "municipality_boundaries").glob("*.geojson"))),
+        "data_layout": calendar["data_layout"] | {
+            "calendar_manifest": "calendar_manifest.json",
+            "municipality_boundaries": "municipality_boundaries/<municipality_code>.geojson",
+        },
+        "data_contract": "Static grid geometry is stored once. Daily value files do not contain geometry and are merged with grid_static in the browser.",
+        "update_policy": calendar["update_policy"],
+        "removed_legacy_layouts": ["municipality_grids"],
+        "risk_palette": {
+            "1": "#69b88f",
+            "2": "#cfe89a",
+            "3": "#f4d35e",
+            "4": "#f08a4b",
+            "5": "#c94f44",
+        },
+    }
+    write_json(CALENDAR_MANIFEST, calendar)
     write_json(ARCHIVE_MANIFEST, build_archive_manifest(all_dates, visible_dates, archive_rows))
+    write_json(DATA_METADATA, metadata)
     print(
         json.dumps(
             {
                 **{k: calendar[k] for k in ["date_count", "default_date", "performance_note"]},
+                "update_policy": calendar["update_policy"],
                 "static_grid_files": static_grid_count,
             },
             indent=2,

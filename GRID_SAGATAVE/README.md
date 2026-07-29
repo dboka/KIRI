@@ -11,7 +11,7 @@ This folder contains the KIRI-LV v0.1.3 spatial and frontend data preparation fl
 - `frontend/data/municipality_boundaries` - municipality boundary geometry.
 - `config` - KIRI normalization configuration.
 - `src/normalization` - risk normalization code.
-- `clean` - latest v0.1.2 handoff manifest; it points to the production data instead of duplicating it.
+- `clean` - latest v0.1.3 handoff manifest; it points to the production data instead of duplicating it.
 - `ARCHITECTURE.md` - current architecture and daily update contract.
 
 ## Local Frontend
@@ -81,6 +81,8 @@ python prepare_frontend_compact_pages_data.py
 .\run_daily_v013.ps1 --commit-and-push
 ```
 
+The default daily path processes only the newest available H-SAF date, adds that JSON layer, and prunes the oldest frontend date outside the 60-day window. Use `--rebuild-window` only for a deliberate full 60-day rebuild.
+
 Register the Windows scheduled task:
 
 ```powershell
@@ -91,4 +93,4 @@ Register the Windows scheduled task:
 
 - `frontend/data/municipality_grids` was the old duplicated geometry layout and has been removed.
 - Raw and intermediate outputs (`DATA_LAST_60`, `outputs`, `precip_outputs`, `indicator_outputs`) stay local and are ignored by git.
-- New daily automation should rewrite date manifests and value files while reusing `frontend/data/grid_static`.
+- New daily automation should keep complete existing date payloads, add the newest daily JSON layer, prune dates outside the 60-day window, and reuse `frontend/data/grid_static`.

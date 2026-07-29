@@ -15,6 +15,8 @@ The runner keeps a 60-day frontend calendar window, commits the refreshed fronte
 GRID_SAGATAVE/frontend/data/archive_manifest.json
 ```
 
+By default the daily runner processes only the newest available H-SAF date, then rolls the frontend JSON window forward. Use `--rebuild-window` only when the full 60-day source/intermediate window must be rebuilt.
+
 ## Source Updates
 
 CLIDATA is downloaded by the existing `prepare_last_60_precip_obs.py` script and still requires these environment variables:

@@ -15,9 +15,26 @@ DATA_DIR = PROJECT_DIR / "DATA_LAST_60"
 LOG_DIR = DATA_DIR / "logs"
 
 
+def load_local_env() -> None:
+    env_path = BASE_DIR / ".env"
+    if not env_path.exists():
+        return
+    for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the clean KIRI-LV v0.1.3 daily update.")
-    parser.add_argument("--days", type=int, default=60)
+    parser.add_argument("--visible-days", type=int, default=60)
+    parser.add_argument("--days", type=int, default=None, help="Backward-compatible alias for --visible-days.")
+    parser.add_argument("--rebuild-window", action="store_true", help="Rebuild all visible source/intermediate dates.")
     parser.add_argument("--skip-source-update", action="store_true")
     parser.add_argument("--use-existing-clidata-raw", action="store_true")
     parser.add_argument("--commit-and-push", action="store_true")
@@ -61,9 +78,12 @@ def git_commit_and_push(branch: str) -> None:
 
 
 def main() -> None:
+    load_local_env()
     args = parse_args()
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     started_at = datetime.now().isoformat(timespec="seconds")
+    visible_days = args.days if args.days is not None else args.visible_days
+    source_days = visible_days if args.rebuild_window else 1
 
     if not args.skip_source_update:
         run_optional_env_command("Update H-SAF source", "KIRI_HSAF_UPDATE_COMMAND")
@@ -73,14 +93,14 @@ def main() -> None:
         "python",
         "prepare_last_60_precip_obs.py",
         "--days",
-        str(args.days),
+        str(source_days),
     ]
     if args.use_existing_clidata_raw:
         clidata_command.append("--use-existing-raw")
     run_step("CLIDATA precipitation windows", clidata_command)
-    run_step("P30/P90/P730 interpolation", ["Rscript", "run_last_60_precip_interpolation.R", str(args.days)])
-    run_step("H-SAF/SWI grid sampling", ["python", "build_last_60_indicator_grids.py", "--days", str(args.days)])
-    run_step("Frontend latest window and archive", ["python", "prepare_frontend_last_60_kiri_data.py", "--visible-days", str(args.days)])
+    run_step("P30/P90/P730 interpolation", ["Rscript", "run_last_60_precip_interpolation.R", str(source_days)])
+    run_step("H-SAF/SWI grid sampling", ["python", "build_last_60_indicator_grids.py", "--days", str(source_days)])
+    run_step("Frontend latest window and archive", ["python", "prepare_frontend_last_60_kiri_data.py", "--visible-days", str(visible_days)])
     run_step("Frontend compact check", ["python", "prepare_frontend_compact_pages_data.py"])
     if args.commit_and_push:
         git_commit_and_push(args.push_branch)
@@ -89,7 +109,9 @@ def main() -> None:
         "version": "v0.1.3",
         "started_at": started_at,
         "finished_at": datetime.now().isoformat(timespec="seconds"),
-        "days": args.days,
+        "visible_days": visible_days,
+        "source_days": source_days,
+        "rebuild_window": args.rebuild_window,
         "commit_and_push": args.commit_and_push,
         "push_branch": args.push_branch,
         "frontend": str(BASE_DIR / "frontend"),

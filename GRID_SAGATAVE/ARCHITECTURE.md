@@ -46,7 +46,7 @@ The frontend never expects per-day grid geometry. For a municipality detail view
 
 1. Add or refresh daily indicator CSV files under `DATA_LAST_60/indicator_grids`.
 2. Run `python GRID_SAGATAVE/prepare_frontend_last_60_kiri_data.py --visible-days 60`.
-3. The script rewrites `frontend/data/dates`, `frontend/data/grid_values`, and `calendar_manifest.json`.
+3. The script keeps complete existing date payloads, removes dates outside the rolling 60-day window, and writes only missing/new `dates/<date>` and `grid_values/<date>` JSON payloads.
 4. `frontend/data/grid_static` is reused. It is rebuilt only if missing, from `GRID_SAGATAVE/outputs/grid_1km_municipalities_centroid.csv`.
 5. Commit and push the changed frontend data to `main`; GitHub Pages deploys from `GRID_SAGATAVE/frontend`.
 
