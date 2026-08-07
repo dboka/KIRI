@@ -58,6 +58,7 @@ PROJECT_DIR = BASE_DIR.parent
 HSAF_ROOT = PROJECT_DIR.parent / "FTP_TRYING" / "data" / "h28_latvia_nc"
 OUT_ROOT = PROJECT_DIR / "DATA_LAST_60"
 DATE_DIR_RE = re.compile(r"[\\/](20\d{2})[\\/]([01]\d)[\\/]([0-3]\d)[\\/]")
+HSAF_FILENAME_DATE_RE = re.compile(r"_(20\d{6})\d{4,6}_")
 
 
 @dataclass(frozen=True)
@@ -111,6 +112,11 @@ def hsafe_dates(root: Path) -> list[date]:
         match = DATE_DIR_RE.search(str(path))
         if match:
             dates.add(date(int(match.group(1)), int(match.group(2)), int(match.group(3))))
+            continue
+        match = HSAF_FILENAME_DATE_RE.search(path.name)
+        if match:
+            raw = match.group(1)
+            dates.add(date(int(raw[:4]), int(raw[4:6]), int(raw[6:8])))
     if not dates:
         raise FileNotFoundError(f"No H-SAF netCDF dates found under {root}")
     return sorted(dates)

@@ -41,9 +41,25 @@ HSAF_FALLBACK_DAYS = 3
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Prepare KIRI-LV frontend data while keeping only the latest visible date window."
+        description="Prepare KIRI-LV frontend data with a latest visible window and preserved local archive JSON."
     )
     parser.add_argument("--visible-days", type=int, default=60)
+    parser.add_argument(
+        "--prune-old-json",
+        action="store_true",
+        help="Remove date payloads outside the visible window. By default old local JSON payloads are preserved.",
+    )
+    parser.add_argument(
+        "--materialize-archive-payloads",
+        action="store_true",
+        help="Also generate missing JSON payloads for dates outside the visible calendar window.",
+    )
+    parser.add_argument(
+        "--force-dates",
+        nargs="*",
+        default=[],
+        help="Regenerate frontend payloads for these YYYY-MM-DD dates even when existing JSON is complete.",
+    )
     return parser.parse_args()
 
 VALUE_FIELDS = [
@@ -354,8 +370,38 @@ def build_archive_manifest(all_dates: list[str], visible_dates: set[str], archiv
         "version": "v0.1.3",
         "visible_date_count": len(visible_dates),
         "archived_date_count": len(archived_dates),
-        "archive_policy": "Only the latest visible window is loaded by the map calendar; older processed dates are listed here.",
+        "archive_policy": (
+            "Only the latest visible window is loaded by the map calendar; older processed dates are preserved "
+            "locally when their JSON payloads exist and are listed here."
+        ),
         "dates": dates,
+    }
+
+
+def build_date_row(date_text: str, manifest: dict, normalized: pd.DataFrame, qc: dict) -> dict:
+    visible_normalized = normalized[normalized["map_visible"].astype(bool)].copy()
+    risk_counts = {
+        str(level): int((normalized["kiri_risk_level"] == level).sum())
+        for level in range(1, 6)
+    }
+    visible_risk_counts = {
+        str(level): int((visible_normalized["final_risk_level"] == level).sum())
+        for level in range(1, 6)
+    }
+    return {
+        "date": date_text,
+        "label": date_text,
+        "overview_file": f"dates/{date_text}/overview.geojson",
+        "manifest_file": f"dates/{date_text}/manifest.json",
+        "grid_file_count": len(manifest),
+        "municipality_count": len(manifest),
+        "row_count": int(len(normalized)),
+        "risk_counts": visible_risk_counts,
+        "raw_risk_counts": risk_counts,
+        "swi_missing": int(pd.to_numeric(normalized["SWI010_pct"], errors="coerce").isna().sum()),
+        "hsaf_missing": int(pd.to_numeric(normalized["HSAF_SSM_pct"], errors="coerce").isna().sum()),
+        "data_quality": qc,
+        "validation_summary": validation_summary(normalized),
     }
 
 
@@ -474,19 +520,29 @@ def main() -> None:
         path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "")
         for path in indicator_files
     ]
-    prune_to_visible_window(visible_dates)
+    if args.prune_old_json:
+        prune_to_visible_window(visible_dates)
     previous_calendar = read_optional_json(CALENDAR_MANIFEST)
-    previous_rows = {row.get("date"): row for row in previous_calendar.get("dates", []) if row.get("date")}
-    dates = []
+    previous_archive = read_optional_json(ARCHIVE_MANIFEST)
+    previous_rows = {
+        row.get("date"): row
+        for row in [*previous_archive.get("dates", []), *previous_calendar.get("dates", [])]
+        if row.get("date")
+    }
+    calendar_dates = []
     archive_rows = []
     hsaf_history: dict[str, tuple[pd.Timestamp, float]] = {}
-    for path in visible_files:
+    files_to_prepare = complete_files if args.materialize_archive_payloads else visible_files
+    force_dates = set(args.force_dates)
+    for path in files_to_prepare:
         date_text = path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "")
+        is_visible = date_text in visible_dates
         previous_row = previous_rows.get(date_text)
-        if previous_row and date_payload_complete(date_text, expected_codes):
+        if previous_row and date_text not in force_dates and date_payload_complete(date_text, expected_codes):
             print(f"Keeping existing frontend date {date_text}")
             update_hsaf_history_from_raw(path, date_text, hsaf_history)
-            dates.append(previous_row)
+            if is_visible:
+                calendar_dates.append(previous_row)
             archive_rows.append(previous_row)
             continue
 
@@ -503,43 +559,27 @@ def main() -> None:
         write_json(date_dir / "overview.geojson", overview)
         write_json(date_dir / "manifest.json", manifest)
 
-        visible_normalized = normalized[normalized["map_visible"].astype(bool)].copy()
-        risk_counts = {
-            str(level): int((normalized["kiri_risk_level"] == level).sum())
-            for level in range(1, 6)
-        }
-        visible_risk_counts = {
-            str(level): int((visible_normalized["final_risk_level"] == level).sum())
-            for level in range(1, 6)
-        }
-        date_row = (
-            {
-                "date": date_text,
-                "label": date_text,
-                "overview_file": f"dates/{date_text}/overview.geojson",
-                "manifest_file": f"dates/{date_text}/manifest.json",
-                "grid_file_count": len(manifest),
-                "municipality_count": int(len(summary)),
-                "row_count": int(len(normalized)),
-                "risk_counts": visible_risk_counts,
-                "raw_risk_counts": risk_counts,
-                "swi_missing": int(pd.to_numeric(normalized["SWI010_pct"], errors="coerce").isna().sum()),
-                "hsaf_missing": int(pd.to_numeric(normalized["HSAF_SSM_pct"], errors="coerce").isna().sum()),
-                "data_quality": qc,
-                "validation_summary": validation_summary(normalized),
-            }
-        )
-        dates.append(date_row)
+        date_row = build_date_row(date_text, manifest, normalized, qc)
+        if is_visible:
+            calendar_dates.append(date_row)
         archive_rows.append(date_row)
+
+    if not args.materialize_archive_payloads:
+        archived_known_rows = [
+            row
+            for row in previous_archive.get("dates", [])
+            if row.get("date") and row.get("date") not in visible_dates
+        ]
+        archive_rows = [*archived_known_rows, *archive_rows]
 
     calendar = {
         "generated_from": str(INDICATOR_DIR),
         "version": "v0.1.3",
-        "date_count": len(dates),
-        "default_date": dates[-1]["date"],
-        "dates": dates,
+        "date_count": len(calendar_dates),
+        "default_date": calendar_dates[-1]["date"],
+        "dates": calendar_dates,
         "performance_note": "Static geometry is generated once; the browser loads one date overview and one municipality value file at a time.",
-        "update_policy": "Rolling 60-day JSON window: keep complete existing date payloads, remove dates outside the visible window, and generate only missing/new daily values.",
+        "update_policy": "Rolling visible 60-day calendar: keep complete existing date payloads, preserve older local JSON unless --prune-old-json is used, and generate only missing/new daily values.",
         "data_layout": {
             "overview": "dates/<date>/overview.geojson",
             "municipality_manifest": "dates/<date>/manifest.json",
@@ -551,14 +591,14 @@ def main() -> None:
         "release": "v0.1.3",
         "purpose": "KIRI-LV compact GitHub Pages frontend data.",
         "date_range": {
-            "start": dates[0]["date"],
-            "end": dates[-1]["date"],
-            "date_count": len(dates),
-            "default_date": dates[-1]["date"],
+            "start": calendar_dates[0]["date"],
+            "end": calendar_dates[-1]["date"],
+            "date_count": len(calendar_dates),
+            "default_date": calendar_dates[-1]["date"],
         },
         "municipality_count": len(old_manifest),
         "static_grid_geojson_count": static_grid_count,
-        "daily_grid_value_file_count": len(dates) * len(old_manifest),
+        "daily_grid_value_file_count": len(list(VALUES_DIR.glob("*/*.json"))),
         "boundary_geojson_count": len(list((FRONTEND_DATA / "municipality_boundaries").glob("*.geojson"))),
         "data_layout": calendar["data_layout"] | {
             "calendar_manifest": "calendar_manifest.json",

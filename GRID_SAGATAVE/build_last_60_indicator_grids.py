@@ -20,6 +20,7 @@ HSAF_ROOT = PROJECT_DIR.parent / "FTP_TRYING" / "data" / "h28_latvia_nc"
 SWI_DAILY_DIR = PROJECT_DIR.parent / "COPERNICUS_SWI" / "data" / "grid_tiffs" / "daily_swi"
 GRID_BASE = BASE_DIR / "outputs" / "grid_1km_municipalities_centroid.csv"
 DATE_DIR_RE = re.compile(r"[\\/](20\d{2})[\\/]([01]\d)[\\/]([0-3]\d)[\\/]")
+HSAF_FILENAME_DATE_RE = re.compile(r"_(20\d{6})\d{4,6}_")
 SWI_DATE_RE = re.compile(r"_(20\d{6})\.tif$", re.IGNORECASE)
 
 
@@ -39,7 +40,11 @@ def parse_args() -> argparse.Namespace:
 def date_from_hsaf_path(path: Path) -> date | None:
     match = DATE_DIR_RE.search(str(path))
     if not match:
-        return None
+        match = HSAF_FILENAME_DATE_RE.search(path.name)
+        if not match:
+            return None
+        raw = match.group(1)
+        return date(int(raw[:4]), int(raw[4:6]), int(raw[6:8]))
     return date(int(match.group(1)), int(match.group(2)), int(match.group(3)))
 
 

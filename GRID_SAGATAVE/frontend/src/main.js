@@ -18,6 +18,7 @@ const monthNames = {
   "2026-05": "Maijs 2026",
   "2026-06": "Jūnijs 2026",
   "2026-07": "Jūlijs 2026",
+  "2026-08": "Augusts 2026",
 };
 
 const weekdayLabels = ["P", "O", "T", "C", "P", "S", "Sv"];
@@ -181,7 +182,7 @@ function setLoading(isLoading) {
 function setPanelContent(summary, cellProperties = null) {
   const isCell = Boolean(cellProperties);
   document.querySelector("#panelKicker").textContent = isCell
-    ? `${activeDate} · Grid cell ${cellProperties.grid_id}`
+    ? `${activeDate} · Grid šūna ${cellProperties.grid_id}`
     : `${activeDate} · Pašvaldības skats`;
   document.querySelector("#panelTitle").textContent = summary.municipality_name;
   document.querySelector("#overallRisk").textContent = isCell

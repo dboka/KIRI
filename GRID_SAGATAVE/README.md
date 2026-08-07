@@ -27,14 +27,12 @@ Open:
 http://localhost:8000
 ```
 
-## Current Frontend Data
+## Current Frontend Data Contract
 
-- 60 daily calendar snapshots from `2026-05-28` to `2026-07-26`.
-- Archive index for older processed dates from `2026-05-02` to `2026-05-27`.
-- Default date: `2026-07-26`.
-- 43 municipality static grid geometry files.
-- 2,580 daily municipality value files.
-- Grid geometry is stored once and reused by every date.
+- The frontend calendar shows the latest 60 processed dates.
+- Older processed JSON payloads are preserved locally in `frontend/data/dates` and `frontend/data/grid_values`.
+- `archive_manifest.json` indexes both visible and older processed dates.
+- Grid geometry is stored once in `frontend/data/grid_static` and reused by every date.
 
 ## Data Preparation
 
@@ -75,22 +73,24 @@ python prepare_frontend_last_60_kiri_data.py
 python prepare_frontend_compact_pages_data.py
 ```
 
-## Daily Automation
+## One-Command Daily Refresh
 
 ```powershell
-.\run_daily_v013.ps1 --commit-and-push
+.\run_kiri_daily_clean.ps1 --keep-server-running
 ```
 
-The default daily path processes only the newest available H-SAF date, adds that JSON layer, and prunes the oldest frontend date outside the 60-day window. Use `--rebuild-window` only for a deliberate full 60-day rebuild.
+The clean runner:
 
-Register the Windows scheduled task:
-
-```powershell
-.\register_daily_v013_task.ps1 -Time 08:00
-```
+- downloads recent Latvia H-SAF H28 `.nc` files from the local `FTP_TRYING` source project;
+- downloads and prepares recent Copernicus SWI daily Latvia grid TIFFs from `COPERNICUS_SWI`;
+- detects which dates are missing from the latest 60-day frontend window;
+- rebuilds only the needed suffix of CLIDATA precipitation windows, interpolation, and H-SAF/SWI grid indicators;
+- writes the latest 60-day frontend calendar while preserving older JSON history;
+- removes large H-SAF/SWI raw source files after JSON generation succeeds;
+- optionally starts the local frontend server.
 
 ## Notes
 
 - `frontend/data/municipality_grids` was the old duplicated geometry layout and has been removed.
 - Raw and intermediate outputs (`DATA_LAST_60`, `outputs`, `precip_outputs`, `indicator_outputs`) stay local and are ignored by git.
-- New daily automation should keep complete existing date payloads, add the newest daily JSON layer, prune dates outside the 60-day window, and reuse `frontend/data/grid_static`.
+- The clean daily path should keep complete existing date payloads, add missing daily JSON layers, preserve JSON history outside the visible 60-day calendar, and reuse `frontend/data/grid_static`.
