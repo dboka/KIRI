@@ -25,6 +25,28 @@ https://dboka.github.io/KIRI/
 - `.nojekyll` is included in `GRID_SAGATAVE/frontend` so GitHub Pages serves all data files directly.
 - Large local input/intermediate data folders are not deployed.
 
+## Daily Data Refresh Contract
+
+The operational data workflow is:
+
+```text
+.github/workflows/daily-data.yml
+```
+
+It runs on a self-hosted Windows runner every morning and can also be started manually from GitHub Actions. The job executes:
+
+```powershell
+python GRID_SAGATAVE\run_daily_v013.py --visible-days 60
+```
+
+The runner updates only the missing suffix of the 60-day window, preserves older JSON payloads under `frontend/data/dates` and `frontend/data/grid_values`, updates `archive_manifest.json`, cleans temporary H-SAF/SWI raw files, commits changed frontend data to `main`, and then the existing Pages workflow deploys the pushed static site.
+
+Expected live URL:
+
+```text
+https://dboka.github.io/KIRI/
+```
+
 ## Quick Checks
 
 ```powershell
@@ -38,5 +60,4 @@ Then push:
 
 ```powershell
 git push origin main
-git push origin v0.1.2
 ```

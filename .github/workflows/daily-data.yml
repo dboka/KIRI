@@ -1,0 +1,126 @@
+name: Daily KIRI Data Refresh
+
+on:
+  schedule:
+    # 05:30 UTC is 08:30 in Riga during summer time and 07:30 during winter time.
+    - cron: "30 5 * * *"
+  workflow_dispatch:
+    inputs:
+      today:
+        description: "Optional YYYY-MM-DD run date override"
+        required: false
+        type: string
+      rebuild_window:
+        description: "Rebuild the full visible 60-day window"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kiri-daily-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Refresh data and push Pages payload
+    runs-on: [self-hosted, Windows]
+    timeout-minutes: 360
+    env:
+      HSAF_USER: ${{ secrets.HSAF_USER }}
+      HSAF_PASS: ${{ secrets.HSAF_PASS }}
+      CLIDATA_USER: ${{ secrets.CLIDATA_USER }}
+      CLIDATA_PASSWORD: ${{ secrets.CLIDATA_PASSWORD }}
+      CLIDATA_DSN: ${{ secrets.CLIDATA_DSN }}
+      CLIDATA_ORACLE_USER: ${{ secrets.CLIDATA_USER }}
+      CLIDATA_ORACLE_PASSWORD: ${{ secrets.CLIDATA_PASSWORD }}
+      CLIDATA_ORACLE_DSN: ${{ secrets.CLIDATA_DSN }}
+      CLIDATA_ELEMENT: ${{ vars.CLIDATA_ELEMENT || 'PNS' }}
+      CLIDATA_ORACLE_INSTANTCLIENT: ${{ vars.CLIDATA_ORACLE_INSTANTCLIENT }}
+      CDSE_CLIENT_ID: ${{ secrets.CDSE_CLIENT_ID }}
+      CDSE_CLIENT_SECRET: ${{ secrets.CDSE_CLIENT_SECRET }}
+      CDSE_USERNAME: ${{ secrets.CDSE_USERNAME }}
+      CDSE_PASSWORD: ${{ secrets.CDSE_PASSWORD }}
+      LATVIA_TILES: E054N024,E060N024
+      KIRI_HSAF_PROJECT: ${{ vars.KIRI_HSAF_PROJECT || 'C:\Users\deniss.boka\MESLI_PROJECT\FTP_TRYING' }}
+      KIRI_SWI_PROJECT: ${{ vars.KIRI_SWI_PROJECT || 'C:\Users\deniss.boka\MESLI_PROJECT\COPERNICUS_SWI' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Configure git identity
+        shell: powershell
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Run KIRI v0.1.3 operational chain
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $args = @(
+            ".\GRID_SAGATAVE\run_daily_v013.py",
+            "--visible-days", "60",
+            "--source-lookback-days", "75",
+            "--retain-source-days", "14",
+            "--hsaf-project", "$env:KIRI_HSAF_PROJECT",
+            "--swi-project", "$env:KIRI_SWI_PROJECT",
+            "--hsaf-root", (Join-Path $env:KIRI_HSAF_PROJECT "data\h28_latvia_nc"),
+            "--swi-daily-dir", (Join-Path $env:KIRI_SWI_PROJECT "data\grid_tiffs\daily_swi")
+          )
+          if ("${{ inputs.today }}" -ne "") {
+            $args += @("--today", "${{ inputs.today }}")
+          }
+          if ("${{ inputs.rebuild_window }}" -eq "true") {
+            $args += "--rebuild-window"
+          }
+          python @args
+
+      - name: Validate frontend payload
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          node --check GRID_SAGATAVE\frontend\src\main.js
+          python GRID_SAGATAVE\prepare_frontend_compact_pages_data.py
+          @'
+          import json
+          from pathlib import Path
+
+          root = Path("GRID_SAGATAVE/frontend/data")
+          calendar = json.loads((root / "calendar_manifest.json").read_text(encoding="utf-8"))
+          assert calendar["date_count"] == len(calendar["dates"]) == 60
+          assert calendar["default_date"] == calendar["dates"][-1]["date"]
+          assert len(list((root / "grid_static").glob("*.geojson"))) == 43
+
+          archive = json.loads((root / "archive_manifest.json").read_text(encoding="utf-8"))
+          assert archive["visible_date_count"] == 60
+          assert archive["dates"][-1]["date"] == calendar["default_date"]
+
+          for item in calendar["dates"]:
+              manifest = json.loads((root / item["manifest_file"]).read_text(encoding="utf-8"))
+              assert len(manifest) == item["municipality_count"], item["date"]
+              for code, row in manifest.items():
+                  assert row["static_grid_file"] == f"grid_static/{code}.geojson"
+                  assert row["grid_values_file"] == f"grid_values/{item['date']}/{code}.json"
+                  assert (root / row["static_grid_file"]).exists()
+                  assert (root / row["grid_values_file"]).exists()
+          print(f"KIRI-LV data validation passed: {calendar['dates'][0]['date']} .. {calendar['default_date']}")
+          '@ | python -
+
+      - name: Commit and push data changes
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          git add GRID_SAGATAVE/frontend/data GRID_SAGATAVE/clean
+          $status = git status --porcelain
+          if (-not $status) {
+            Write-Host "No KIRI frontend data changes to commit."
+            exit 0
+          }
+          $defaultDate = python -c "import json; print(json.load(open('GRID_SAGATAVE/frontend/data/calendar_manifest.json', encoding='utf-8'))['default_date'])"
+          git commit -m "Update KIRI-LV v0.1.3 data to $defaultDate"
+          git push origin HEAD:main

@@ -5,7 +5,7 @@ This repository keeps clean Git restore points so the project can return to a kn
 ## Restore Points
 
 - `v0.1.2` - clean GitHub baseline before the automatic daily update work.
-- `v0.1.3` - clean automatic 60-day calendar, archive index, Windows daily update runner, and GitHub Pages payload.
+- `v0.1.3` - operational 60-day calendar, archive index, Windows/GitHub daily data workflow, source raw cleanup, commit/push handoff, and GitHub Pages payload.
 
 ## Local Commands
 
