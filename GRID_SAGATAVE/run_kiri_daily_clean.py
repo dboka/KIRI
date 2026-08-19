@@ -22,6 +22,7 @@ DATE_DATA_DIR = FRONTEND_DATA / "dates"
 VALUES_DIR = FRONTEND_DATA / "grid_values"
 INDICATOR_DIR = DATA_DIR / "indicator_grids"
 LOG_DIR = DATA_DIR / "logs"
+SWI_REFRESH_STATUS = LOG_DIR / "swi_indicator_refresh_last_run.json"
 
 DEFAULT_HSAF_PROJECT = MESLI_DIR / "FTP_TRYING"
 DEFAULT_SWI_PROJECT = MESLI_DIR / "COPERNICUS_SWI"
@@ -86,6 +87,20 @@ def csv_has_rows(path: Path) -> bool:
 
 def read_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def read_swi_refreshed_dates(path: Path) -> list[str]:
+    if not path.exists():
+        return []
+    try:
+        payload = read_json(path)
+    except Exception:
+        return []
+    return [
+        value
+        for value in payload.get("updated_dates", [])
+        if isinstance(value, str) and re.fullmatch(r"20\d{2}-\d{2}-\d{2}", value)
+    ]
 
 
 def indicator_dates() -> set[str]:
@@ -316,6 +331,19 @@ def main() -> None:
             print("\n== Build Latvia SWI daily grid TIFFs ==")
             print("No new SWI products found; keeping existing daily SWI grid TIFFs.")
 
+    run_step(
+        "Refresh delayed SWI in existing indicator grids",
+        [
+            "python",
+            "refresh_swi_indicator_grids.py",
+            "--swi-dir",
+            str(swi_daily_dir),
+        ],
+        BASE_DIR,
+        log_lines,
+    )
+    swi_refreshed_dates = read_swi_refreshed_dates(SWI_REFRESH_STATUS)
+
     available_hsaf_dates = hsaf_dates(hsaf_root)
     target_window = latest_window(available_hsaf_dates | indicator_dates(), args.visible_days)
     if not target_window:
@@ -323,6 +351,7 @@ def main() -> None:
 
     missing_indicator_dates = [value for value in target_window if value not in indicator_dates()]
     missing_frontend_dates = [value for value in target_window if not frontend_payload_complete(value)]
+    force_frontend_dates = sorted(set(swi_refreshed_dates))
     rebuild_source_dates = target_window if args.rebuild_window else missing_indicator_dates
     if rebuild_source_dates and not is_suffix(rebuild_source_dates, target_window):
         rebuild_source_count = args.visible_days
@@ -333,6 +362,7 @@ def main() -> None:
     print(f"Target window: {target_window[0]} .. {target_window[-1]} ({len(target_window)})")
     print(f"Missing indicator dates: {len(missing_indicator_dates)}")
     print(f"Missing frontend JSON dates: {len(missing_frontend_dates)}")
+    print(f"SWI-refreshed frontend dates: {len(force_frontend_dates)}")
     print(f"Source rebuild count: {rebuild_source_count}")
 
     if missing_indicator_dates:
@@ -364,12 +394,16 @@ def main() -> None:
             log_lines,
         )
 
-    run_step(
-        "Frontend JSON window and archive",
-        ["python", "prepare_frontend_last_60_kiri_data.py", "--visible-days", str(args.visible_days), "--materialize-archive-payloads"],
-        BASE_DIR,
-        log_lines,
-    )
+    frontend_command = [
+        "python",
+        "prepare_frontend_last_60_kiri_data.py",
+        "--visible-days",
+        str(args.visible_days),
+        "--materialize-archive-payloads",
+    ]
+    if force_frontend_dates:
+        frontend_command.extend(["--force-dates", *force_frontend_dates])
+    run_step("Frontend JSON window and archive", frontend_command, BASE_DIR, log_lines)
     run_step("Frontend compact check", ["python", "prepare_frontend_compact_pages_data.py"], BASE_DIR, log_lines)
 
     cleanup_report = {}
@@ -391,6 +425,8 @@ def main() -> None:
         "date_count": latest_calendar["date_count"],
         "missing_indicator_dates_before_run": missing_indicator_dates,
         "missing_frontend_dates_before_run": missing_frontend_dates,
+        "swi_refreshed_dates": swi_refreshed_dates,
+        "force_frontend_dates": force_frontend_dates,
         "cleanup": cleanup_report,
         "server": server,
     }
