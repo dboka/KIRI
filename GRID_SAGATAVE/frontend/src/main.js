@@ -26,16 +26,15 @@ const weekdayLabels = ["P", "O", "T", "C", "P", "S", "Sv"];
 const map = L.map("map", {
   preferCanvas: true,
   zoomControl: false,
-  attributionControl: false,
+  attributionControl: true,
   minZoom: 6,
   maxZoom: 13,
 });
 
 L.control.zoom({ position: "topright" }).addTo(map);
 
-L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-  subdomains: "abcd",
-  maxZoom: 20,
+L.maplibreGL({
+  style: "https://tiles.openfreemap.org/styles/positron",
 }).addTo(map);
 
 const canvasRenderer = L.canvas({ padding: 0.35 });
