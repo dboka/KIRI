@@ -65,6 +65,9 @@ const archiveList = document.querySelector("#archiveList");
 const activeDateLabel = document.querySelector("#activeDateLabel");
 const dateCoverage = document.querySelector("#dateCoverage");
 const loadingState = document.querySelector("#loadingState");
+const bootOverlay = document.querySelector("#bootOverlay");
+const bootStatus = document.querySelector("#bootStatus");
+const bootStartedAt = window.performance.now();
 
 function getRiskColor(level) {
   return riskColors[level] || "#aab6bc";
@@ -176,6 +179,24 @@ function renderList(elementId, values, fallback) {
 
 function setLoading(isLoading) {
   loadingState.hidden = !isLoading;
+}
+
+function setBootStatus(text) {
+  if (bootStatus) {
+    bootStatus.textContent = text;
+  }
+}
+
+function finishBootOverlay() {
+  if (!bootOverlay) return;
+  const elapsed = window.performance.now() - bootStartedAt;
+  const finishDelay = Math.max(0, 850 - elapsed);
+  window.setTimeout(() => {
+    bootOverlay.classList.add("is-complete");
+    window.setTimeout(() => {
+      bootOverlay.hidden = true;
+    }, 360);
+  }, finishDelay);
 }
 
 function setPanelContent(summary, cellProperties = null) {
@@ -555,11 +576,16 @@ function updateCalendarSelection() {
 }
 
 async function boot() {
+  setBootStatus("Lasa pieejamos datumus...");
   calendarManifest = await loadJson("data/calendar_manifest.json");
   archiveManifest = await loadOptionalJson("data/archive_manifest.json");
+  setBootStatus("Būvē kalendāru un arhīvu...");
   renderCalendar();
   renderArchive();
+  setBootStatus("Zīmē jaunāko kartes slāni...");
   await setActiveDate(calendarManifest.default_date, { fit: true, keepMunicipality: false });
+  setBootStatus("Gatavs");
+  finishBootOverlay();
 }
 
 backButton.addEventListener("click", () => showOverview({ fit: true }));
@@ -575,5 +601,9 @@ archiveToggle.addEventListener("click", () => {
 
 boot().catch((error) => {
   console.error(error);
+  setBootStatus("Neizdevās ielādēt kartes datus");
+  if (bootOverlay) {
+    bootOverlay.classList.add("has-error");
+  }
   alert("Neizdevās ielādēt KIRI-LV kartes datus. Pārbaudi lokālo serveri un data mapi.");
 });

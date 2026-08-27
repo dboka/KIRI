@@ -49,6 +49,142 @@ body {
   z-index: 1;
 }
 
+.boot-overlay {
+  position: absolute;
+  z-index: 900;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 20px;
+  padding: 28px;
+  background:
+    linear-gradient(180deg, rgba(7, 19, 28, 0.92), rgba(7, 19, 28, 0.78)),
+    radial-gradient(circle at 50% 42%, rgba(105, 184, 143, 0.2), transparent 34%),
+    #07131c;
+  color: var(--text);
+  transition: opacity 0.34s ease, visibility 0.34s ease;
+}
+
+.boot-overlay.is-complete {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.boot-overlay.has-error .boot-progress::after {
+  animation-play-state: paused;
+  background: var(--risk-5);
+}
+
+.boot-mark {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  border: 1px solid rgba(217, 231, 238, 0.18);
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.11) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.11) 1px, transparent 1px),
+    rgba(255, 255, 255, 0.045);
+  background-size: 23px 23px;
+  box-shadow: 0 24px 62px rgba(0, 0, 0, 0.36);
+  overflow: hidden;
+}
+
+.boot-mark::before,
+.boot-mark::after {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border: 2px solid rgba(105, 184, 143, 0.72);
+  border-radius: 50%;
+  animation: boot-pulse 2.2s ease-in-out infinite;
+}
+
+.boot-mark::after {
+  inset: 27px;
+  border-color: rgba(244, 211, 94, 0.76);
+  animation-delay: 0.28s;
+}
+
+.boot-mark span {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.72);
+  border-radius: 50%;
+  background: rgba(7, 19, 28, 0.84);
+  box-shadow: 0 0 18px rgba(105, 184, 143, 0.42);
+  animation: boot-node 2.8s ease-in-out infinite;
+}
+
+.boot-mark span:nth-child(1) {
+  top: 17px;
+  left: 18px;
+}
+
+.boot-mark span:nth-child(2) {
+  top: 21px;
+  right: 17px;
+  animation-delay: 0.18s;
+}
+
+.boot-mark span:nth-child(3) {
+  right: 20px;
+  bottom: 18px;
+  animation-delay: 0.36s;
+}
+
+.boot-mark span:nth-child(4) {
+  left: 19px;
+  bottom: 22px;
+  animation-delay: 0.54s;
+}
+
+.boot-copy {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.boot-kicker {
+  color: rgba(238, 246, 248, 0.58);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.boot-copy strong {
+  font-size: clamp(20px, 3vw, 30px);
+  line-height: 1.12;
+}
+
+.boot-copy p {
+  min-height: 20px;
+  margin: 0;
+  color: rgba(238, 246, 248, 0.68);
+  font-size: 13px;
+}
+
+.boot-progress {
+  position: relative;
+  width: min(320px, calc(100vw - 76px));
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.boot-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 44%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--risk-1), var(--risk-3), var(--risk-4));
+  animation: boot-progress 1.35s ease-in-out infinite;
+}
+
 .leaflet-container {
   background: #0a1822;
   font: inherit;
@@ -482,6 +618,42 @@ h1 {
 
 .kiri-tooltip::before {
   border-top-color: rgba(5, 17, 27, 0.92) !important;
+}
+
+@keyframes boot-pulse {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.42;
+  }
+
+  50% {
+    transform: scale(1.08);
+    opacity: 0.95;
+  }
+}
+
+@keyframes boot-node {
+  0%,
+  100% {
+    transform: scale(0.82);
+    opacity: 0.58;
+  }
+
+  50% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+
+@keyframes boot-progress {
+  0% {
+    transform: translateX(-110%);
+  }
+
+  100% {
+    transform: translateX(230%);
+  }
 }
 
 @media (max-width: 760px) {
