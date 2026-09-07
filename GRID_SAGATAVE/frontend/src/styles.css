@@ -1,6 +1,7 @@
 :root {
   --bg: #07131c;
-  --panel: rgba(7, 20, 31, 0.92);
+  --panel: rgba(8, 22, 33, 0.94);
+  --panel-soft: rgba(255, 255, 255, 0.055);
   --panel-border: rgba(183, 210, 222, 0.22);
   --text: #eef6f8;
   --muted: #9fb2bd;
@@ -42,7 +43,11 @@ body {
 .map-stage {
   position: relative;
   overflow: hidden;
-  background: #0a1822;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    #0a1822;
+  background-size: 48px 48px;
 }
 
 #map {
@@ -186,8 +191,17 @@ body {
 }
 
 .leaflet-container {
-  background: #0a1822;
+  background: transparent;
   font: inherit;
+}
+
+.maplibregl-map {
+  background: transparent !important;
+  pointer-events: none;
+}
+
+.map-is-moving .kiri-tooltip {
+  opacity: 0;
 }
 
 .leaflet-control-zoom {
@@ -199,6 +213,10 @@ body {
   background: rgba(245, 249, 250, 0.92) !important;
   color: #122230 !important;
   border-bottom-color: rgba(10, 24, 34, 0.14) !important;
+}
+
+.leaflet-interactive {
+  outline: none;
 }
 
 .topbar {
@@ -247,6 +265,7 @@ h1 {
   font-size: 12px;
   padding: 0 12px;
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
 }
 
 .back-button {
@@ -255,6 +274,7 @@ h1 {
 
 .back-button:hover {
   background: rgba(20, 41, 55, 0.92);
+  transform: translateY(-1px);
 }
 
 .date-button {
@@ -265,6 +285,7 @@ h1 {
 
 .date-button:hover {
   background: rgba(20, 41, 55, 0.92);
+  transform: translateY(-1px);
 }
 
 .calendar-panel,
@@ -418,8 +439,10 @@ h1 {
   position: absolute;
   z-index: 500;
   left: 24px;
-  bottom: 56px;
-  min-width: 168px;
+  bottom: 88px;
+  width: min(292px, calc(100vw - 48px));
+  max-height: min(460px, calc(100vh - 150px));
+  overflow: auto;
   padding: 12px 13px;
   border: 1px solid var(--panel-border);
   border-radius: 8px;
@@ -434,6 +457,10 @@ h1 {
   color: rgba(238, 246, 248, 0.76);
   font-size: 11px;
   margin-bottom: 3px;
+}
+
+.legend-row {
+  white-space: nowrap;
 }
 
 .swatch {
@@ -466,20 +493,101 @@ h1 {
   background: var(--risk-5);
 }
 
+.thresholds {
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.thresholds summary {
+  cursor: pointer;
+  color: rgba(238, 246, 248, 0.78);
+  font-size: 11px;
+  line-height: 1.4;
+  list-style-position: outside;
+}
+
+.threshold-grid {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 10px;
+  margin-top: 8px;
+  padding: 9px;
+  border: 1px solid rgba(217, 231, 238, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.055);
+  line-height: 1.35;
+}
+
+.threshold-grid span,
+.opacity-scale span {
+  color: rgba(238, 246, 248, 0.6);
+  font-size: 10px;
+}
+
+.threshold-grid strong {
+  min-width: 0;
+  color: rgba(238, 246, 248, 0.9);
+  font-size: 10px;
+  font-weight: 680;
+  overflow-wrap: anywhere;
+}
+
+.opacity-scale {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.opacity-scale span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.opacity-scale .opacity-title {
+  color: rgba(238, 246, 248, 0.78);
+  font-size: 10px;
+  font-weight: 680;
+}
+
+.opacity-dot {
+  display: inline-block;
+  width: 14px;
+  height: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.36);
+  border-radius: 3px;
+  background: var(--risk-4);
+}
+
+.opacity-dot.high {
+  opacity: 0.84;
+}
+
+.opacity-dot.medium {
+  opacity: 0.68;
+}
+
+.opacity-dot.low {
+  opacity: 0.48;
+}
+
 .detail-panel {
   position: absolute;
   z-index: 510;
-  top: 24px;
-  right: 24px;
-  width: min(360px, calc(100vw - 48px));
+  top: 20px;
+  right: 20px;
+  width: min(420px, calc(100vw - 40px));
   max-height: calc(100vh - 48px);
   overflow: auto;
-  padding: 22px;
+  padding: 20px;
   border: 1px solid var(--panel-border);
   border-radius: 8px;
   background: var(--panel);
-  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(9px);
   scrollbar-color: rgba(155, 177, 190, 0.5) rgba(7, 20, 31, 0.35);
   scrollbar-width: thin;
 }
@@ -501,14 +609,16 @@ h1 {
 .panel-label,
 .metric-label {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 
 .detail-panel h2 {
-  margin: 4px 0 10px;
+  margin: 3px 0 10px;
   color: var(--text);
-  font-size: 26px;
+  font-size: 1.6rem;
   line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 
 .risk-badge {
@@ -524,15 +634,33 @@ h1 {
 }
 
 .panel-section {
-  margin-top: 18px;
-  padding-top: 16px;
+  margin-top: 14px;
+  padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
+.panel-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.metric-tile {
+  min-height: 82px;
+  padding: 12px;
+  border: 1px solid rgba(217, 231, 238, 0.13);
+  border-radius: 8px;
+  background: var(--panel-soft);
+}
+
 .metric-value {
-  margin-top: 4px;
-  font-size: 26px;
+  margin-top: 7px;
+  font-size: 1.58rem;
   font-weight: 740;
+  line-height: 1.08;
 }
 
 .detail-panel ul {
@@ -543,7 +671,7 @@ h1 {
 .detail-panel li,
 .detail-panel p {
   color: rgba(238, 246, 248, 0.86);
-  font-size: 13px;
+  font-size: 0.9rem;
   line-height: 1.55;
 }
 
@@ -551,32 +679,34 @@ h1 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 18px;
+  margin-top: 16px;
 }
 
 .indicator-card {
-  min-height: 74px;
+  min-height: 96px;
   padding: 12px;
   border: 1px solid rgba(217, 231, 238, 0.16);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.045);
+  background: var(--panel-soft);
 }
 
 .indicator-card span {
   display: block;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 0.76rem;
+  line-height: 1.3;
 }
 
 .indicator-card strong {
   display: block;
-  margin-top: 8px;
-  font-size: 19px;
-  line-height: 1.28;
+  margin-top: 9px;
+  font-size: 1.08rem;
+  line-height: 1.26;
+  overflow-wrap: anywhere;
 }
 
 .demo-note {
-  margin: 18px 0 0;
+  margin: 16px 0 0;
   padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   color: rgba(238, 246, 248, 0.62) !important;
@@ -661,6 +791,9 @@ h1 {
     top: 14px;
     left: 14px;
     right: 14px;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
   }
 
   h1 {
@@ -668,12 +801,22 @@ h1 {
   }
 
   .toolbar {
+    justify-content: flex-end;
     padding-top: 28px;
+  }
+
+  .back-button,
+  .date-button {
+    height: 34px;
+    padding: 0 10px;
   }
 
   .legend {
     left: 14px;
-    bottom: 48px;
+    bottom: 90px;
+    width: min(278px, calc(100vw - 28px));
+    max-height: min(336px, calc(100dvh - 190px));
+    font-size: 0.76rem;
   }
 
   .calendar-panel {
@@ -696,14 +839,50 @@ h1 {
 
   .detail-panel {
     top: auto;
-    right: 12px;
-    bottom: 12px;
-    left: 12px;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: auto;
-    max-height: 48vh;
+    max-height: min(72dvh, 620px);
+    padding: 16px;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 8px 8px 0 0;
   }
 
   .footer-note {
     display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .topbar {
+    display: grid;
+  }
+
+  .toolbar {
+    justify-content: flex-start;
+    padding-top: 0;
+  }
+
+  .back-button {
+    max-width: 178px;
+    white-space: normal;
+    line-height: 1.15;
+  }
+
+  .detail-panel h2 {
+    font-size: 1.42rem;
+  }
+
+  .panel-metrics,
+  .indicator-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-tile,
+  .indicator-card {
+    min-height: auto;
   }
 }

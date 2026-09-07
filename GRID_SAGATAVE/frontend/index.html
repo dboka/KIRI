@@ -4,10 +4,27 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>KIRI-LV | Kūtsmēslu izkliedes riska karte</title>
+    <meta
+      name="description"
+      content="KIRI-LV by Deniss Boka: interactive manure spreading risk map for Latvia using H-SAF, Copernicus SWI, precipitation windows, and 1 km municipal grid layers."
+    />
+    <meta name="author" content="Deniss Boka" />
+    <meta
+      name="keywords"
+      content="KIRI, KIRI-LV, dboka, Deniss Boka, Latvia, kūtsmēsli, riska karte, H-SAF, Copernicus SWI, soil moisture"
+    />
+    <meta property="og:title" content="KIRI-LV | Kūtsmēslu izkliedes riska karte" />
+    <meta
+      property="og:description"
+      content="Interactive manure spreading risk map for Latvia by Deniss Boka."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://dboka.github.io/KIRI/" />
+    <link rel="canonical" href="https://dboka.github.io/KIRI/" />
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" />
-    <link rel="stylesheet" href="src/styles.css?v=9" />
+    <link rel="stylesheet" href="src/styles.css?v=18" />
   </head>
   <body>
     <main class="app-shell">
@@ -70,11 +87,28 @@
 
         <div class="legend">
           <div class="legend-title">Riska līmenis</div>
-          <div><span class="swatch risk-1"></span>1. Ļoti zems risks</div>
-          <div><span class="swatch risk-2"></span>2. Zems risks</div>
-          <div><span class="swatch risk-3"></span>3. Vidējs risks / piesardzība</div>
-          <div><span class="swatch risk-4"></span>4. Augsts risks</div>
-          <div><span class="swatch risk-5"></span>5. Ļoti augsts risks / neizkliedēt</div>
+          <div class="legend-row"><span class="swatch risk-1"></span>1. Ļoti zems risks</div>
+          <div class="legend-row"><span class="swatch risk-2"></span>2. Zems risks</div>
+          <div class="legend-row"><span class="swatch risk-3"></span>3. Vidējs risks / piesardzība</div>
+          <div class="legend-row"><span class="swatch risk-4"></span>4. Augsts risks</div>
+          <div class="legend-row"><span class="swatch risk-5"></span>5. Ļoti augsts risks / neizkliedēt</div>
+
+          <details class="thresholds" open>
+            <summary>Sliekšņi</summary>
+            <div class="threshold-grid">
+              <span>H-SAF</span><strong>25 · 40 · 55 · 70%</strong>
+              <span>SWI</span><strong>30 · 45 · 60 · 75%</strong>
+              <span>P30</span><strong>20 · 40 · 70 · 100 mm</strong>
+              <span>P90</span><strong>80 · 140 · 220 · 320 mm</strong>
+              <span>P730</span><strong>900 · 1100 · 1300 · 1500 mm</strong>
+            </div>
+            <div class="opacity-scale">
+              <span class="opacity-title">Caurspīdīgums</span>
+              <span><i class="opacity-dot high"></i>augsta uzt.</span>
+              <span><i class="opacity-dot medium"></i>vidēja</span>
+              <span><i class="opacity-dot low"></i>zema</span>
+            </div>
+          </details>
         </div>
 
         <aside id="detailPanel" class="detail-panel" hidden>
@@ -82,14 +116,15 @@
           <h2 id="panelTitle">Pašvaldība</h2>
           <div class="risk-badge">Kopējais risks: <strong id="overallRisk">-</strong></div>
 
-          <div class="panel-section">
-            <div class="metric-label">Aktīvais mitruma risks</div>
-            <div class="metric-value"><span id="activeRisk">-</span></div>
-          </div>
-
-          <div class="panel-section">
-            <div class="metric-label">Augsta riska redzamās šūnas</div>
-            <div class="metric-value"><span id="highRiskPercent">-</span>%</div>
+          <div class="panel-metrics">
+            <div class="metric-tile">
+              <div class="metric-label">Aktīvais mitruma risks</div>
+              <div class="metric-value"><span id="activeRisk">-</span></div>
+            </div>
+            <div class="metric-tile">
+              <div class="metric-label">Augsta riska šūnas</div>
+              <div class="metric-value"><span id="highRiskPercent">-</span>%</div>
+            </div>
           </div>
 
           <div class="panel-section">
@@ -149,6 +184,6 @@
     <script src="vendor/leaflet/leaflet.js"></script>
     <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
     <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
-    <script src="src/main.js?v=11"></script>
+    <script src="src/main.js?v=18"></script>
   </body>
 </html>

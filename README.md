@@ -2,12 +2,22 @@
 
 KIRI-LV is a static GitHub Pages prototype for manure spreading risk mapping in Latvia.
 
+## About
+
+KIRI-LV is an interactive manure spreading risk map for Latvia. The prototype combines H-SAF surface soil moisture, Copernicus SWI, precipitation windows, and municipal 1 km grid layers into a browser-based risk overview for operational decision support.
+
+- Project name: `KIRI-LV`
+- Repository: `dboka/KIRI`
+- Autors: Deniss Boka
+- Datums: 2026-09-07
+- Public URL: `https://dboka.github.io/KIRI/`
+
 ## Current Release
 
 - Release: `v0.1.3`
-- Default frontend date: `2026-07-26`
-- Daily calendar snapshots: `2026-05-28` to `2026-07-26`
-- Archive index: `2026-05-02` to `2026-05-27`
+- Default frontend date: `2026-09-06`
+- Daily calendar snapshots: `2026-07-09` to `2026-09-06`
+- Archive index: `2026-05-02` to `2026-09-06`
 - Municipality count: 43
 - Frontend deploy path: `GRID_SAGATAVE/frontend`
 - Data layout: one static 1 km grid geometry set plus daily value files

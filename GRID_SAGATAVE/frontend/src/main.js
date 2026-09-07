@@ -19,26 +19,87 @@ const monthNames = {
   "2026-06": "Jūnijs 2026",
   "2026-07": "Jūlijs 2026",
   "2026-08": "Augusts 2026",
+  "2026-09": "Septembris 2026",
 };
 
 const weekdayLabels = ["P", "O", "T", "C", "P", "S", "Sv"];
+const latviaBounds = L.latLngBounds([55.55, 20.45], [58.25, 28.35]);
+const maplibreStyleUrl = "https://tiles.openfreemap.org/styles/positron";
+const fallbackTileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 
 const map = L.map("map", {
   preferCanvas: true,
   zoomControl: false,
   attributionControl: true,
-  minZoom: 6,
-  maxZoom: 13,
+  minZoom: 6.5,
+  maxZoom: 11.5,
+  maxBounds: latviaBounds.pad(0.18),
+  maxBoundsViscosity: 0.95,
+  zoomSnap: 0.25,
+  zoomDelta: 0.5,
+  scrollWheelZoom: "center",
+  wheelDebounceTime: 35,
+  wheelPxPerZoomLevel: 220,
+  bounceAtZoomLimits: false,
+  inertia: true,
+  fadeAnimation: true,
+  zoomAnimation: true,
+  zoomAnimationThreshold: 2,
+  markerZoomAnimation: false,
 });
 
 L.control.zoom({ position: "topright" }).addTo(map);
 
-L.maplibreGL({
-  style: "https://tiles.openfreemap.org/styles/positron",
-}).addTo(map);
+let baseLayer = null;
+let fallbackLayer = null;
 
-const canvasRenderer = L.canvas({ padding: 0.35 });
+function addRasterFallback() {
+  if (fallbackLayer) return;
+  document.body.classList.add("basemap-failed");
+  fallbackLayer = L.tileLayer(fallbackTileUrl, {
+    minZoom: 0,
+    maxZoom: 19,
+    maxNativeZoom: 19,
+    keepBuffer: 5,
+    updateWhenIdle: false,
+    updateWhenZooming: false,
+    crossOrigin: true,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map);
+
+  fallbackLayer.on("tileload", () => {
+    document.body.classList.add("basemap-raster-fallback");
+  });
+}
+
+function addMaplibreBasemap() {
+  if (!L.maplibreGL || !window.maplibregl) {
+    addRasterFallback();
+    return;
+  }
+
+  baseLayer = L.maplibreGL({
+    style: maplibreStyleUrl,
+    interactive: false,
+    renderWorldCopies: false,
+  }).addTo(map);
+
+  const glMap = baseLayer.getMaplibreMap?.();
+  if (glMap) {
+    glMap.on("load", () => {
+      document.body.classList.add("basemap-maplibre-ready");
+    });
+    glMap.on("error", () => {
+      addRasterFallback();
+    });
+  }
+}
+
+addMaplibreBasemap();
+
+const canvasRenderer = L.canvas({ padding: 0.55, tolerance: 8 });
 const dateCache = new Map();
+const jsonCache = new Map();
 
 let calendarManifest = null;
 let archiveManifest = null;
@@ -50,6 +111,8 @@ let selectedBoundaryLayer = null;
 let gridLayer = null;
 let activeMunicipalityCode = null;
 let selectedGridCellLayer = null;
+let isMapMoving = false;
+let gridStyleFrame = null;
 
 window.kiriDebug = { status: "booting" };
 
@@ -85,6 +148,12 @@ function overviewStyle(feature) {
   };
 }
 
+const overviewHoverStyle = {
+  color: "rgba(255,255,255,1)",
+  weight: 1.7,
+  fillOpacity: 0.9,
+};
+
 function boundaryStyle() {
   return {
     renderer: canvasRenderer,
@@ -95,24 +164,35 @@ function boundaryStyle() {
   };
 }
 
+function confidenceFillOpacity(confidence) {
+  if (confidence === "low") return 0.48;
+  if (confidence === "medium") return 0.68;
+  return 0.84;
+}
+
 function gridStyle(feature) {
   const level = feature.properties.final_risk_level ?? feature.properties.kiri_risk_level;
+  const drawCellLines = map.getZoom() >= 10.25;
   return {
     renderer: canvasRenderer,
-    color: "rgba(255,255,255,0.2)",
-    weight: 0.35,
+    color: drawCellLines ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0)",
+    weight: drawCellLines ? 0.28 : 0,
     fillColor: getRiskColor(level),
-    fillOpacity: 0.82,
-    opacity: 0.55,
+    fillOpacity: confidenceFillOpacity(feature.properties.confidence),
+    opacity: drawCellLines ? 0.5 : 0,
   };
 }
 
 async function loadJson(path) {
-  const response = await fetch(path);
-  if (!response.ok) {
-    throw new Error(`Could not load ${path}: ${response.status}`);
+  if (!jsonCache.has(path)) {
+    jsonCache.set(path, fetch(path).then((response) => {
+      if (!response.ok) {
+        throw new Error(`Could not load ${path}: ${response.status}`);
+      }
+      return response.json();
+    }));
   }
-  return response.json();
+  return jsonCache.get(path);
 }
 
 async function loadOptionalJson(path) {
@@ -146,7 +226,9 @@ function formatMetric(value, suffix = "") {
   if (value === null || value === undefined || Number.isNaN(Number(value))) {
     return "nav datu";
   }
-  return `${value}${suffix}`;
+  const numberValue = Number(value);
+  const rendered = Number.isFinite(numberValue) ? numberValue.toFixed(2).replace(/\.00$/, "") : value;
+  return `${rendered}${suffix}`;
 }
 
 function formatRisk(value) {
@@ -211,7 +293,7 @@ function setPanelContent(summary, cellProperties = null) {
   document.querySelector("#activeRisk").textContent = isCell
     ? (cellProperties.active_risk ?? "-")
     : "klikšķini uz grid";
-  document.querySelector("#highRiskPercent").textContent = summary.high_risk_percent;
+  document.querySelector("#highRiskPercent").textContent = formatMetric(summary.high_risk_percent);
   document.querySelector("#recommendation").textContent = summary.recommendation;
 
   renderList(
@@ -273,14 +355,22 @@ function clearOverviewLayer() {
   }
 }
 
-function showOverview({ fit = true } = {}) {
+async function showOverview({ fit = true } = {}) {
   activeMunicipalityCode = null;
   clearDetailLayers();
-  if (municipalityLayer) {
+  if (!municipalityLayer && activeDate) {
+    const data = await loadDateData(activeDate);
+    drawOverview(data.overview, { fit: false });
+  } else if (municipalityLayer && !map.hasLayer(municipalityLayer)) {
     municipalityLayer.addTo(map);
-    if (fit) {
-      map.fitBounds(municipalityLayer.getBounds(), { padding: [24, 24] });
-    }
+  }
+  if (municipalityLayer && fit) {
+    map.flyToBounds(municipalityLayer.getBounds(), {
+      padding: [28, 28],
+      duration: 0.45,
+      easeLinearity: 0.35,
+      maxZoom: 7,
+    });
   }
   detailPanel.hidden = true;
   backButton.hidden = true;
@@ -328,6 +418,8 @@ async function openMunicipalityByCode(code, { fit = true } = {}) {
     gridLayer = L.geoJSON(gridGeojson, {
       renderer: canvasRenderer,
       style: gridStyle,
+      smoothFactor: 1.2,
+      bubblingMouseEvents: false,
       onEachFeature: (cellFeature, layer) => {
         layer.on("click", (event) => {
           if (selectedGridCellLayer && selectedGridCellLayer !== event.target) {
@@ -335,9 +427,10 @@ async function openMunicipalityByCode(code, { fit = true } = {}) {
           }
           selectedGridCellLayer = event.target;
           event.target.setStyle({
-            weight: 1.4,
+            weight: 1.1,
             color: "rgba(255,255,255,0.98)",
-            fillOpacity: 0.95,
+            fillOpacity: 0.9,
+            opacity: 0.95,
           });
           setPanelContent(summary, cellFeature.properties);
         });
@@ -348,7 +441,8 @@ async function openMunicipalityByCode(code, { fit = true } = {}) {
     if (fit) {
       map.fitBounds(selectedBoundaryLayer.getBounds(), {
         paddingTopLeft: [24, 72],
-        paddingBottomRight: [detailPanel.offsetWidth + 42, 42],
+        paddingBottomRight: [Math.min(detailPanel.offsetWidth + 34, window.innerWidth * 0.46), 42],
+        maxZoom: 10.5,
       });
     }
   } finally {
@@ -400,14 +494,10 @@ function bindMunicipality(feature, layer) {
 
   layer.on({
     mouseover: (event) => {
-      event.target.setStyle({
-        weight: 1.7,
-        color: "rgba(255,255,255,1)",
-        fillOpacity: 0.9,
-      });
+      if (!isMapMoving) event.target.setStyle(overviewHoverStyle);
     },
     mouseout: (event) => {
-      if (municipalityLayer) {
+      if (municipalityLayer && !isMapMoving) {
         municipalityLayer.resetStyle(event.target);
       }
     },
@@ -424,7 +514,7 @@ function drawOverview(overviewGeojson, { fit = false } = {}) {
   }).addTo(map);
 
   if (fit) {
-    map.fitBounds(municipalityLayer.getBounds(), { padding: [24, 24] });
+    map.fitBounds(municipalityLayer.getBounds(), { padding: [28, 28], maxZoom: 7 });
   }
 }
 
@@ -588,7 +678,32 @@ async function boot() {
   finishBootOverlay();
 }
 
-backButton.addEventListener("click", () => showOverview({ fit: true }));
+map.on("zoomstart movestart", () => {
+  isMapMoving = true;
+  document.body.classList.add("map-is-moving");
+});
+
+map.on("moveend", () => {
+  isMapMoving = false;
+  document.body.classList.remove("map-is-moving");
+});
+
+map.on("zoomend", () => {
+  if (gridStyleFrame) {
+    window.cancelAnimationFrame(gridStyleFrame);
+  }
+  gridStyleFrame = window.requestAnimationFrame(() => {
+    gridStyleFrame = null;
+    if (gridLayer) gridLayer.setStyle(gridStyle);
+  });
+});
+
+backButton.addEventListener("click", () => {
+  showOverview({ fit: true }).catch((error) => {
+    console.error(error);
+    alert("Neizdevās atgriezties uz Latvijas karti.");
+  });
+});
 calendarToggle.addEventListener("click", () => {
   const hidden = calendarPanel.toggleAttribute("hidden");
   calendarToggle.setAttribute("aria-expanded", String(!hidden));
