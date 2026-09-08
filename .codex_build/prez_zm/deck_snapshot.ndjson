@@ -1,0 +1,120 @@
+{"kind":"layout","layoutId":"/ppt/slideMasters/slideMaster1.xml","name":"","type":"master","placeholders":[{"name":"title","type":"title","textPreview":"Click to edit Master title style"},{"name":"body","type":"body","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"dateTime","type":"dateTime","textPreview":"07.09.2026"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout1.xml","name":"Title Slide","placeholders":[{"name":"title","type":"title","textPreview":"CLICK TO EDIT MASTER TITLE STYLE"},{"name":"subtitle","type":"subtitle","textPreview":"CLICK TO EDIT MASTER SUBTITLE STYLE"},{"name":"dateTime","type":"dateTime","textPreview":"07.09.2026"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout2.xml","name":"Table of Contents","placeholders":[{"name":"title","type":"title","textPreview":"CLICK TO EDIT MASTER TITLE"},{"name":"dateTime","type":"dateTime","textPreview":"07.09.2026"},{"name":"body","type":"body","textPreview":"Click to edit Master text styles | Second level"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout3.xml","name":"Title and Content","type":"obj","placeholders":[{"name":"title","type":"title","textPreview":"CLICK TO EDIT MASTER TITLE STYLE"},{"name":"content placeholder 2","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"dateTime","type":"dateTime","textPreview":"07.09.2026"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout4.xml","name":"Section Header","type":"secHead","placeholders":[{"name":"title","type":"title","textPreview":"Click to edit Master title style"},{"name":"body","type":"body","textPreview":"Click to edit Master text styles"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout5.xml","name":"Two Content","type":"twoObj","placeholders":[{"name":"title","type":"title","textPreview":"CLICK TO EDIT MASTER TITLE STYLE"},{"name":"content placeholder 2","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"content placeholder 3","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"dateTime","type":"dateTime","textPreview":"07.09.2026"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout6.xml","name":"Comparison","type":"twoTxTwoObj","placeholders":[{"name":"title","type":"title","textPreview":"CLICK TO EDIT MASTER TITLE STYLE"},{"name":"body","type":"body","textPreview":"Click to edit Master text styles"},{"name":"content placeholder 3","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"body","type":"body","textPreview":"Click to edit Master text styles"},{"name":"content placeholder 5","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"dateTime","type":"dateTime","textPreview":"07.09.2026"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout7.xml","name":"Title Only","type":"titleOnly","placeholders":[{"name":"title","type":"title","textPreview":"CLICK TO EDIT MASTER TITLE STYLE"},{"name":"dateTime","type":"dateTime","textPreview":"07.09.2026"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout8.xml","name":"Blank","type":"blank"}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout9.xml","name":"Content with Caption","type":"objTx","placeholders":[{"name":"title","type":"title","textPreview":"CLICK TO EDIT MASTER TITLE STYLE"},{"name":"content placeholder 2","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"body","type":"body","textPreview":"Click to edit Master text styles"},{"name":"dateTime","type":"dateTime","textPreview":"07.09.2026"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout10.xml","name":"Picture with Caption","type":"picTx","placeholders":[{"name":"title","type":"title","textPreview":"CLICK TO EDIT MASTER TITLE STYLE"},{"name":"picture","type":"picture","textPreview":"Click icon to add picture"},{"name":"body","type":"body","textPreview":"Click to edit Master text styles"},{"name":"dateTime","type":"dateTime","textPreview":"07.09.2026"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout11.xml","name":"Title and Vertical Text","type":"vertTx","placeholders":[{"name":"title","type":"title","textPreview":"CLICK TO EDIT MASTER TITLE STYLE"},{"name":"body","type":"body","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"dateTime","type":"dateTime","textPreview":"07.09.2026"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout12.xml","name":"Vertical Title and Text","type":"vertTitleAndTx","placeholders":[{"name":"title","type":"title","textPreview":"Click to edit Master title style"},{"name":"body","type":"body","textPreview":"Click to edit Master text styles | Second level | Third level | Fourth level | Fifth level"},{"name":"dateTime","type":"dateTime","textPreview":"07.09.2026"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"slide","id":"sl/y90nupkv","slide":1,"title":"Kūtsmēslu PROJEKTS","textShapes":2}
+{"kind":"textbox","id":"sh/547294r6","slide":1,"textChars":18,"textLines":1}
+{"kind":"textbox","id":"sh/k3yl0zql","slide":1,"textChars":5,"textLines":1}
+{"kind":"notes","id":"nt/y90nupkv","slide":1,"text":""}
+{"kind":"slide","id":"sl/hwbqtkby","slide":2,"title":"SATURS","textShapes":3}
+{"kind":"textbox","id":"sh/9072xkry","slide":2,"textChars":6,"textLines":1}
+{"kind":"shape","id":"sh/ozy1ofad","slide":2,"name":"Content Placeholder 2","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/b29kza94","slide":2,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/a10jqpsj","slide":2,"textChars":1,"textLines":1}
+{"kind":"notes","id":"nt/hwbqtkby","slide":2,"text":""}
+{"kind":"slide","id":"sl/ofy9wn61","slide":3,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/cza94vmx","slide":3,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/298ryl4v","slide":3,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/d0jax03i","slide":3,"textChars":1,"textLines":1}
+{"kind":"image","id":"im/6tknud0f","slide":3,"name":"Satura vietturis 8","bbox":[206.02,168,547.96,475.17]}
+{"kind":"notes","id":"nt/ofy9wn61","slide":3,"text":"EUMETNET atbild par datiem, novērojumiem, radaru, nowcastingu. ECMWF atbild p..."}
+{"kind":"slide","id":"sl/jyx0ra1s","slide":4,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/1cj2d8b6","slide":4,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"shape","id":"sh/0ba143al","slide":4,"name":"Content Placeholder 2","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/rm1k7yt4","slide":4,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/ql8jytsj","slide":4,"textChars":1,"textLines":1}
+{"kind":"notes","id":"nt/jyx0ra1s","slide":4,"text":"MLP dalībnieki ir tie, kas attīsta modeļus. No ECMWF ir iniciatīva. AIFS – EC..."}
+{"kind":"slide","id":"sl/i107q5of","slide":5,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/dgbulwnm","slide":5,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"shape","id":"sh/cf2tcr61","slide":5,"name":"Content Placeholder 2","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/z2tcnm5s","slide":5,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/yhkbe1o7","slide":5,"textChars":1,"textLines":1}
+{"kind":"notes","id":"nt/i107q5of","slide":5,"text":"MARS datubāze ir pāri 700 petabaitiem. Satelītdati ir vēl vairāk… Katru dienu..."}
+{"kind":"slide","id":"sl/x8f69ofe","slide":6,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/yhg7epsj","slide":6,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"shape","id":"sh/zi98nu94","slide":6,"name":"Content Placeholder 2","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/87ipkzal","slide":6,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/98rqt4r6","slide":6,"textChars":1,"textLines":1}
+{"kind":"notes","id":"nt/x8f69ofe","slide":6,"text":"Šobrīd ansambļi tiek atzīti par labāku variantu nekā deterministiski, bet sāk..."}
+{"kind":"slide","id":"sl/gnmp4jqx","slide":7,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/cb2tkvap","slide":7,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"shape","id":"sh/dcbud0ra","slide":7,"name":"Content Placeholder 2","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/ydkbm5sv","slide":7,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/zedcfa9g","slide":7,"textChars":1,"textLines":1}
+{"kind":"notes","id":"nt/gnmp4jqx","slide":7,"text":"Dažādas metrikas dažādiem parametriem – zils ir AIFS ir labāks. https://sites..."}
+{"kind":"slide","id":"sl/fu1gfa1s","slide":8,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/18byd4zy","slide":8,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"shape","id":"sh/g72x4zyd","slide":8,"name":"Content Placeholder 2","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/ri9g7uhw","slide":8,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/sjix0zy1","slide":8,"textChars":1,"textLines":1}
+{"kind":"notes","id":"nt/fu1gfa1s","slide":8,"text":"Datasets ir 4D/5D: laiks, parametrs, ansamblis, vieta (prognozes solis). Tos ..."}
+{"kind":"slide","id":"sl/udsvah03","slide":9,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/1cfmhgne","slide":9,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"shape","id":"sh/0b65obm9","slide":9,"name":"Content Placeholder 2","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/nex4jq5k","slide":9,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/9gzml0nq","slide":9,"textChars":1,"textLines":1}
+{"kind":"notes","id":"nt/udsvah03","slide":9,"text":"Fiksētais laiks ir salikts pēc kārtas. Konkrēti savienojumi procesorā ir spec..."}
+{"kind":"slide","id":"sl/m90b6t0r","slide":10,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/xc3mho32","slide":10,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"shape","id":"sh/cbu58j2h","slide":10,"name":"Content Placeholder 2","bbox":[48,168,515.16,475.17]}
+{"kind":"textbox","id":"sh/zelojyl8","slide":10,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/ydcnatkn","slide":10,"textChars":2,"textLines":1}
+{"kind":"notes","id":"nt/m90b6t0r","slide":10,"text":"Ansambļiem tiek procesorā pievienots noise vektors, kuru tad modelis iemācās ..."}
+{"kind":"slide","id":"sl/jetc3ut0","slide":11,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/xcryxg7y","slide":11,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"shape","id":"sh/wbih4b6d","slide":11,"name":"Content Placeholder 2","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/n69grmpw","slide":11,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/250zy18b","slide":11,"textChars":2,"textLines":1}
+{"kind":"notes","id":"nt/jetc3ut0","slide":11,"text":""}
+{"kind":"slide","id":"sl/8f2psfyx","slide":12,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/1gbm9s3a","slide":12,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/ra943il8","slide":12,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/0f2lgnmp","slide":12,"textChars":2,"textLines":1}
+{"kind":"shape","id":"sh/sb2lcnmd","slide":12,"name":"Satura vietturis 6","bbox":[0,0,0,0]}
+{"kind":"notes","id":"nt/8f2psfyx","slide":12,"text":"Tā kā MI patērē relatīvi daudz enerģijas, redzkur daudz grafiku, kāpēc šoreiz..."}
+{"kind":"slide","id":"sl/hgzapcr6","slide":13,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/q50nydsj","slide":13,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"shape","id":"sh/bq9orito","slide":13,"name":"Content Placeholder 2","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/o3i5w3ad","slide":13,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/p4r6p8by","slide":13,"textChars":2,"textLines":1}
+{"kind":"notes","id":"nt/hgzapcr6","slide":13,"text":"Problēma ar FFT un Stretched-grid / LAM reģionālajiem modeļiem! Reģionālo mod..."}
+{"kind":"slide","id":"sl/6lsnupw7","slide":14,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/xc7eds76","slide":14,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/jepwf2pc","slide":14,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/wbydknq1","slide":14,"textChars":2,"textLines":1}
+{"kind":"shape","id":"sh/kfidonqx","slide":14,"name":"Satura vietturis 6","bbox":[0,0,0,0]}
+{"kind":"notes","id":"nt/6lsnupw7","slide":14,"text":"Pieejami Confluence lapā (privāta, prasiet man papildus info)"}
+{"kind":"slide","id":"sl/vaxsvy10","slide":15,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/547mhg3m","slide":15,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"shape","id":"sh/k3y5ov21","slide":15,"name":"Content Placeholder 2","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/76p4jqls","slide":15,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/65gnqlk7","slide":15,"textChars":2,"textLines":1}
+{"kind":"notes","id":"nt/vaxsvy10","slide":15,"text":"Arī amerikāņi izmanto ERA5! https://climate.copernicus.eu/copernicus-climates..."}
+{"kind":"slide","id":"sl/gny5sjyp","slide":16,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/8z2h8bq1","slide":16,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"shape","id":"sh/9kby1g7m","slide":16,"name":"Content Placeholder 2","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/ytkf2h8j","slide":16,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/zutgvm94","slide":16,"textChars":2,"textLines":1}
+{"kind":"notes","id":"nt/gny5sjyp","slide":16,"text":"Tradicionālais ML var attēlot vērtības tikai starp treniņvērtībām, bet DeepML..."}
+{"kind":"slide","id":"sl/14bup87q","slide":17,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/1c7e50ni","slide":17,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"shape","id":"sh/gbedwfmx","slide":17,"name":"Content Placeholder 2","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/rm5czq50","slide":17,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/6lwvql4v","slide":17,"textChars":2,"textLines":1}
+{"kind":"notes","id":"nt/14bup87q","slide":17,"text":"Izstrādā ECMWF, bet tagad praktiski visi MLP dalībnieki pie tā strādā (vienkā..."}
+{"kind":"slide","id":"sl/y5wne50z","slide":18,"title":"07.09.2026","textShapes":2}
+{"kind":"shape","id":"sh/wrelszu9","slide":18,"name":"Title 1","placeholder":"title","bbox":[0,0,0,0]}
+{"kind":"shape","id":"sh/hsn2l4bu","slide":18,"name":"Content Placeholder 2","bbox":[0,0,0,0]}
+{"kind":"textbox","id":"sh/itw3upcf","slide":18,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/je5knut0","slide":18,"textChars":2,"textLines":1}
+{"kind":"notes","id":"nt/y5wne50z","slide":18,"text":"All-hands notiek reizi pusgadā, kur visi WP kopīgi apspriež izdarīto un nākot..."}
+{"kind":"notice","message":"Truncated: omitted 24 lines. Increase maxChars or narrow target."}

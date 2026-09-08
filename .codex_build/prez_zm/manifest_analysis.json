@@ -1,0 +1,347 @@
+{
+  "date_range": "2026-07-09 to 2026-09-06",
+  "date_count": 60,
+  "default_date": "2026-09-06",
+  "municipality_count": 43,
+  "row_count_latest": 60839,
+  "latest": {
+    "date": "2026-09-06",
+    "total": 60839,
+    "r3": 4047,
+    "r4": 54079,
+    "r5": 2528,
+    "r45_pct": 93.0,
+    "r5_pct": 4.2,
+    "swi_missing": 65621,
+    "hsaf_missing": 4782,
+    "top_reasons": {
+      "P30 nokrišņi paaugstināti": 60839,
+      "H-SAF virsmas mitrums paaugstināts": 60513,
+      "P90 nokrišņu uzkrājums augsts": 58387
+    },
+    "confidence": {
+      "medium": 60839
+    }
+  },
+  "top_r45": [
+    {
+      "date": "2026-08-22",
+      "total": 60839,
+      "r3": 176,
+      "r4": 37859,
+      "r5": 22804,
+      "r45_pct": 99.7,
+      "r5_pct": 37.5,
+      "swi_missing": 1945,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "H-SAF virsmas mitrums paaugstināts": 60839,
+        "P30 nokrišņi paaugstināti": 60839,
+        "Copernicus SWI rāda paaugstinātu profila mitrumu": 59790,
+        "P90 nokrišņu uzkrājums augsts": 57388
+      },
+      "confidence": {
+        "high": 60222,
+        "medium": 617
+      }
+    },
+    {
+      "date": "2026-09-01",
+      "total": 60839,
+      "r3": 214,
+      "r4": 54467,
+      "r5": 6158,
+      "r45_pct": 99.6,
+      "r5_pct": 10.1,
+      "swi_missing": 1945,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "H-SAF virsmas mitrums paaugstināts": 60839,
+        "P30 nokrišņi paaugstināti": 60686,
+        "Copernicus SWI rāda paaugstinātu profila mitrumu": 60214,
+        "P90 nokrišņu uzkrājums augsts": 59828
+      },
+      "confidence": {
+        "high": 60222,
+        "medium": 617
+      }
+    },
+    {
+      "date": "2026-09-05",
+      "total": 60839,
+      "r3": 403,
+      "r4": 43118,
+      "r5": 17318,
+      "r45_pct": 99.3,
+      "r5_pct": 28.5,
+      "swi_missing": 65621,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "H-SAF virsmas mitrums paaugstināts": 60839,
+        "P30 nokrišņi paaugstināti": 60839,
+        "P90 nokrišņu uzkrājums augsts": 60543
+      },
+      "confidence": {
+        "medium": 60839
+      }
+    },
+    {
+      "date": "2026-09-02",
+      "total": 60839,
+      "r3": 2725,
+      "r4": 43115,
+      "r5": 14999,
+      "r45_pct": 95.5,
+      "r5_pct": 24.7,
+      "swi_missing": 1945,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "H-SAF virsmas mitrums paaugstināts": 60834,
+        "P30 nokrišņi paaugstināti": 60815,
+        "P90 nokrišņu uzkrājums augsts": 60522,
+        "Copernicus SWI rāda paaugstinātu profila mitrumu": 60215
+      },
+      "confidence": {
+        "high": 55233,
+        "medium": 5185,
+        "low": 421
+      }
+    },
+    {
+      "date": "2026-09-04",
+      "total": 60839,
+      "r3": 2249,
+      "r4": 39028,
+      "r5": 18901,
+      "r45_pct": 95.2,
+      "r5_pct": 31.1,
+      "swi_missing": 1945,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "P30 nokrišņi paaugstināti": 60839,
+        "P90 nokrišņu uzkrājums augsts": 60299,
+        "Copernicus SWI rāda paaugstinātu profila mitrumu": 60222,
+        "H-SAF virsmas mitrums paaugstināts": 59723
+      },
+      "confidence": {
+        "high": 60222,
+        "medium": 617
+      }
+    }
+  ],
+  "top_r5": [
+    {
+      "date": "2026-08-23",
+      "total": 60839,
+      "r3": 8730,
+      "r4": 24530,
+      "r5": 25938,
+      "r45_pct": 83.0,
+      "r5_pct": 42.6,
+      "swi_missing": 1945,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "P30 nokrišņi paaugstināti": 60839,
+        "Copernicus SWI rāda paaugstinātu profila mitrumu": 59900,
+        "P90 nokrišņu uzkrājums augsts": 59591,
+        "H-SAF virsmas mitrums paaugstināts": 59116
+      },
+      "confidence": {
+        "high": 60222,
+        "medium": 617
+      }
+    },
+    {
+      "date": "2026-08-22",
+      "total": 60839,
+      "r3": 176,
+      "r4": 37859,
+      "r5": 22804,
+      "r45_pct": 99.7,
+      "r5_pct": 37.5,
+      "swi_missing": 1945,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "H-SAF virsmas mitrums paaugstināts": 60839,
+        "P30 nokrišņi paaugstināti": 60839,
+        "Copernicus SWI rāda paaugstinātu profila mitrumu": 59790,
+        "P90 nokrišņu uzkrājums augsts": 57388
+      },
+      "confidence": {
+        "high": 60222,
+        "medium": 617
+      }
+    },
+    {
+      "date": "2026-09-04",
+      "total": 60839,
+      "r3": 2249,
+      "r4": 39028,
+      "r5": 18901,
+      "r45_pct": 95.2,
+      "r5_pct": 31.1,
+      "swi_missing": 1945,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "P30 nokrišņi paaugstināti": 60839,
+        "P90 nokrišņu uzkrājums augsts": 60299,
+        "Copernicus SWI rāda paaugstinātu profila mitrumu": 60222,
+        "H-SAF virsmas mitrums paaugstināts": 59723
+      },
+      "confidence": {
+        "high": 60222,
+        "medium": 617
+      }
+    },
+    {
+      "date": "2026-08-10",
+      "total": 60839,
+      "r3": 7944,
+      "r4": 20503,
+      "r5": 17915,
+      "r45_pct": 63.1,
+      "r5_pct": 29.4,
+      "swi_missing": 1945,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "P30 nokrišņi paaugstināti": 60835,
+        "Copernicus SWI rāda paaugstinātu profila mitrumu": 55880,
+        "P90 nokrišņu uzkrājums augsts": 51025,
+        "H-SAF virsmas mitrums paaugstināts": 44900
+      },
+      "confidence": {
+        "high": 46568,
+        "medium": 14230,
+        "low": 41
+      }
+    },
+    {
+      "date": "2026-08-24",
+      "total": 60839,
+      "r3": 8190,
+      "r4": 34485,
+      "r5": 17743,
+      "r45_pct": 85.8,
+      "r5_pct": 29.2,
+      "swi_missing": 1945,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "P30 nokrišņi paaugstināti": 60839,
+        "P90 nokrišņu uzkrājums augsts": 60217,
+        "Copernicus SWI rāda paaugstinātu profila mitrumu": 59988,
+        "H-SAF virsmas mitrums paaugstināts": 59114
+      },
+      "confidence": {
+        "high": 45319,
+        "medium": 15469,
+        "low": 51
+      }
+    }
+  ],
+  "sample_dates": [
+    {
+      "date": "2026-07-09",
+      "total": 60839,
+      "r3": 4636,
+      "r4": 54467,
+      "r5": 1736,
+      "r45_pct": 92.4,
+      "r5_pct": 2.9,
+      "swi_missing": 1945,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "P30 nokrišņi paaugstināti": 60839,
+        "H-SAF virsmas mitrums paaugstināts": 60242,
+        "Copernicus SWI rāda paaugstinātu profila mitrumu": 56947,
+        "P90 nokrišņu uzkrājums augsts": 2919
+      },
+      "confidence": {
+        "high": 60222,
+        "medium": 617
+      }
+    },
+    {
+      "date": "2026-07-24",
+      "total": 60839,
+      "r3": 14500,
+      "r4": 42245,
+      "r5": 0,
+      "r45_pct": 69.4,
+      "r5_pct": 0.0,
+      "swi_missing": 1945,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "P30 nokrišņi paaugstināti": 60839,
+        "Copernicus SWI rāda paaugstinātu profila mitrumu": 58470,
+        "H-SAF virsmas mitrums paaugstināts": 36228,
+        "P90 nokrišņu uzkrājums augsts": 34800
+      },
+      "confidence": {
+        "high": 60222,
+        "medium": 617
+      }
+    },
+    {
+      "date": "2026-08-08",
+      "total": 60839,
+      "r3": 28294,
+      "r4": 11324,
+      "r5": 0,
+      "r45_pct": 18.6,
+      "r5_pct": 0.0,
+      "swi_missing": 1945,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "P30 nokrišņi paaugstināti": 60183,
+        "Copernicus SWI rāda paaugstinātu profila mitrumu": 54004,
+        "P90 nokrišņu uzkrājums augsts": 48652,
+        "H-SAF virsmas mitrums paaugstināts": 23550
+      },
+      "confidence": {
+        "high": 60222,
+        "medium": 617
+      }
+    },
+    {
+      "date": "2026-08-23",
+      "total": 60839,
+      "r3": 8730,
+      "r4": 24530,
+      "r5": 25938,
+      "r45_pct": 83.0,
+      "r5_pct": 42.6,
+      "swi_missing": 1945,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "P30 nokrišņi paaugstināti": 60839,
+        "Copernicus SWI rāda paaugstinātu profila mitrumu": 59900,
+        "P90 nokrišņu uzkrājums augsts": 59591,
+        "H-SAF virsmas mitrums paaugstināts": 59116
+      },
+      "confidence": {
+        "high": 60222,
+        "medium": 617
+      }
+    },
+    {
+      "date": "2026-09-06",
+      "total": 60839,
+      "r3": 4047,
+      "r4": 54079,
+      "r5": 2528,
+      "r45_pct": 93.0,
+      "r5_pct": 4.2,
+      "swi_missing": 65621,
+      "hsaf_missing": 4782,
+      "top_reasons": {
+        "P30 nokrišņi paaugstināti": 60839,
+        "H-SAF virsmas mitrums paaugstināts": 60513,
+        "P90 nokrišņu uzkrājums augsts": 58387
+      },
+      "confidence": {
+        "medium": 60839
+      }
+    }
+  ],
+  "avg_r45_pct": 62.1
+}

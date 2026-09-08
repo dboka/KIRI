@@ -1,0 +1,189 @@
+{"kind":"deck","id":"pr/vai981","name":"Deck"}
+{"kind":"layout","layoutId":"4d46b6f9-0909-45da-ae83-76b690a34df2","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"e0f879ec-7f2a-42e2-9b3a-d5ba1553b71d","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/2pb6kg","slide":1,"title":"LVĢMC","textShapes":3}
+{"kind":"textbox","id":"sh/dc3ut0ri","slide":1,"text":"LVĢMC","textPreview":"LVĢMC","textChars":5,"textLines":1,"bbox":[216,106,260,62]}
+{"kind":"textbox","id":"sh/cbutkvqd","slide":1,"text":"Kūtsmēslu izkliedes riska karte","textPreview":"Kūtsmēslu izkliedes riska karte","textChars":31,"textLines":1,"bbox":[52,336,800,58]}
+{"kind":"textbox","id":"sh/3m1snq9g","slide":1,"text":"KIRI-LV pilotprojekts. Sagatavošanās sarunai ar Zemkopības ministriju 09.09.2026","textPreview":"KIRI-LV pilotprojekts. Sagatavošanās sarunai ar Zemkopības ministriju 09.09.2026","textChars":80,"textLines":1,"bbox":[55,398,780,50]}
+{"kind":"image","id":"im/na94fq5c","slide":1,"name":"","alt":"LVĢMC title background","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/2pb6kg","slide":1,"text":"Sāku ar ļoti īsu rāmi: šis nav gala normatīvais instruments, bet pirmais aizstāvamais pilots.\nMērķis sapulcei ir parādīt, kādus datus esmu atradis, kā esmu tos salicis vienā ķēdē un kā jau darbojas karte.\nLūgums ZM pusē būs palīdzēt nofiksēt metodikas un normatīvos jautājumus, lai pilotu var pārvērst oficiāli izmantojamā rīkā.\n"}
+{"kind":"slide","id":"sl/8anc60","slide":2,"title":"KIRI-LV pilots","textShapes":12}
+{"kind":"textbox","id":"sh/zu9c7q18","slide":2,"text":"KIRI-LV pilots","textPreview":"KIRI-LV pilots","textChars":14,"textLines":1,"bbox":[58,684,330,22]}
+{"kind":"textbox","id":"sh/et0velk3","slide":2,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[888,684,28,22]}
+{"kind":"textbox","id":"sh/dsru5gji","slide":2,"text":"Kas jau ir apkopots","textPreview":"Kas jau ir apkopots","textChars":19,"textLines":1,"bbox":[58,138,830,58]}
+{"kind":"textbox","id":"sh/sridcb2x","slide":2,"text":"Stāsts sapulcei: dati, aprēķins un demonstrējams karšu rīks","textPreview":"Stāsts sapulcei: dati, aprēķins un demonstrējams karšu rīks","textChars":59,"textLines":1,"bbox":[60,196,760,36]}
+{"kind":"textbox","id":"sh/rq9c361c","slide":2,"text":"60","textPreview":"60","textChars":2,"textLines":1,"bbox":[72,274,210,48]}
+{"kind":"textbox","id":"sh/qp0va1kr","slide":2,"text":"dienu ripojošs kalendārs","textPreview":"dienu ripojošs kalendārs","textChars":24,"textLines":1,"bbox":[72,322,210,38]}
+{"kind":"textbox","id":"sh/5o7u1wj6","slide":2,"text":"43","textPreview":"43","textChars":2,"textLines":1,"bbox":[324,274,240,48]}
+{"kind":"textbox","id":"sh/4nyd8r2l","slide":2,"text":"pašvaldības pārskata kartē","textPreview":"pašvaldības pārskata kartē","textChars":26,"textLines":1,"bbox":[324,322,240,38]}
+{"kind":"textbox","id":"sh/y10z2d0b","slide":2,"text":"1 km","textPreview":"1 km","textChars":4,"textLines":1,"bbox":[610,274,230,48]}
+{"kind":"textbox","id":"sh/j290vihw","slide":2,"text":"detalizētais aprēķina režģis","textPreview":"detalizētais aprēķina režģis","textChars":28,"textLines":1,"bbox":[610,322,230,38]}
+{"kind":"shape","id":"sh/k3i14nih","slide":2,"bbox":[70,382,820,0]}
+{"kind":"textbox","id":"sh/l4rixsz2","slide":2,"text":"Darba plāna satelītu bloks 2.1-2.4 jau sasaistīts ar H-SAF, Copernicus SWI un CLIDATA nokrišņu indikatoriem.\nPilotā dati tiek normalizēti vienotā 1 km telpiskā režģī un rādīti pašvaldību līmenī ar iespēju atvērt grid skatu.\nRīks jau atdala riska līmeni, aktīvos iemeslus, konteksta iemeslus un datu pārliecības līmeni.","textPreview":"Darba plāna satelītu bloks 2.1-2.4 jau sasaistīts ar H-SAF, Copernicus SWI un CLIDATA nokrišņu indikatoriem. | Pilotā dati tiek normalizē...","textChars":318,"textLines":3,"bbox":[76,410,790,150]}
+{"kind":"textbox","id":"sh/adgzyt0f","slide":2,"text":"Iekšējie avoti: Darbu_plans.xlsx, KIRI-LV projekta dokuments, GRID_SAGATAVE/frontend/data/data_metadata.json","textPreview":"Iekšējie avoti: Darbu_plans.xlsx, KIRI-LV projekta dokuments, GRID_SAGATAVE/frontend/data/data_metadata.json","textChars":108,"textLines":1,"bbox":[58,655,780,20]}
+{"kind":"image","id":"im/dgn690fa","slide":2,"name":"","alt":"LVĢMC presentation header background","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/8anc60","slide":2,"text":"Šeit varu pateikt: esmu koncentrējies uz to, kas vajadzīgs pirmajai sapulcei, nevis uz pilnu gala sistēmu.\nSvarīgākais ir pierādīt datu ķēdi. Mums jau ir kartes prototips, kur lietotājs izvēlas datumu, redz pašvaldības kopējo risku un var atvērt 1 km detalizāciju.\nSkaitļi šajā slaidā nāk no pašreizējā frontend datu laidiena.\n\nAvoti:\nC:/Users/deniss.boka/Downloads/Darbu_plans.xlsx\nC:/Users/deniss.boka/MESLI_PROJECT/KIRI/GRID_SAGATAVE/frontend/data/data_metadata.json"}
+{"kind":"slide","id":"sl/caka2g","slide":3,"title":"Darba plāna sasaite","textShapes":4}
+{"kind":"textbox","id":"sh/cjyp4fal","slide":3,"text":"Darba plāna sasaite","textPreview":"Darba plāna sasaite","textChars":19,"textLines":1,"bbox":[58,684,330,22]}
+{"kind":"textbox","id":"sh/dk7qxkr6","slide":3,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[888,684,28,22]}
+{"kind":"textbox","id":"sh/2tw7y5sj","slide":3,"text":"Darba plāna punkti, kurus sedz pilots","textPreview":"Darba plāna punkti, kurus sedz pilots","textChars":37,"textLines":1,"bbox":[58,138,830,58]}
+{"kind":"textbox","id":"sh/3e5orq9o","slide":3,"text":"Slaids sasaista ZM darba uzdevumu ar reāli pārbaudītu prototipa funkcionalitāti","textPreview":"Slaids sasaista ZM darba uzdevumu ar reāli pārbaudītu prototipa funkcionalitāti","textChars":79,"textLines":1,"bbox":[60,196,760,36]}
+{"kind":"table","id":"tb/1gfedgje","slide":3,"name":"","rows":6,"cols":3,"preview":"Punkts | Darba plāna jēga | Pilotā jau parādāms","bbox":[58,250,844,310]}
+{"kind":"image","id":"im/6xkze507","slide":3,"name":"","alt":"LVĢMC presentation header background","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/caka2g","slide":3,"text":"Šo slaidu izmantoju, lai ātri piesaistītu prezentāciju darba plānam.\nEs nerunāju abstrakti par satelītiem. Katru darba plāna punktu mēģinu sasaistīt ar kaut ko, ko var parādīt prototipā.\n3.1 un 3.2 vēl ir nākamais metodiskais posms: vajag vēsturisko references periodu un sliekšņu saskaņošanu ar monitoringa datiem.\n\nAvoti:\nC:/Users/deniss.boka/Downloads/Darbu_plans.xlsx"}
+{"kind":"slide","id":"sl/224d67","slide":4,"title":"Datu avoti","textShapes":20}
+{"kind":"textbox","id":"sh/cni1wzqp","slide":4,"text":"Datu avoti","textPreview":"Datu avoti","textChars":10,"textLines":1,"bbox":[58,684,330,22]}
+{"kind":"textbox","id":"sh/dori54ru","slide":4,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[888,684,28,22]}
+{"kind":"textbox","id":"sh/2hgzqps7","slide":4,"text":"Datu avotu kodols","textPreview":"Datu avotu kodols","textChars":17,"textLines":1,"bbox":[58,138,830,58]}
+{"kind":"textbox","id":"sh/3i90zu9s","slide":4,"text":"Pirmajai versijai pietiek ar pieciem indikatoriem, vēlāk pievieno hard-stop un hidroloģiju","textPreview":"Pirmajai versijai pietiek ar pieciem indikatoriem, vēlāk pievieno hard-stop un hidroloģiju","textChars":90,"textLines":1,"bbox":[60,196,760,36]}
+{"kind":"shape","id":"sh/ojihszad","slide":4,"bbox":[64,242,832,56]}
+{"kind":"textbox","id":"sh/pkri1kry","slide":4,"text":"CLIDATA","textPreview":"CLIDATA","textChars":7,"textLines":1,"bbox":[82,255,150,28]}
+{"kind":"textbox","id":"sh/edgzm5sb","slide":4,"text":"P30, P90, P730","textPreview":"P30, P90, P730","textChars":14,"textLines":1,"bbox":[254,252,220,32]}
+{"kind":"textbox","id":"sh/fep0va9w","slide":4,"text":"Nokrišņu fons īsā, sezonālā un ilgākā periodā","textPreview":"Nokrišņu fons īsā, sezonālā un ilgākā periodā","textChars":45,"textLines":1,"bbox":[500,252,360,34]}
+{"kind":"shape","id":"sh/ze58nut0","slide":4,"bbox":[64,300,832,56]}
+{"kind":"textbox","id":"sh/edwrepcf","slide":4,"text":"H-SAF SSM","textPreview":"H-SAF SSM","textChars":9,"textLines":1,"bbox":[82,313,150,28]}
+{"kind":"textbox","id":"sh/1gnqp4bq","slide":4,"text":"Surface Soil Moisture","textPreview":"Surface Soil Moisture","textChars":21,"textLines":1,"bbox":[254,310,220,32]}
+{"kind":"textbox","id":"sh/0fe9gzu5","slide":4,"text":"Virsmas slāņa mitruma signāls zem 5 cm","textPreview":"Virsmas slāņa mitruma signāls zem 5 cm","textChars":38,"textLines":1,"bbox":[500,310,360,34]}
+{"kind":"shape","id":"sh/nip8rutw","slide":4,"bbox":[64,358,832,56]}
+{"kind":"textbox","id":"sh/mhgri9cb","slide":4,"text":"Copernicus SWI","textPreview":"Copernicus SWI","textChars":14,"textLines":1,"bbox":[82,371,150,28]}
+{"kind":"textbox","id":"sh/9k7at4b2","slide":4,"text":"Soil Water Index","textPreview":"Soil Water Index","textChars":16,"textLines":1,"bbox":[254,368,220,32]}
+{"kind":"textbox","id":"sh/ojy9kzuh","slide":4,"text":"Ikdienas Eiropas 1 km režģis, profila mitruma dinamika","textPreview":"Ikdienas Eiropas 1 km režģis, profila mitruma dinamika","textChars":54,"textLines":1,"bbox":[500,368,360,34]}
+{"kind":"shape","id":"sh/3ml8fats","slide":4,"bbox":[64,416,832,56]}
+{"kind":"textbox","id":"sh/ilc765c7","slide":4,"text":"Stacijas","textPreview":"Stacijas","textChars":8,"textLines":1,"bbox":[82,429,150,28]}
+{"kind":"textbox","id":"sh/6hkbedwv","slide":4,"text":"Augsnes mitrums un temperatūra","textPreview":"Augsnes mitrums un temperatūra","textChars":30,"textLines":1,"bbox":[254,426,220,32]}
+{"kind":"textbox","id":"sh/72tcnid0","slide":4,"text":"Verifikācija, sasalums un lokāls ground truth","textPreview":"Verifikācija, sasalums un lokāls ground truth","textChars":45,"textLines":1,"bbox":[500,426,360,34]}
+{"kind":"shape","id":"sh/832tgnel","slide":4,"bbox":[64,474,832,56]}
+{"kind":"textbox","id":"sh/t4bupsv6","slide":4,"text":"LBTU","textPreview":"LBTU","textChars":4,"textLines":1,"bbox":[82,487,150,28]}
+{"kind":"textbox","id":"sh/yd0batwj","slide":4,"text":"Drenas, mazie baseini, N/P epizodes","textPreview":"Drenas, mazie baseini, N/P epizodes","textChars":35,"textLines":1,"bbox":[254,484,220,32]}
+{"kind":"textbox","id":"sh/je9cjyd4","slide":4,"text":"Indeksa kalibrācija pret reālu zudumu risku","textPreview":"Indeksa kalibrācija pret reālu zudumu risku","textChars":43,"textLines":1,"bbox":[500,484,360,34]}
+{"kind":"textbox","id":"sh/kfitc3ep","slide":4,"text":"Ārējie avoti: EUMETSAT H-SAF, Copernicus Land Monitoring Service, LVĢMC CLIDATA","textPreview":"Ārējie avoti: EUMETSAT H-SAF, Copernicus Land Monitoring Service, LVĢMC CLIDATA","textChars":79,"textLines":1,"bbox":[58,655,780,20]}
+{"kind":"image","id":"im/ilor2t0v","slide":4,"name":"","alt":"LVĢMC presentation header background","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/224d67","slide":4,"text":"Galvenais vēstījums: mums nav jāizdomā datu pasaule no nulles. Ir trīs praktiski avoti pirmajai versijai: nokrišņi, H-SAF SSM un Copernicus SWI.\nH-SAF dod neatkarīgu virsmas mitruma signālu. Copernicus SWI dod ikdienas 1 km Eiropas produktu, kas ir ļoti ērts operacionālai kartei.\nStacijas un LBTU dati vajadzīgi ne tikai papildu slāņiem, bet arī uzticamai validācijai.\n\nAvoti:\nEUMETSAT H28 catalog: https://user.eumetsat.int/catalogue/EO:EUM:DAT:1032\nEUMETSAT H28 EUMETCast notice: https://user.eumetsat.int/news-events/news/new-h-saf-ascat-surface-soil-moisture-h28-product-on-eumet-cast\nEUMETSAT H29 EUMETCast notice: https://user.eumetsat.int/news-events/news/new-h-saf-ascat-surface-soil-moisture-h29-product-on-eumet-cast\nH-SAF soil moisture: https://hsaf.meteoam.it/products/soil-moisture\nCopernicus SWI v2: https://land.copernicus.eu/en/products/soil-moisture/daily-soil-water-index-europe-1km-v2"}
+{"kind":"slide","id":"sl/0texvb","slide":5,"title":"Apstrādes ķēde","textShapes":22}
+{"kind":"textbox","id":"sh/md8zah47","slide":5,"text":"Apstrādes ķēde","textPreview":"Apstrādes ķēde","textChars":14,"textLines":1,"bbox":[58,684,330,22]}
+{"kind":"textbox","id":"sh/7eh0jm5s","slide":5,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[888,684,28,22]}
+{"kind":"textbox","id":"sh/w3ahgrm9","slide":5,"text":"Kā dati kļūst par karti","textPreview":"Kā dati kļūst par karti","textChars":23,"textLines":1,"bbox":[58,138,830,58]}
+{"kind":"textbox","id":"sh/h4jipwnu","slide":5,"text":"Operatīvais prototips strādā kā reproducējama datu ķēde līdz GitHub Pages kartei","textPreview":"Operatīvais prototips strādā kā reproducējama datu ķēde līdz GitHub Pages kartei","textChars":80,"textLines":1,"bbox":[60,196,760,36]}
+{"kind":"textbox","id":"sh/uhszeh4j","slide":5,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[68,260,44,32]}
+{"kind":"textbox","id":"sh/vi10nm5o","slide":5,"text":"Iegūt","textPreview":"Iegūt","textChars":5,"textLines":1,"bbox":[68,310,142,28]}
+{"kind":"textbox","id":"sh/47ahkbml","slide":5,"text":"H-SAF, Copernicus SWI un CLIDATA avoti","textPreview":"H-SAF, Copernicus SWI un CLIDATA avoti","textChars":38,"textLines":1,"bbox":[68,346,138,82]}
+{"kind":"shape","id":"sh/583itwn6","slide":5,"bbox":[186,276,62,0]}
+{"kind":"textbox","id":"sh/xon2xcf6","slide":5,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[238,260,44,32]}
+{"kind":"textbox","id":"sh/cne14ryl","slide":5,"text":"Izgriezt Latviju","textPreview":"Izgriezt Latviju","textChars":16,"textLines":1,"bbox":[238,310,142,28]}
+{"kind":"textbox","id":"sh/bml0vmx0","slide":5,"text":"Vienots datums, CRS un 1 km režģis","textPreview":"Vienots datums, CRS un 1 km režģis","textChars":34,"textLines":1,"bbox":[238,346,138,82]}
+{"kind":"shape","id":"sh/alcj2hgf","slide":5,"bbox":[356,276,62,0]}
+{"kind":"textbox","id":"sh/lcn21wf2","slide":5,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[408,260,44,32]}
+{"kind":"textbox","id":"sh/kbe18ryh","slide":5,"text":"Aprēķināt indikatorus","textPreview":"Aprēķināt indikatorus","textChars":21,"textLines":1,"bbox":[408,310,142,28]}
+{"kind":"textbox","id":"sh/za5kzmxw","slide":5,"text":"P30/P90/P730, SSM, SWI un kvalitātes pazīmes","textPreview":"P30/P90/P730, SSM, SWI un kvalitātes pazīmes","textChars":44,"textLines":1,"bbox":[408,346,138,82]}
+{"kind":"shape","id":"sh/ypwj6hgr","slide":5,"bbox":[526,276,62,0]}
+{"kind":"textbox","id":"sh/1g3ipszy","slide":5,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[578,260,44,32]}
+{"kind":"textbox","id":"sh/0fu1w7yd","slide":5,"text":"Normalizēt risku","textPreview":"Normalizēt risku","textChars":16,"textLines":1,"bbox":[578,310,142,28]}
+{"kind":"textbox","id":"sh/sze1c769","slide":5,"text":"1-5 līmeņi, aktīvie iemesli un pārliecība","textPreview":"1-5 līmeņi, aktīvie iemesli un pārliecība","textChars":41,"textLines":1,"bbox":[578,346,138,82]}
+{"kind":"shape","id":"sh/t072lc7u","slide":5,"bbox":[696,276,62,0]}
+{"kind":"textbox","id":"sh/6xwjaxo3","slide":5,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[748,260,44,32]}
+{"kind":"textbox","id":"sh/7y5kj2po","slide":5,"text":"Publicēt","textPreview":"Publicēt","textChars":8,"textLines":1,"bbox":[748,310,142,28]}
+{"kind":"textbox","id":"sh/g3y1g765","slide":5,"text":"Pašvaldību pārskats un grid vērtības pārlūkā","textPreview":"Pašvaldību pārskats un grid vērtības pārlūkā","textChars":44,"textLines":1,"bbox":[748,346,138,82]}
+{"kind":"textbox","id":"sh/1472pc7q","slide":5,"text":"Praktiskais ieguvums","textPreview":"Praktiskais ieguvums","textChars":20,"textLines":1,"bbox":[78,492,260,28]}
+{"kind":"textbox","id":"sh/u1gjexof","slide":5,"text":"Frontend glabā statisko grid ģeometriju vienreiz, bet katrai dienai ielādē tikai vērtības.\nDienas refresh ģenerē tikai trūkstošo datu posmu, tāpēc rīks paliek uzturams arī ar lielu datu vēsturi.","textPreview":"Frontend glabā statisko grid ģeometriju vienreiz, bet katrai dienai ielādē tikai vērtības. | Dienas refresh ģenerē tikai trūkstošo datu p...","textChars":194,"textLines":2,"bbox":[78,528,760,74]}
+{"kind":"textbox","id":"sh/f2pkn2pk","slide":5,"text":"Koda avoti: GRID_SAGATAVE/ARCHITECTURE.md un GRID_SAGATAVE/README.md","textPreview":"Koda avoti: GRID_SAGATAVE/ARCHITECTURE.md un GRID_SAGATAVE/README.md","textChars":68,"textLines":1,"bbox":[58,655,780,20]}
+{"kind":"image","id":"im/krq58r25","slide":5,"name":"","alt":"LVĢMC presentation header background","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/0texvb","slide":5,"text":"Šis ir tehniskais slaids, bet to var izstāstīt vienkārši: dati ienāk no avotiem, tiek salikti vienā režģī, aprēķināti un publicēti kartē.\nĻoti svarīgi ZM sapulcei: rīks nav vienreizēja bilde. Tas ir datu process, ko var atkārtot katru dienu.\nPašreizējā arhitektūra samazina failu apjomu, jo ģeometrija nav jāglabā katram datumam no jauna.\n\nAvoti:\nC:/Users/deniss.boka/MESLI_PROJECT/KIRI/GRID_SAGATAVE/ARCHITECTURE.md\nC:/Users/deniss.boka/MESLI_PROJECT/KIRI/GRID_SAGATAVE/README.md"}
+{"kind":"slide","id":"sl/hv32rt","slide":6,"title":"60 dienu dati","textShapes":10}
+{"kind":"textbox","id":"sh/el43m5kf","slide":6,"text":"60 dienu dati","textPreview":"60 dienu dati","textChars":13,"textLines":1,"bbox":[58,684,330,22]}
+{"kind":"textbox","id":"sh/zmdkva10","slide":6,"text":"6","textPreview":"6","textChars":1,"textLines":1,"bbox":[888,684,28,22]}
+{"kind":"textbox","id":"sh/or6lsf2x","slide":6,"text":"Riska signāls pēdējā datu logā","textPreview":"Riska signāls pēdējā datu logā","textChars":30,"textLines":1,"bbox":[58,138,830,58]}
+{"kind":"textbox","id":"sh/9sf21kj2","slide":6,"text":"Pilotā var parādīt ne tikai karti, bet arī datu dinamiku pa datumiem","textPreview":"Pilotā var parādīt ne tikai karti, bet arī datu dinamiku pa datumiem","textChars":68,"textLines":1,"bbox":[60,196,760,36]}
+{"kind":"textbox","id":"sh/nqxkza1c","slide":6,"text":"93%","textPreview":"93%","textChars":3,"textLines":1,"bbox":[660,274,215,48]}
+{"kind":"textbox","id":"sh/4v21gv2d","slide":6,"text":"redzamo šūnu 2026-09-06 ir 4. vai 5. riska līmenī","textPreview":"redzamo šūnu 2026-09-06 ir 4. vai 5. riska līmenī","textChars":49,"textLines":1,"bbox":[660,322,215,38]}
+{"kind":"textbox","id":"sh/pwb2p0jy","slide":6,"text":"4.2%","textPreview":"4.2%","textChars":4,"textLines":1,"bbox":[660,394,215,48]}
+{"kind":"textbox","id":"sh/dwvi5kfe","slide":6,"text":"redzamo šūnu 2026-09-06 ir 5. riska līmenī","textPreview":"redzamo šūnu 2026-09-06 ir 5. riska līmenī","textChars":42,"textLines":1,"bbox":[660,442,215,38]}
+{"kind":"textbox","id":"sh/cbmhcfet","slide":6,"text":"Piezīme: jaunākajā datumā SWI vēl kavējas, tāpēc rīks parāda vidēju pārliecību, nevis slēpj datu trūkumu.","textPreview":"Piezīme: jaunākajā datumā SWI vēl kavējas, tāpēc rīks parāda vidēju pārliecību, nevis slēpj datu trūkumu.","textChars":105,"textLines":1,"bbox":[660,514,216,66]}
+{"kind":"textbox","id":"sh/bad03ux8","slide":6,"text":"Datu avots: GRID_SAGATAVE/frontend/data/calendar_manifest.json","textPreview":"Datu avots: GRID_SAGATAVE/frontend/data/calendar_manifest.json","textChars":62,"textLines":1,"bbox":[58,655,780,20]}
+{"kind":"chart","id":"ch/etkb6tcv","slide":6,"name":"","chartType":"line","bbox":[70,245,548,285]}
+{"kind":"image","id":"im/8va1cjeh","slide":6,"name":"","alt":"LVĢMC presentation header background","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/hv32rt","slide":6,"text":"Šo slaidu izmantoju, lai parādītu, ka no prototipa datiem var iegūt arī analītiku, ne tikai karti.\nIzvēlēti daži datumi no 60 dienu loga, lai redzētu dinamiku. Precīzākai metodikai vēl jāiet uz vēsturisko references periodu.\n2026-09-06 93 procenti redzamo šūnu ir 4. vai 5. līmenī. Tas nav juridisks aizliegums, bet riska signāls pēc pašreizējās pilotmetodikas.\n\nAvoti:\nC:/Users/deniss.boka/MESLI_PROJECT/KIRI/GRID_SAGATAVE/frontend/data/calendar_manifest.json"}
+{"kind":"slide","id":"sl/36pigs","slide":7,"title":"Pilotsaites demonstrācija","textShapes":6}
+{"kind":"textbox","id":"sh/l4f21czq","slide":7,"text":"Pilotsaites demonstrācija","textPreview":"Pilotsaites demonstrācija","textChars":25,"textLines":1,"bbox":[58,684,330,22]}
+{"kind":"textbox","id":"sh/036ls7yl","slide":7,"text":"7","textPreview":"7","textChars":1,"textLines":1,"bbox":[888,684,28,22]}
+{"kind":"textbox","id":"sh/bedkv2ho","slide":7,"text":"Latvijas pārskata karte","textPreview":"Latvijas pārskata karte","textChars":23,"textLines":1,"bbox":[58,138,830,58]}
+{"kind":"textbox","id":"sh/qd43mx03","slide":7,"text":"Lietotājs sāk ar vienu saprotamu riska karti un datuma izvēli","textPreview":"Lietotājs sāk ar vienu saprotamu riska karti un datuma izvēli","textChars":61,"textLines":1,"bbox":[60,196,760,36]}
+{"kind":"textbox","id":"sh/cfmloni9","slide":7,"text":"Augšā redzams aktīvais datums.\nDatuma panelis rāda pēdējo 60 dienu logu.\nLeģenda skaidro 1-5 riska līmeņus.\nKlikšķis uz pašvaldības atver 1 km grid skatu.","textPreview":"Augšā redzams aktīvais datums. | Datuma panelis rāda pēdējo 60 dienu logu. | Leģenda skaidro 1-5 riska līmeņus. | Klikšķis uz pašvaldības...","textChars":154,"textLines":4,"bbox":[692,270,198,210]}
+{"kind":"textbox","id":"sh/3atkrihs","slide":7,"text":"Publiskā saite: https://dboka.github.io/KIRI/","textPreview":"Publiskā saite: https://dboka.github.io/KIRI/","textChars":45,"textLines":1,"bbox":[692,534,210,36]}
+{"kind":"image","id":"im/ralc7ids","slide":7,"name":"","alt":"LVĢMC presentation header background","bbox":[0,0,960,720]}
+{"kind":"image","id":"im/47udw3u1","slide":7,"name":"","alt":"KIRI-LV overview map with date calendar","bbox":[48,236,610,382]}
+{"kind":"notes","id":"nt/36pigs","slide":7,"text":"Šajā brīdī sapulcē var atvērt saiti un parādīt dzīvo prototipu.\nEs sāku no Latvijas kartes. Te nav sarežģītu slāņu pārslēgu. Mērķis ir, lai lietotājs uzreiz saprot, kur šodien vai izvēlētajā datumā ir augstāks risks.\nDatuma izvēlē redzams arī kvalitātes signāls. Ja SWI kavējas, rīks to parāda.\n\nAvoti:\nhttps://dboka.github.io/KIRI/\nLokālais ekrānattēls no GRID_SAGATAVE/frontend, uzņemts 2026-09-07."}
+{"kind":"slide","id":"sl/xb7kkc","slide":8,"title":"Grid detalizācija","textShapes":7}
+{"kind":"textbox","id":"sh/n2l0j2xg","slide":8,"text":"Grid detalizācija","textPreview":"Grid detalizācija","textChars":17,"textLines":1,"bbox":[58,684,330,22]}
+{"kind":"textbox","id":"sh/m1sjqhwv","slide":8,"text":"8","textPreview":"8","textChars":1,"textLines":1,"bbox":[888,684,28,22]}
+{"kind":"textbox","id":"sh/xs32pwfi","slide":8,"text":"Pašvaldības 1 km grid skats","textPreview":"Pašvaldības 1 km grid skats","textChars":27,"textLines":1,"bbox":[58,138,830,58]}
+{"kind":"textbox","id":"sh/wru1wrex","slide":8,"text":"Klikšķis uz novada parāda, kur novada iekšienē veidojas augstais risks","textPreview":"Klikšķis uz novada parāda, kur novada iekšienē veidojas augstais risks","textChars":70,"textLines":1,"bbox":[60,196,760,36]}
+{"kind":"textbox","id":"sh/apcjuhwr","slide":8,"text":"Ko demonstrēt","textPreview":"Ko demonstrēt","textChars":13,"textLines":1,"bbox":[700,254,178,28]}
+{"kind":"textbox","id":"sh/lwn2twve","slide":8,"text":"Novada panelī redzams kopējais risks un augsta riska šūnu īpatsvars.\nGrid šūna atver indikatorus: H-SAF SSM, P30, P90, P730 un SWI, kad tas ir pieejams.\nReason codes rāda, kāpēc teritorija nokļuvusi riska līmenī.","textPreview":"Novada panelī redzams kopējais risks un augsta riska šūnu īpatsvars. | Grid šūna atver indikatorus: H-SAF SSM, P30, P90, P730 un SWI, kad...","textChars":212,"textLines":3,"bbox":[700,294,190,190]}
+{"kind":"textbox","id":"sh/kve10ret","slide":8,"text":"Šis ir svarīgākais pilots: pašvaldība nav tikai viena krāsa, aiz tās ir pārbaudāmas šūnas.","textPreview":"Šis ir svarīgākais pilots: pašvaldība nav tikai viena krāsa, aiz tās ir pārbaudāmas šūnas.","textChars":90,"textLines":1,"bbox":[700,528,190,54]}
+{"kind":"image","id":"im/t8369wf6","slide":8,"name":"","alt":"LVĢMC presentation header background","bbox":[0,0,960,720]}
+{"kind":"image","id":"im/u9c7i1wr","slide":8,"name":"","alt":"KIRI-LV municipality grid view with selected cell","bbox":[44,230,620,388]}
+{"kind":"notes","id":"nt/xb7kkc","slide":8,"text":"Šis ir praktiskākais slaids. Te parādu, ka karte nav tikai pašvaldības vidējā vērtība.\nKlikšķis uz novada atver grid skatu. Klikšķis uz šūnas parāda konkrētos indikatorus un iemeslus.\nTas palīdz aizstāvēt pieeju: lēmumu var komunicēt pašvaldību līmenī, bet aprēķinu turēt telpiski detalizētu.\n\nAvoti:\nLokālais ekrānattēls no GRID_SAGATAVE/frontend, uzņemts 2026-09-07."}
+{"kind":"slide","id":"sl/u2ujbl","slide":9,"title":"Riska algoritms","textShapes":13}
+{"kind":"textbox","id":"sh/vq5gvmtc","slide":9,"text":"Riska algoritms","textPreview":"Riska algoritms","textChars":15,"textLines":1,"bbox":[58,684,330,22]}
+{"kind":"textbox","id":"sh/upwzmhcr","slide":9,"text":"9","textPreview":"9","textChars":1,"textLines":1,"bbox":[888,684,28,22]}
+{"kind":"textbox","id":"sh/9onytcb6","slide":9,"text":"Pašreizējais riska aprēķins","textPreview":"Pašreizējais riska aprēķins","textChars":27,"textLines":1,"bbox":[58,138,830,58]}
+{"kind":"textbox","id":"sh/8nehk7u1","slide":9,"text":"v0.1.3 dod skaidrojamu risku, bet sliekšņi vēl jāvalidē pret vēsturi un stacijām","textPreview":"v0.1.3 dod skaidrojamu risku, bet sliekšņi vēl jāvalidē pret vēsturi un stacijām","textChars":80,"textLines":1,"bbox":[60,196,760,36]}
+{"kind":"shape","id":"sh/7m5gr2tg","slide":9,"bbox":[72,270,236,190]}
+{"kind":"textbox","id":"sh/mlwzixcv","slide":9,"text":"Indikatori","textPreview":"Indikatori","textChars":10,"textLines":1,"bbox":[90,292,200,26]}
+{"kind":"textbox","id":"sh/lknypsba","slide":9,"text":"P30, P90, P730, H-SAF SSM un Copernicus SWI tiek pārvērsti 1-5 riska līmenī.","textPreview":"P30, P90, P730, H-SAF SSM un Copernicus SWI tiek pārvērsti 1-5 riska līmenī.","textChars":76,"textLines":1,"bbox":[90,332,198,92]}
+{"kind":"shape","id":"sh/kjuhg7up","slide":9,"bbox":[354,270,236,190]}
+{"kind":"textbox","id":"sh/qpwnq10f","slide":9,"text":"Kombinācija","textPreview":"Kombinācija","textChars":11,"textLines":1,"bbox":[372,292,200,26]}
+{"kind":"textbox","id":"sh/rq54j6h0","slide":9,"text":"Konfigurācijā izmantota moisture-first pieeja ar vismaz trīs aktīviem indikatoriem.","textPreview":"Konfigurācijā izmantota moisture-first pieeja ar vismaz trīs aktīviem indikatoriem.","textChars":83,"textLines":1,"bbox":[372,332,198,92]}
+{"kind":"shape","id":"sh/cre5sril","slide":9,"bbox":[636,270,236,190]}
+{"kind":"textbox","id":"sh/dsnmlwz6","slide":9,"text":"Skaidrojums","textPreview":"Skaidrojums","textChars":11,"textLines":1,"bbox":[654,292,200,26]}
+{"kind":"textbox","id":"sh/21c3mh0j","slide":9,"text":"Katram riskam līdzi nāk aktīvie iemesli, konteksts un pārliecības līmenis.","textPreview":"Katram riskam līdzi nāk aktīvie iemesli, konteksts un pārliecības līmenis.","textChars":74,"textLines":1,"bbox":[654,332,198,92]}
+{"kind":"textbox","id":"sh/3ml4fmh4","slide":9,"text":"Svarīgi sapulcei","textPreview":"Svarīgi sapulcei","textChars":16,"textLines":1,"bbox":[78,520,200,28]}
+{"kind":"textbox","id":"sh/4nu5orip","slide":9,"text":"Pilotā šobrīd ir tehniski strādājošs aprēķins. ZM, LVĢMC un LBTU sarunā jāvienojas, kā robežvērtības zinātniski nostiprināt Latvijas apstākļiem.","textPreview":"Pilotā šobrīd ir tehniski strādājošs aprēķins. ZM, LVĢMC un LBTU sarunā jāvienojas, kā robežvērtības zinātniski nostiprināt Latvijas apst...","textChars":144,"textLines":1,"bbox":[78,554,745,56]}
+{"kind":"textbox","id":"sh/po3mhwzu","slide":9,"text":"Koda avots: GRID_SAGATAVE/config/normalization_v01.yaml","textPreview":"Koda avots: GRID_SAGATAVE/config/normalization_v01.yaml","textChars":55,"textLines":1,"bbox":[58,655,780,20]}
+{"kind":"image","id":"im/psfqpcva","slide":9,"name":"","alt":"LVĢMC presentation header background","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/u2ujbl","slide":9,"text":"Šeit necenšos pārdot sliekšņus kā galīgus. Godīgi saku: pilotā ir strādājoša loģika, kas ļauj testēt rezultātu.\nNākamais zinātniskais darbs ir robežvērtības. Tās jānosaka no vēsturiskajiem datiem, stacijām un monitoringa rezultātiem.\nManuprāt, ZM sapulcē tas ir jāpārvērš par darba uzdevumu, nevis par strīdu par vienu konkrētu skaitli.\n\nAvoti:\nC:/Users/deniss.boka/MESLI_PROJECT/KIRI/GRID_SAGATAVE/config/normalization_v01.yaml"}
+{"kind":"slide","id":"sl/rn0mg9","slide":10,"title":"Validācija","textShapes":11}
+{"kind":"textbox","id":"sh/0r6p4b2l","slide":10,"text":"Validācija","textPreview":"Validācija","textChars":10,"textLines":1,"bbox":[58,684,330,22]}
+{"kind":"textbox","id":"sh/1sfqxgj6","slide":10,"text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[888,684,28,22]}
+{"kind":"textbox","id":"sh/q147y1kj","slide":10,"text":"Kā pierādīt satelītdatu kvalitāti","textPreview":"Kā pierādīt satelītdatu kvalitāti","textChars":33,"textLines":1,"bbox":[58,138,830,58]}
+{"kind":"textbox","id":"sh/r2d8rm14","slide":10,"text":"2.3, 3.1 un 3.2 prasa salīdzinājumu ar novērojumiem un vēsturisko fonu","textPreview":"2.3, 3.1 un 3.2 prasa salīdzinājumu ar novērojumiem un vēsturisko fonu","textChars":70,"textLines":1,"bbox":[60,196,760,36]}
+{"kind":"textbox","id":"sh/snmp0r2p","slide":10,"text":"Stacija pret gridu","textPreview":"Stacija pret gridu","textChars":18,"textLines":1,"bbox":[74,262,230,32]}
+{"kind":"textbox","id":"sh/dofqtwju","slide":10,"text":"Vēsturiskā reference","textPreview":"Vēsturiskā reference","textChars":20,"textLines":1,"bbox":[365,262,230,32]}
+{"kind":"textbox","id":"sh/ax8ral0n","slide":10,"text":"Robežvērtības","textPreview":"Robežvērtības","textChars":13,"textLines":1,"bbox":[656,262,230,32]}
+{"kind":"textbox","id":"sh/byh83q18","slide":10,"text":"Tuvākā grid šūna vai 3x3 šūnu logs ap staciju.\nSSM/SWI salīdzinājums ar augsnes mitrumu un temperatūru.\nKvalitātes pazīmes pie katra datuma.","textPreview":"Tuvākā grid šūna vai 3x3 šūnu logs ap staciju. | SSM/SWI salīdzinājums ar augsnes mitrumu un temperatūru. | Kvalitātes pazīmes pie katra ...","textChars":140,"textLines":3,"bbox":[80,318,220,150]}
+{"kind":"textbox","id":"sh/bi9kb6pk","slide":10,"text":"Sezona un reģions jāņem vērā.\nP30/P90/P730 var pārvērst percentilēs.\nSWI un H-SAF jāvērtē pret vairāku gadu fonu.","textPreview":"Sezona un reģions jāņem vērā. | P30/P90/P730 var pārvērst percentilēs. | SWI un H-SAF jāvērtē pret vairāku gadu fonu.","textChars":113,"textLines":3,"bbox":[371,318,220,150]}
+{"kind":"textbox","id":"sh/qh03i1oz","slide":10,"text":"Pārmitra un sasalusi augsne jādefinē atsevišķi.\nJuridiskais hard-stop jāglabā atsevišķi no hidroloģiskā riska.\nLBTU dati palīdz pārbaudīt N/P zudumu epizodes.","textPreview":"Pārmitra un sasalusi augsne jādefinē atsevišķi. | Juridiskais hard-stop jāglabā atsevišķi no hidroloģiskā riska. | LBTU dati palīdz pārba...","textChars":158,"textLines":3,"bbox":[662,318,220,162]}
+{"kind":"textbox","id":"sh/dkr2dw7a","slide":10,"text":"Rezultāts: metodika, kas ir izskaidrojama arī tad, ja dati kavējas vai viens avots uz konkrētu dienu nav pieejams.","textPreview":"Rezultāts: metodika, kas ir izskaidrojama arī tad, ja dati kavējas vai viens avots uz konkrētu dienu nav pieejams.","textChars":114,"textLines":1,"bbox":[86,540,760,42]}
+{"kind":"image","id":"im/210nyl83","slide":10,"name":"","alt":"LVĢMC presentation header background","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/rn0mg9","slide":10,"text":"Šis ir metodikas slaids. Galvenais teikt: satelītu dati jāvalidē, un pilots jau sagatavo datu struktūru šādai validācijai.\nSalīdzinājumam nevajag tikai vienu punktu kartē. Var lietot tuvāko grid šūnu vai 3x3 apkārtni, lai mazinātu ģeolokācijas un mēroga atšķirības.\nRobežvērtības pārmitrumam un sasalumam jābalsta datos. Juridiskais aizliegums jānodala no riska indeksa.\n"}
+{"kind":"slide","id":"sl/pqws8w","slide":11,"title":"Demonstrācijas teksts","textShapes":19}
+{"kind":"textbox","id":"sh/pc3mdgna","slide":11,"text":"Demonstrācijas teksts","textPreview":"Demonstrācijas teksts","textChars":21,"textLines":1,"bbox":[58,684,330,22]}
+{"kind":"textbox","id":"sh/obu5kbmp","slide":11,"text":"11","textPreview":"11","textChars":2,"textLines":1,"bbox":[888,684,28,22]}
+{"kind":"textbox","id":"sh/bel4fq5g","slide":11,"text":"Ko tieši parādīt ZM sapulcē","textPreview":"Ko tieši parādīt ZM sapulcē","textChars":27,"textLines":1,"bbox":[58,138,830,58]}
+{"kind":"textbox","id":"sh/qdcnml4v","slide":11,"text":"Īsa demonstrācijas secība, ja būs jārunā un jārāda saite","textPreview":"Īsa demonstrācijas secība, ja būs jārunā un jārāda saite","textChars":56,"textLines":1,"bbox":[60,196,760,36]}
+{"kind":"textbox","id":"sh/dgnmh03m","slide":11,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[78,248,42,32]}
+{"kind":"textbox","id":"sh/cfu5ovm1","slide":11,"text":"Atvērt saiti","textPreview":"Atvērt saiti","textChars":12,"textLines":1,"bbox":[142,250,210,28]}
+{"kind":"textbox","id":"sh/zi54jqlc","slide":11,"text":"https://dboka.github.io/KIRI/","textPreview":"https://dboka.github.io/KIRI/","textChars":29,"textLines":1,"bbox":[370,252,478,32]}
+{"kind":"textbox","id":"sh/yhwnql4r","slide":11,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[78,310,42,32]}
+{"kind":"textbox","id":"sh/ofupwfeh","slide":11,"text":"Parādīt datumu","textPreview":"Parādīt datumu","textChars":14,"textLines":1,"bbox":[142,312,210,28]}
+{"kind":"textbox","id":"sh/pg365kv2","slide":11,"text":"60 dienu kalendārs, jaunākais datums un SWI kavēšanās atzīme","textPreview":"60 dienu kalendārs, jaunākais datums un SWI kavēšanās atzīme","textChars":60,"textLines":1,"bbox":[370,314,478,32]}
+{"kind":"textbox","id":"sh/2dc7upwr","slide":11,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[78,372,42,32]}
+{"kind":"textbox","id":"sh/3elo3adw","slide":11,"text":"Klikšķināt uz novada","textPreview":"Klikšķināt uz novada","textChars":20,"textLines":1,"bbox":[142,374,210,28]}
+{"kind":"textbox","id":"sh/cjep0zet","slide":11,"text":"Pašvaldības risku nomaina 1 km grid detalizācija","textPreview":"Pašvaldības risku nomaina 1 km grid detalizācija","textChars":48,"textLines":1,"bbox":[370,376,478,32]}
+{"kind":"textbox","id":"sh/dknq94ve","slide":11,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[78,434,42,32]}
+{"kind":"textbox","id":"sh/qhw7ypwn","slide":11,"text":"Klikšķināt uz šūnas","textPreview":"Klikšķināt uz šūnas","textChars":19,"textLines":1,"bbox":[142,436,210,28]}
+{"kind":"textbox","id":"sh/bi587ud8","slide":11,"text":"Parādās indikatori, reason codes un rekomendācija","textPreview":"Parādās indikatori, reason codes un rekomendācija","textChars":49,"textLines":1,"bbox":[370,438,478,32]}
+{"kind":"textbox","id":"sh/07ep4zep","slide":11,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[78,496,42,32]}
+{"kind":"textbox","id":"sh/l87qd4va","slide":11,"text":"Noslēgt ar metodiku","textPreview":"Noslēgt ar metodiku","textChars":19,"textLines":1,"bbox":[142,498,210,28]}
+{"kind":"textbox","id":"sh/9sjy1kj2","slide":11,"text":"Ko vajag saskaņot, lai pilots kļūst par oficiālu rīku","textPreview":"Ko vajag saskaņot, lai pilots kļūst par oficiālu rīku","textChars":53,"textLines":1,"bbox":[370,500,478,32]}
+{"kind":"image","id":"im/vi1crad4","slide":11,"name":"","alt":"LVĢMC presentation header background","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/pqws8w","slide":11,"text":"Šo var lietot kā tiešo demonstrācijas špikeri.\nEs atveru saiti, parādu, ka kartē ir datuma izvēle, tad izvēlos konkrētu pašvaldību un vienu grid šūnu.\nSvarīgi nerunāt pārāk ilgi par katru pogu. Galvenais ir parādīt datu ceļu no avotiem līdz lēmuma atbalstam.\n"}
+{"kind":"slide","id":"sl/3ja7ui","slide":12,"title":"Nākamie lēmumi","textShapes":6}
+{"kind":"textbox","id":"sh/czah4bud","slide":12,"text":"Nākamie lēmumi","textPreview":"Nākamie lēmumi","textChars":14,"textLines":1,"bbox":[58,684,330,22]}
+{"kind":"textbox","id":"sh/x0jixwby","slide":12,"text":"12","textPreview":"12","textChars":2,"textLines":1,"bbox":[888,684,28,22]}
+{"kind":"textbox","id":"sh/2t8zyhcb","slide":12,"text":"Jautājumi, kurus vajag nofiksēt ar ZM","textPreview":"Jautājumi, kurus vajag nofiksēt ar ZM","textChars":37,"textLines":1,"bbox":[58,138,830,58]}
+{"kind":"textbox","id":"sh/nuh0rmtw","slide":12,"text":"Pēc demonstrācijas vajadzīgs kopīgs metodikas un datu piekļuves rāmis","textPreview":"Pēc demonstrācijas vajadzīgs kopīgs metodikas un datu piekļuves rāmis","textChars":69,"textLines":1,"bbox":[60,196,760,36]}
+{"kind":"textbox","id":"sh/ovqh0ruh","slide":12,"text":"Kuras robežvērtības ZM vēlas redzēt kā metodiski apstiprināmas pirmajā posmā.\nKā piekļūt un izmantot 10 LVĢMC augsnes mitruma un temperatūras staciju datus validācijai.\nKuri normatīvie hard-stop noteikumi jāievieš kā atsevišķs konfigurējams slānis.\nKāds ir minimālais pilots, ko var demonstrēt nākamajā projekta starpposmā.\nKā sadalīt lomas starp LVĢMC, ZM un LBTU sliekšņu validācijai un N/P riska pārbaudei.","textPreview":"Kuras robežvērtības ZM vēlas redzēt kā metodiski apstiprināmas pirmajā posmā. | Kā piekļūt un izmantot 10 LVĢMC augsnes mitruma un temper...","textChars":409,"textLines":5,"bbox":[84,262,760,230]}
+{"kind":"textbox","id":"sh/pwzitwb2","slide":12,"text":"Mans ieteikums sapulces noslēgumam: vienoties par datu validācijas protokolu un robežvērtību darba grupu.","textPreview":"Mans ieteikums sapulces noslēgumam: vienoties par datu validācijas protokolu un robežvērtību darba grupu.","textChars":105,"textLines":1,"bbox":[86,552,738,42]}
+{"kind":"image","id":"im/ul8rqt07","slide":12,"name":"","alt":"LVĢMC presentation header background","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/3ja7ui","slide":12,"text":"Noslēdzu ar praktiskiem jautājumiem.\nEs prasītu nevis vispārīgu atbalstu, bet konkrētu nākamo soli: validācijas protokols, staciju dati un robežvērtību saskaņošana.\nTad pilots iegūst skaidru ceļu no demonstrācijas uz izmantojamu metodiku.\n"}

@@ -1,0 +1,187 @@
+{"kind":"slide","id":"sl/y90nupkv","slide":1,"title":"LVĢMC","textShapes":3}
+{"kind":"textbox","id":"sh/547294r6","slide":1,"textChars":5,"textLines":1}
+{"kind":"textbox","id":"sh/k3yl0zql","slide":1,"textChars":31,"textLines":1}
+{"kind":"textbox","id":"sh/7qp4be9c","slide":1,"textChars":80,"textLines":1}
+{"kind":"image","id":"im/ri9kvmxs","slide":1,"name":"","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/y90nupkv","slide":1,"text":"Sāku ar ļoti īsu rāmi: šis nav gala normatīvais instruments, bet pirmais aizs..."}
+{"kind":"slide","id":"sl/hwbqtkby","slide":2,"title":"KIRI-LV pilots","textShapes":12}
+{"kind":"textbox","id":"sh/9072xkry","slide":2,"textChars":14,"textLines":1}
+{"kind":"textbox","id":"sh/ozy1ofad","slide":2,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/b29kza94","slide":2,"textChars":19,"textLines":1}
+{"kind":"textbox","id":"sh/a10jqpsj","slide":2,"textChars":59,"textLines":1}
+{"kind":"textbox","id":"sh/x4r21kru","slide":2,"textChars":2,"textLines":1}
+{"kind":"textbox","id":"sh/w3i1sfa9","slide":2,"textChars":24,"textLines":1}
+{"kind":"textbox","id":"sh/r65knqtk","slide":2,"textChars":2,"textLines":1}
+{"kind":"textbox","id":"sh/q5wjelsz","slide":2,"textChars":26,"textLines":1}
+{"kind":"textbox","id":"sh/ove9o7yd","slide":2,"textChars":4,"textLines":1}
+{"kind":"textbox","id":"sh/9wnqhczy","slide":2,"textChars":28,"textLines":1}
+{"kind":"shape","id":"sh/mtwrmxg7","slide":2,"bbox":[70,382,820,0]}
+{"kind":"textbox","id":"sh/nu58f2hs","slide":2,"textChars":318,"textLines":3}
+{"kind":"textbox","id":"sh/wjy9sry9","slide":2,"textChars":108,"textLines":1}
+{"kind":"image","id":"im/atwv650n","slide":2,"name":"","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/hwbqtkby","slide":2,"text":"Šeit varu pateikt: esmu koncentrējies uz to, kas vajadzīgs pirmajai sapulcei,..."}
+{"kind":"slide","id":"sl/ofy9wn61","slide":3,"title":"Darba plāna sasaite","textShapes":4}
+{"kind":"textbox","id":"sh/cza94vmx","slide":3,"textChars":19,"textLines":1}
+{"kind":"textbox","id":"sh/d0jax03i","slide":3,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/298ryl4v","slide":3,"textChars":37,"textLines":1}
+{"kind":"textbox","id":"sh/3ah8rqlg","slide":3,"textChars":79,"textLines":1}
+{"kind":"table","id":"tb/4vqpgvyl","slide":3,"name":"","rows":6,"cols":3,"preview":"Punkts | Darba plāna jēga | Pilotā jau parādāms","bbox":[58,250,844,310]}
+{"kind":"image","id":"im/twvmpszq","slide":3,"name":"","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/ofy9wn61","slide":3,"text":"Šo slaidu izmantoju, lai ātri piesaistītu prezentāciju darba plānam. | Es ner..."}
+{"kind":"slide","id":"sl/jyx0ra1s","slide":4,"title":"Datu avoti","textShapes":20}
+{"kind":"textbox","id":"sh/1cj2d8b6","slide":4,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/0ba143al","slide":4,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/rm1k7yt4","slide":4,"textChars":17,"textLines":1}
+{"kind":"textbox","id":"sh/ql8jytsj","slide":4,"textChars":90,"textLines":1}
+{"kind":"shape","id":"sh/doj29oba","slide":4,"bbox":[64,242,832,56]}
+{"kind":"textbox","id":"sh/sna103ap","slide":4,"textChars":7,"textLines":1}
+{"kind":"textbox","id":"sh/3ihk3et8","slide":4,"textChars":14,"textLines":1}
+{"kind":"textbox","id":"sh/ih8ju9sn","slide":4,"textChars":45,"textLines":1}
+{"kind":"shape","id":"sh/kbm987y5","slide":4,"bbox":[64,300,832,56]}
+{"kind":"textbox","id":"sh/5cva1cfq","slide":4,"textChars":9,"textLines":1}
+{"kind":"textbox","id":"sh/i94r6xgz","slide":4,"textChars":21,"textLines":1}
+{"kind":"textbox","id":"sh/jadsz2xk","slide":4,"textChars":38,"textLines":1}
+{"kind":"shape","id":"sh/w72947yt","slide":4,"bbox":[64,358,832,56]}
+{"kind":"textbox","id":"sh/x8vaxsfe","slide":4,"textChars":14,"textLines":1}
+{"kind":"textbox","id":"sh/a5kr2xg3","slide":4,"textChars":16,"textLines":1}
+{"kind":"textbox","id":"sh/v6tsv2xo","slide":4,"textChars":54,"textLines":1}
+{"kind":"shape","id":"sh/g36tgryd","slide":4,"bbox":[64,416,832,56]}
+{"kind":"textbox","id":"sh/h4fa9wfy","slide":4,"textChars":8,"textLines":1}
+{"kind":"textbox","id":"sh/p0batw72","slide":4,"textChars":30,"textLines":1}
+{"kind":"textbox","id":"sh/oz29krqh","slide":4,"textChars":45,"textLines":1}
+{"kind":"shape","id":"sh/3ytsrmpw","slide":4,"bbox":[64,474,832,56]}
+{"kind":"textbox","id":"sh/2xkrih8b","slide":4,"textChars":4,"textLines":1}
+{"kind":"textbox","id":"sh/1wbapc7q","slide":4,"textChars":35,"textLines":1}
+{"kind":"textbox","id":"sh/gv29g7q5","slide":4,"textChars":43,"textLines":1}
+{"kind":"textbox","id":"sh/fu9sn2p0","slide":4,"textChars":79,"textLines":1}
+{"kind":"image","id":"im/x83qdojq","slide":4,"name":"","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/jyx0ra1s","slide":4,"text":"Galvenais vēstījums: mums nav jāizdomā datu pasaule no nulles. Ir trīs prakti..."}
+{"kind":"slide","id":"sl/i107q5of","slide":5,"title":"Apstrādes ķēde","textShapes":22}
+{"kind":"textbox","id":"sh/dgbulwnm","slide":5,"textChars":14,"textLines":1}
+{"kind":"textbox","id":"sh/cf2tcr61","slide":5,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/z2tcnm5s","slide":5,"textChars":23,"textLines":1}
+{"kind":"textbox","id":"sh/yhkbe1o7","slide":5,"textChars":80,"textLines":1}
+{"kind":"textbox","id":"sh/l4bupwny","slide":5,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/032tgr6d","slide":5,"textChars":5,"textLines":1}
+{"kind":"textbox","id":"sh/n6dcr65o","slide":5,"textChars":38,"textLines":1}
+{"kind":"shape","id":"sh/m5kbi1oj","slide":5,"bbox":[186,276,62,0]}
+{"kind":"textbox","id":"sh/w32dkbuh","slide":5,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/x4vedgvm","slide":5,"textChars":16,"textLines":1}
+{"kind":"textbox","id":"sh/ahkvi1cb","slide":5,"textChars":34,"textLines":1}
+{"kind":"shape","id":"sh/v2twb6dw","slide":5,"bbox":[356,276,62,0]}
+{"kind":"textbox","id":"sh/k7mxovud","slide":5,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/58vehgvy","slide":5,"textChars":21,"textLines":1}
+{"kind":"textbox","id":"sh/i54fmlc7","slide":5,"textChars":44,"textLines":1}
+{"kind":"shape","id":"sh/j6dwfqds","slide":5,"bbox":[526,276,62,0]}
+{"kind":"textbox","id":"sh/sb6xsvu9","slide":5,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/tcfel0vu","slide":5,"textChars":16,"textLines":1}
+{"kind":"textbox","id":"sh/hgrmpwj2","slide":5,"textChars":41,"textLines":1}
+{"kind":"shape","id":"sh/gfi5grih","slide":5,"bbox":[696,276,62,0]}
+{"kind":"textbox","id":"sh/fe94nm1w","slide":5,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/ud0ne10b","slide":5,"textChars":8,"textLines":1}
+{"kind":"textbox","id":"sh/pkr6tgjy","slide":5,"textChars":44,"textLines":1}
+{"kind":"textbox","id":"sh/4ji5kbid","slide":5,"textChars":20,"textLines":1}
+{"kind":"textbox","id":"sh/3i94r61s","slide":5,"textChars":194,"textLines":2}
+{"kind":"textbox","id":"sh/2h0ni107","slide":5,"textChars":68,"textLines":1}
+{"kind":"image","id":"im/ulkfaloz","slide":5,"name":"","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/i107q5of","slide":5,"text":"Šis ir tehniskais slaids, bet to var izstāstīt vienkārši: dati ienāk no avoti..."}
+{"kind":"slide","id":"sl/x8f69ofe","slide":6,"title":"60 dienu dati","textShapes":10}
+{"kind":"textbox","id":"sh/yhg7epsj","slide":6,"textChars":13,"textLines":1}
+{"kind":"textbox","id":"sh/zi98nu94","slide":6,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/87ipkzal","slide":6,"textChars":30,"textLines":1}
+{"kind":"textbox","id":"sh/98rqt4r6","slide":6,"textChars":68,"textLines":1}
+{"kind":"textbox","id":"sh/7m98ru9g","slide":6,"textChars":3,"textLines":1}
+{"kind":"textbox","id":"sh/oryp8fah","slide":6,"textChars":49,"textLines":1}
+{"kind":"textbox","id":"sh/pc76hkr2","slide":6,"textChars":4,"textLines":1}
+{"kind":"textbox","id":"sh/h4bupgn6","slide":6,"textChars":42,"textLines":1}
+{"kind":"textbox","id":"sh/w32twb6l","slide":6,"textChars":105,"textLines":1}
+{"kind":"textbox","id":"sh/v2tcn650","slide":6,"textChars":62,"textLines":1}
+{"kind":"chart","id":"ch/lsz25sru","slide":6,"name":"Chart","chartType":"line","bbox":[70,245,548,285]}
+{"kind":"image","id":"im/t03ulobq","slide":6,"name":"","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/x8f69ofe","slide":6,"text":"Šo slaidu izmantoju, lai parādītu, ka no prototipa datiem var iegūt arī analī..."}
+{"kind":"slide","id":"sl/gnmp4jqx","slide":7,"title":"Pilotsaites demonstrācija","textShapes":6}
+{"kind":"textbox","id":"sh/cb2tkvap","slide":7,"textChars":25,"textLines":1}
+{"kind":"textbox","id":"sh/dcbud0ra","slide":7,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/ydkbm5sv","slide":7,"textChars":23,"textLines":1}
+{"kind":"textbox","id":"sh/zedcfa9g","slide":7,"textChars":61,"textLines":1}
+{"kind":"textbox","id":"sh/l0vuh0rm","slide":7,"textChars":154,"textLines":4}
+{"kind":"textbox","id":"sh/eh0ba1sr","slide":7,"textChars":45,"textLines":1}
+{"kind":"image","id":"im/6tc3mpoz","slide":7,"name":"","bbox":[0,0,960,720]}
+{"kind":"image","id":"im/wz6dk3it","slide":7,"name":"","bbox":[48,236,610,382]}
+{"kind":"notes","id":"nt/gnmp4jqx","slide":7,"text":"Šajā brīdī sapulcē var atvērt saiti un parādīt dzīvo prototipu. | Es sāku no ..."}
+{"kind":"slide","id":"sl/fu1gfa1s","slide":8,"title":"Grid detalizācija","textShapes":7}
+{"kind":"textbox","id":"sh/18byd4zy","slide":8,"textChars":17,"textLines":1}
+{"kind":"textbox","id":"sh/g72x4zyd","slide":8,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/ri9g7uhw","slide":8,"textChars":27,"textLines":1}
+{"kind":"textbox","id":"sh/6h0fypgb","slide":8,"textChars":70,"textLines":1}
+{"kind":"textbox","id":"sh/sjix0zy1","slide":8,"textChars":13,"textLines":1}
+{"kind":"textbox","id":"sh/je9g3ahk","slide":8,"textChars":212,"textLines":3}
+{"kind":"textbox","id":"sh/id0fu50z","slide":8,"textChars":90,"textLines":1}
+{"kind":"image","id":"im/r2tobe1c","slide":8,"name":"","bbox":[0,0,960,720]}
+{"kind":"image","id":"im/q1k7i9kr","slide":8,"name":"","bbox":[44,230,620,388]}
+{"kind":"notes","id":"nt/fu1gfa1s","slide":8,"text":"Šis ir praktiskākais slaids. Te parādu, ka karte nav tikai pašvaldības vidējā..."}
+{"kind":"slide","id":"sl/udsvah03","slide":9,"title":"Riska algoritms","textShapes":13}
+{"kind":"textbox","id":"sh/1cfmhgne","slide":9,"textChars":15,"textLines":1}
+{"kind":"textbox","id":"sh/0b65obm9","slide":9,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/nex4jq5k","slide":9,"textChars":27,"textLines":1}
+{"kind":"textbox","id":"sh/mdonql4z","slide":9,"textChars":80,"textLines":1}
+{"kind":"shape","id":"sh/9gzml0nq","slide":9,"bbox":[72,270,236,190]}
+{"kind":"textbox","id":"sh/ofq5svm5","slide":9,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/bih4na5w","slide":9,"textChars":76,"textLines":1}
+{"kind":"shape","id":"sh/ah8nu54b","slide":9,"bbox":[354,270,236,190]}
+{"kind":"textbox","id":"sh/oza1gfyh","slide":9,"textChars":11,"textLines":1}
+{"kind":"textbox","id":"sh/p0ji9kf2","slide":9,"textChars":83,"textLines":1}
+{"kind":"shape","id":"sh/2xsjepgb","slide":9,"bbox":[636,270,236,190]}
+{"kind":"textbox","id":"sh/3y107axw","slide":9,"textChars":11,"textLines":1}
+{"kind":"textbox","id":"sh/cnu1kzyd","slide":9,"textChars":74,"textLines":1}
+{"kind":"textbox","id":"sh/do3id4fy","slide":9,"textChars":16,"textLines":1}
+{"kind":"textbox","id":"sh/qlcjipgn","slide":9,"textChars":144,"textLines":1}
+{"kind":"textbox","id":"sh/bml0buxs","slide":9,"textChars":55,"textLines":1}
+{"kind":"image","id":"im/jixovqds","slide":9,"name":"","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/udsvah03","slide":9,"text":"Šeit necenšos pārdot sliekšņus kā galīgus. Godīgi saku: pilotā ir strādājoša ..."}
+{"kind":"slide","id":"sl/m90b6t0r","slide":10,"title":"Validācija","textShapes":11}
+{"kind":"textbox","id":"sh/xc3mho32","slide":10,"textChars":10,"textLines":1}
+{"kind":"textbox","id":"sh/cbu58j2h","slide":10,"textChars":2,"textLines":1}
+{"kind":"textbox","id":"sh/zelojyl8","slide":10,"textChars":33,"textLines":1}
+{"kind":"textbox","id":"sh/ydcnatkn","slide":10,"textChars":70,"textLines":1}
+{"kind":"textbox","id":"sh/l036l83y","slide":10,"textChars":18,"textLines":1}
+{"kind":"textbox","id":"sh/kzu5c32t","slide":10,"textChars":20,"textLines":1}
+{"kind":"textbox","id":"sh/725onyl4","slide":10,"textChars":13,"textLines":1}
+{"kind":"textbox","id":"sh/m1cnetkj","slide":10,"textChars":140,"textLines":3}
+{"kind":"textbox","id":"sh/s7yt4b21","slide":10,"textChars":113,"textLines":3}
+{"kind":"textbox","id":"sh/d87uxg3m","slide":10,"textChars":158,"textLines":3}
+{"kind":"textbox","id":"sh/q5gb21kb","slide":10,"textChars":114,"textLines":1}
+{"kind":"image","id":"im/g3yh832h","slide":10,"name":"","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/m90b6t0r","slide":10,"text":"Šis ir metodikas slaids. Galvenais teikt: satelītu dati jāvalidē, un pilots j..."}
+{"kind":"slide","id":"sl/jetc3ut0","slide":11,"title":"Demonstrācijas teksts","textShapes":19}
+{"kind":"textbox","id":"sh/xcryxg7y","slide":11,"textChars":21,"textLines":1}
+{"kind":"textbox","id":"sh/wbih4b6d","slide":11,"textChars":2,"textLines":1}
+{"kind":"textbox","id":"sh/n69grmpw","slide":11,"textChars":27,"textLines":1}
+{"kind":"textbox","id":"sh/250zy18b","slide":11,"textChars":56,"textLines":1}
+{"kind":"textbox","id":"sh/98rytw72","slide":11,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/o7ih0r6h","slide":11,"textChars":12,"textLines":1}
+{"kind":"textbox","id":"sh/72t03qp0","slide":11,"textChars":29,"textLines":1}
+{"kind":"textbox","id":"sh/61kzalof","slide":11,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/ofqtgnyt","slide":11,"textChars":14,"textLines":1}
+{"kind":"textbox","id":"sh/9gza9sze","slide":11,"textChars":60,"textLines":1}
+{"kind":"textbox","id":"sh/mdobedg3","slide":11,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/nehs7iho","slide":11,"textChars":20,"textLines":1}
+{"kind":"textbox","id":"sh/0b6tc3yx","slide":11,"textChars":48,"textLines":1}
+{"kind":"textbox","id":"sh/1cfa58zi","slide":11,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/epobatgr","slide":11,"textChars":19,"textLines":1}
+{"kind":"textbox","id":"sh/zaxs3yhc","slide":11,"textChars":49,"textLines":1}
+{"kind":"textbox","id":"sh/cn6t83y1","slide":11,"textChars":1,"textLines":1}
+{"kind":"textbox","id":"sh/dofa18z6","slide":11,"textChars":19,"textLines":1}
+{"kind":"textbox","id":"sh/tsnip0ny","slide":11,"textChars":53,"textLines":1}
+{"kind":"image","id":"im/jet8va5c","slide":11,"name":"","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/jetc3ut0","slide":11,"text":"Šo var lietot kā tiešo demonstrācijas špikeri. | Es atveru saiti, parādu, ka ..."}
+{"kind":"slide","id":"sl/8f2psfyx","slide":12,"title":"Nākamie lēmumi","textShapes":6}
+{"kind":"textbox","id":"sh/1gbm9s3a","slide":12,"textChars":14,"textLines":1}
+{"kind":"textbox","id":"sh/0f2lgnmp","slide":12,"textChars":2,"textLines":1}
+{"kind":"textbox","id":"sh/ra943il8","slide":12,"textChars":37,"textLines":1}
+{"kind":"textbox","id":"sh/q903ad4n","slide":12,"textChars":69,"textLines":1}
+{"kind":"textbox","id":"sh/dcbm583y","slide":12,"textChars":409,"textLines":5}
+{"kind":"textbox","id":"sh/sb2lcnmd","slide":12,"textChars":105,"textLines":1}
+{"kind":"image","id":"im/yxsr2pg3","slide":12,"name":"","bbox":[0,0,960,720]}
+{"kind":"notes","id":"nt/8f2psfyx","slide":12,"text":"Noslēdzu ar praktiskiem jautājumiem. | Es prasītu nevis vispārīgu atbalstu, b..."}
+{"kind":"notice","message":"Truncated: omitted 0 lines. Increase maxChars or narrow target."}

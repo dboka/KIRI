@@ -1,0 +1,492 @@
+{
+  "workbook_sheets": [
+    "Sheet1"
+  ],
+  "workbook_rows": {
+    "Sheet1": [
+      [
+        "Uzdevumi:",
+        "Izpildītājs",
+        "None"
+      ],
+      [
+        "1.  Meteoroloģisko apstākļu monitorings",
+        "None",
+        "None"
+      ],
+      [
+        "1.1.           Izvietot augsnes mitruma un temperatūras sensorus 10 reprezentatīvās LVĢMC monitoringa stacijās dažādos Latvijas reģionos. ",
+        "LVĢMC (MDPN; ITD)",
+        "None"
+      ],
+      [
+        "1.2.           Nodrošināt datu automātisku vākšanu un pārsūtīšanu uz LVĢMC centrālo datubāzi.",
+        "LVĢMC (ITD)",
+        "None"
+      ],
+      [
+        "1.3.           Nodrošināt novērojumu datu kvalitātes kontroles procesu",
+        "LVĢMC (MDPN)",
+        "None"
+      ],
+      [
+        "1.4.\tNovērtēt LBTU monitoringa stacijās veikto meteoroloģisko un augsnes parametru mērījumu rezultātu pielietojamību pētījuma vajadzībām un sagatavot datus turpmākai izmantošanai",
+        "LBTU",
+        "None"
+      ],
+      [
+        "2. Augsnes stāvokļa novērtēšana",
+        "None",
+        "None"
+      ],
+      [
+        "2.1.           Iegūt un analizēt satelītu datus par augsnes mitrumu (Surface Soil Moisture) un ūdens indeksu (Soil Water Index), piemēram, izmantojot EUMETSAT HSAF, Copernicus un citus pieejamos avotus.",
+        "LVĢMC (KSMN)",
+        "Satelīti"
+      ],
+      [
+        "2.2.           Apstrādāt datus, lai iegūtu telpisku pārklājumu par augsnes mitruma un ūdens indeksu izmaiņām dažādos Latvijas reģionos.",
+        "LVĢMC (KSMN)",
+        "Satelīti"
+      ],
+      [
+        "2.3.           Integrēt satelītu un novērojumu staciju sensoru datus vienotā datu kopā un veikt datu analīzi, lai verificētu satelītu datu kvalitāti.",
+        "LVĢMC (KSMN)",
+        "Satelīti + aprēķini"
+      ],
+      [
+        "2.4.           Izstrādāt algoritmus, kas ļauj novērtēt augsnes stāvokli un identificēt riska teritorijas.",
+        "LVĢMC (KSMN)",
+        "Visi"
+      ],
+      [
+        "3. Elastības mehānisma izstrāde",
+        "None",
+        "None"
+      ],
+      [
+        "3.1.           Veikt pieejamo vēsturisko datu analīzi, lai nodrošinātu references informāciju augsnes stāvokļa rādītājiem.",
+        "LVĢMC (KSMN) / LBTU",
+        "Aprēķini + adaptācija"
+      ],
+      [
+        "3.2.           Zinātniski pamatoti noteikt robežvērtības, kad augsne ir pārmitra vai sasalusi, balstoties uz datu analīzi un monitoringa rezultātiem.",
+        "LVĢMC (KSMN) / LBTU",
+        "Aprēķini + adaptācija"
+      ],
+      [
+        "3.3.           Definēt kritērijus, pēc kuriem automātiski tiek noteikts, vai konkrētā teritorijā ir aizliegts izkliedēt kūtsmēslus.",
+        "LBTU",
+        "None"
+      ],
+      [
+        "4.\tRīka izstrāde riska teritoriju identificēšanai",
+        "None",
+        "None"
+      ],
+      [
+        "4.1.           Izstrādāt digitālu rīku, kas vizualizē riska teritorijas kartē reāllaikā.",
+        "LVĢMC (ITD)",
+        "None"
+      ],
+      [
+        "4.2.           Sagatavot informatīvos materiālus un vadlīnijas rīka lietošanai.",
+        "LVĢMC (ITD)",
+        "None"
+      ],
+      [
+        "5. Gruntsūdens līmeņa un ūdens kvalitātes monitorings",
+        "None",
+        "None"
+      ],
+      [
+        "5.1.           Veikt gruntsūdens līmeņu, drenu lauku un mazo sateces baseinu hidroloģisko apstākļu un slāpekļa un fosfora savienojumu koncentrāciju monitoringa rezultātu sistematizāciju un analīzi.",
+        "LBTU",
+        "None"
+      ],
+      [
+        "5.2.           Noteikt paaugstinātam slāpekļa un fosfora savienojumu zudumu riskam pakļautos laika periodus un cēloņus.",
+        "LBTU",
+        "None"
+      ],
+      [
+        "5.3.           Noteikt likumsakarības starp paaugstinātam slāpekļa un fosfora savienojumu zudumu riskiem un  meteoroloģisko apstākļu monitoringa un augsnes stāvokļa novērtēšanas rezultātiem.",
+        "LBTU",
+        "None"
+      ]
+    ]
+  },
+  "docx_paragraph_count": 118,
+  "docx_first_paragraphs": [
+    "KIRI-LV",
+    "Kūtsmēslu izkliedes riska novērtēšanas sistēma Latvijai",
+    "Pilns plāns, datu arhitektūra, riska indeksa metodika un digitālā rīka koncepts",
+    "1. attēls. Latvijas pašvaldību pārskata karte: konceptuāls KIRI-LV sākuma ekrāns.",
+    "Satura rādītājs",
+    "1. Kopsavilkums",
+    "2. Projekta darba loģika un sagaidāmais rezultāts",
+    "3. Datu avoti un parametri",
+    "4. KIRI-LV indeksa koncepts",
+    "5. Normatīvais hard-stop slānis",
+    "6. Telpiskā agregācija un kartes loģika",
+    "7. Digitālā rīka lietotāja skati",
+    "8. Tehniskā arhitektūra",
+    "9. Ieviešanas versijas v0.1–v1.0",
+    "10. Datu bāzes un failu struktūra",
+    "11. Validācija ar stacijām un LBTU datiem",
+    "12. Riska faktori un atvērtie jautājumi",
+    "13. Nākamie praktiskie soļi",
+    "14. Avoti",
+    "1. Kopsavilkums",
+    "Šis dokuments piedāvā pilnu koncepciju KIRI-LV riska sistēmai — kombinētam kūtsmēslu izkliedes riska indeksam un karšu rīkam Latvijai. Galvenā ideja: aprēķinu veikt telpiski detalizētā 1 km vai vēlāk 500 m režģī, bet lietotājam rezultātu pasniegt saprotami pašvaldību līmenī un ar iespēju atvērt detalizētu novada grid skatu.",
+    "Sistēma balstās uz četriem principiem:",
+    "neizmantot vienu indikatoru, bet kombinēt nokrišņu fona, satelītu augsnes mitruma, SWI un vēlāk hidroloģiskos indikatorus;",
+    "juridiskos aizliegumus glabāt kā atsevišķu hard-stop slāni, nevis sajaukt ar skaitlisku riska indeksu;",
+    "katru indikatoru salīdzināt ar sezonālu un reģionālu references periodu, izmantojot percentiles vai SPI tipa anomālijas;",
+    "risku skaidrot ar reason codes: lietotājam jāredz ne tikai krāsa, bet arī iemesls.",
+    "2. Projekta darba loģika un sagaidāmais rezultāts",
+    "Darba uzdevumi jau paredz loģisku ķēdi: meteoroloģisko apstākļu monitorings, satelītu datu iegūšana, novērojumu un satelītu integrācija, elastības mehānisma izstrāde, digitāls rīks un LBTU hidroloģijas/ūdens kvalitātes analīze. KIRI-LV arhitektūra šos uzdevumus apvieno vienā datu plūsmā.",
+    "3. Datu avoti un parametri",
+    "Pašlaik jau ir identificēts pietiekams datu kodols pirmajai sistēmas versijai. Tas sastāv no trīs nokrišņu fona indikatoriem, H-SAF virsmas augsnes mitruma un Copernicus SWI. Vēlāk pievienojami prognozētie nokrišņi, sniega/sasaluma maskas, upju/ezeru līmeņi un gruntsūdeņi.",
+    "3.1. H-SAF un Copernicus galvenā loma",
+    "H-SAF H28/H29 dod neatkarīgu ASCAT balstītu virsmas mitruma signālu. EUMETSAT katalogā ASCAT soil moisture produkti aprakstīti kā ūdens saturs augsnes virsējā slānī zem 5 cm, izteikts 0–100% piesātinājuma skalā; H28 izmanto arī Sentinel-1 laika rindu downscaling parametrus. Copernicus SWI savukārt ir tieši Soil Water Index produkts, kas raksturo mitruma stāvokli dažādos dziļumos un Eiropai pieejams 1 km ikdienas režģī. Tāpēc pirmajā versijā Copernicus ir stabils operacionālais mugurkauls, bet H-SAF ir ļoti vērtīgs neatkarīgs SSM slānis un nākotnes EUMETCast plūsmas avots.",
+    "4. KIRI-LV indeksa koncepts",
+    "KIRI-LV = Kūtsmēslu Izkliedes Riska Indekss Latvijai. Tas nav viens fizikāls mērījums, bet kombinēts lēmumu atbalsta indekss. Indeksa mērķis nav pateikt tikai “mitrs/sauss”, bet klasificēt teritorijas pēc riska, ka kūtsmēslu izkliede konkrētajā brīdī var radīt noteci, izskalošanos, sablīvēšanu vai neatbilstību normatīvajiem apstākļiem.",
+    "4.1. Percentiles, SPI un overfit jautājums",
+    "SPI var izmantot, bet ne kā lieku papildu parametru blakus P30/P90/P730. Labāka pieeja: nokrišņu summas pārvērst percentilēs vai SPI tipa anomālijās. Tādējādi nokrišņu bloks kļūst normalizēts pret reģionu un sezonu, nevis vienkārši mm summas.",
+    "4.2. v0.1 aprēķina variants",
+    "Pirmajai versijai nav ieteicams veidot sarežģītu svērtu formulu. Praktiskāks un skaidrojams variants ir Šveices CDI principam līdzīga pieeja: katru parametru pārvērš riska līmenī 1–5 un kopējo indeksu ņem kā otro augstāko vērtību. Tas pasargā no viena kļūdaina ekstrēma indikatora, bet vienlaikus reaģē, ja augstu risku apstiprina vismaz divi signāli.",
+    "Piemērs:",
+    "5. Normatīvais hard-stop slānis",
+    "KIRI-LV jāsastāv no divām neatkarīgām daļām: hidroloģiskā riska indeksa un juridiskā/operacionālā statusa. Tas ir būtiski, jo “augsts risks” nav tas pats, kas “aizliegts”. Ja normatīvais vai fiziskais apstāklis liedz izkliedi, kartei jāparāda aizliegums neatkarīgi no riska formulas.",
+    "2. attēls. Riska dzinēja loģika: hard-stop noteikumi tiek pārbaudīti pirms hidroloģiskā riska indeksa.",
+    "6. Telpiskā agregācija un kartes loģika",
+    "Lēmumu pieņemšanai nav pietiekami karti rādīt tikai pašvaldību vidējās vērtībās. Pašvaldības ir hidroloģiski un augsnes ziņā neviendabīgas. Tāpēc aprēķins jāveic 1 km režģī, bet komunikācija — pašvaldību līmenī. Tas dod skaistu un saprotamu sākuma karti, bet saglabā iespēju redzēt detalizētu risku novada iekšienē.",
+    "3. attēls. Telpiskā agregācija: aprēķins gridā, pārskats pašvaldībās, detalizācija novada skatā.",
+    "6.1. Kā aprēķināt pašvaldības kopējo risku",
+    "Pašvaldības krāsu kartē nevajadzētu noteikt tikai pēc vidējā riska, jo vidējais var noslēpt kritiskas riska zonas. Galvenais ieteicamais rādītājs ir lauksaimniecības zemju īpatsvars ar risku 4–5.",
+    "7. Digitālā rīka lietotāja skati",
+    "Rīku ieteicams veidot bez pārslēdzamu slāņu sarežģītības sākuma skatā. Sākumā lietotājam jāredz viena skaista, skaidra karte: katra pašvaldība iekrāsota pēc kopējā kūtsmēslu izkliedes riska. Klikšķis uz pašvaldības atver detalizētu grid skatu.",
+    "7.1. Latvijas sākuma karte",
+    "4. attēls. Sākuma ekrāna koncepts: viena skaista pašvaldību riska karte bez liekiem slāņu pārslēgiem.",
+    "Latvijas karte pa pašvaldībām ar 5 riska krāsām.",
+    "Datuma izvēle augšā; bez smagiem slāņu pārslēgiem.",
+    "Legendā vienkārši 1–5 riska līmeņi.",
+    "Hover vai klikšķis rāda pašvaldības nosaukumu un kopējo risku.",
+    "7.2. Pašvaldības detalizētais skats",
+    "5. attēls. Klikšķis uz pašvaldības: Bauskas novada detalizētais 1 km režģa riska skats ar faktoru paneli.",
+    "1 km vai 500 m režģis pašvaldības robežā; katrai šūnai savs riska līmenis.",
+    "Panelī parādās kopējais risks, augsta riska lauksaimniecības zemju īpatsvars, galvenie faktori un rekomendācija.",
+    "Grid šūnas klikšķis parāda konkrētās šūnas risku, reason codes un datu uzticamību.",
+    "Vēlāk var pievienot upju/grāvju līnijas, ūdensobjektu buferus un plūdu zonas, bet tas jāpasniedz kā informācijas pārklājums, nevis jāsarežģī sākuma skats.",
+    "8. Tehniskā arhitektūra",
+    "6. attēls. KIRI-LV tehniskā arhitektūra: datu plūsma no avotiem līdz rīkam.",
+    "Tehniski sistēma jābūvē kā modulāra datu apstrādes ķēde. Katrs datu avots jāielasa atsevišķi, jānormalizē uz vienotu telpas/laika režģi un tikai tad jānodod riska dzinējam. Tas ļauj sākumā palaist sistēmu ar pieciem indikatoriem, bet vēlāk pievienot jaunus slāņus bez arhitektūras maiņas.",
+    "9. Ieviešanas versijas v0.1–v1.0",
+    "7. attēls. Ieviešanas plāns pa versijām.",
+    "9.1. v0.1 — pirmais aizstāvamais prototips",
+    "Dati: P30, P90, P730 no CLIDATA; H-SAF SSM; Copernicus SWI.",
+    "Aprēķins: katrs indikators tiek pārvērsts 1–5 riskā pēc percentilēm; KIRI-LV = otrais augstākais līmenis.",
+    "Telpa: 1 km Latvijas režģis, pašvaldību un lauksaimniecības zemju agregācija.",
+    "Rezultāts: Latvijas pašvaldību karte + klikšķis uz novada un detalizēts grid skats.",
+    "Mērķis: pierādīt ķēdi un parādīt skaidru produktu, nevis perfekti pabeigtu juridisku rīku.",
+    "9.2. v0.2 — dinamiskie meteoroloģiskie apstākļi",
+    "Pievienot prognozētos nokrišņus 24–72 h.",
+    "Pievienot sniega/sasaluma indikatorus kā hard-stop.",
+    "Sākt glabāt legal_status atsevišķi no risk_level.",
+    "Uzlabot reason_codes un rekomendācijas tekstu.",
+    "9.3. v0.3 — hidroloģija un validācija",
+    "Integrēt upju caurplūdumu/ezeru līmeņus un gruntsūdeņus, kur pieejami.",
+    "Savienot ar 10 LVĢMC staciju augsnes mitruma/temperatūras datiem.",
+    "Izveidot validācijas tabulas: satelīts pret staciju, grid pret novērojumu.",
+    "Sākt salīdzināt KIRI-LV līmeņus ar LBTU N/P zudumu epizodēm.",
+    "9.4. v0.4 — normatīvais un saimniecību modulis",
+    "Aizsargjoslas, ūdensobjektu buferi, slīpums pret ūdensobjektiem.",
+    "Slēgtie periodi pēc kūtsmēslu tipa un īpaši jutīgām teritorijām.",
+    "170 kg N/ha/gadā limits kā atsevišķs atbilstības modulis lauku/kadastru līmenī.",
+    "Audita žurnāls: kāpēc konkrētā vieta konkrētā datumā atzīmēta kā aizliegta vai augsta riska.",
+    "9.5. v1.0 — operacionāla sistēma",
+    "Automātiska datu plūsma: CLIDATA, Copernicus, H-SAF EUMETCast, stacijas, prognozes.",
+    "Ikdienas aprēķins un publicēšana noteiktā laikā.",
+    "WebGIS/API, lietotāju vadlīnijas un metodikas dokuments.",
+    "Regulāra kvalitātes kontrole, validācijas atskaite un sliekšņu pārskatīšana.",
+    "10. Datu bāzes un failu struktūra",
+    "Lai sistēma būtu uzturama, jānodala raw dati, processed dati, analītiskie indikatori un gala lēmumu slāņi. Zemāk ir ieteiktais minimālais datu modelis.",
+    "10.1. Ieteicamā projekta mapju struktūra",
+    "soil_risk_assessment/ config/ products.yaml thresholds.yaml legal_rules.yaml stations.yaml data/ raw/hsaf/ raw/copernicus/ raw/clidata/ raw/stations/ processed/latvia_grid/ outputs/maps/ src/ ingest/ processing/ reference/ risk_engine/ validation/ api/ docs/ methodology/ product_catalog/ user_guidelines/ webapp/ frontend/ backend/",
+    "11. Validācija ar stacijām un LBTU datiem",
+    "Validācija jāveido divos līmeņos. Pirmais līmenis ir satelītu un staciju salīdzinājums, lai pierādītu, ka H-SAF/Copernicus signāls ir saprātīgs Latvijas apstākļos. Otrais līmenis ir riska indeksa salīdzinājums ar LBTU ūdens kvalitātes un N/P zudumu epizodēm.",
+    "12. Riska faktori un atvērtie jautājumi",
+    "13. Nākamie praktiskie soļi",
+    "Definēt Latvijas 1 km režģi un piesaistīt katru šūnu pašvaldībai, sateces baseinam un lauksaimniecības zemju maskai.",
+    "No CLIDATA izvilkt P30/P90/P730 par izvēlēto testperiodu un sagatavot percentiļu aprēķina prototipu.",
+    "Lejupielādēt vai pieslēgt Copernicus SWI un izvilkt SWI vērtības Latvijas gridam.",
+    "Pabeigt H-SAF H28/H29 plūsmas testu: sākumā arhīva fails, pēc tam EUMETCast Terrestrial.",
+    "Uztaisīt KIRI-LV v0.1 skriptu: pieci indikatori → 1–5 līmeņi → otrais augstākais → risk_daily.",
+    "Uztaisīt pašvaldību agregāciju: median_risk, p90_risk, % agricultural land risk >= 4, dominant_reason.",
+    "Izveidot pirmo statisko karti: Latvija pa pašvaldībām un Bauskas novada grid detalizācija.",
+    "Pieslēgt staciju punktus validācijas tabulai un salīdzināt ar tuvāko/3x3 grid vērtību.",
+    "Sagatavot īsu metodikas aprakstu sapulcei un ITD prasību sarakstu web rīka prototipam.",
+    "14. Avoti un atsauces",
+    "Zemāk ir sākotnējie avoti, uz kuriem balstīta šī koncepcija. Pirms normatīvās funkcionalitātes ieviešanas jāizmanto aktuālā oficiālā redakcija un juridiski jāapstiprina interpretācija.",
+    "[1] EUMETSAT H28 catalogue: https://user.eumetsat.int/catalogue/EO%3AEUM%3ADAT%3A1032",
+    "[2] EUMETSAT news: H28 on EUMETCast: https://user.eumetsat.int/news-events/news/new-h-saf-ascat-surface-soil-moisture-h28-product-on-eumet-cast",
+    "[3] H-SAF Download Centre / data policy: https://hsaf.meteoam.it/products/download-products",
+    "[4] Copernicus CLMS SWI 1 km Europe v2: https://land.copernicus.eu/en/products/soil-moisture/daily-soil-water-index-europe-1km-v2",
+    "[5] Copernicus CLMS soil moisture technical summary: https://land.copernicus.eu/en/products/soil-moisture?tab=technical_summary",
+    "[6] MK noteikumi Nr. 834 / likumi.lv English version: https://likumi.lv/ta/en/en/id/271376-requirements-regarding-the-protection-of-water-soil-and-air-from-pollution-caused-by-agricultural-activity",
+    "[7] ECMWF H-SAF root-zone products: https://www.ecmwf.int/en/research/projects/h-saf"
+  ],
+  "docx_tables": [
+    [
+      [
+        "Dokumenta mērķis Apkopot līdzšinējo izpēti un no tās izveidot praktisku arhitektūras plānu: kā iegūt datus, normalizēt tos 1 km režģī, aprēķināt kombinētu risku, nodalīt juridiskos aizliegumus no hidroloģiskā riska, un pasniegt rezultātu skaistā pašvaldību/grid kartē."
+      ]
+    ],
+    [
+      [
+        "Galvenā darba hipotēze Kūtsmēslu izkliedes risku var praktiski un skaidrojami novērtēt, ja telpiski apvieno nokrišņu anomālijas, H-SAF Surface Soil Moisture, Copernicus Soil Water Index, sasaluma/sniega indikatorus, prognozētos nokrišņus un hidroloģiskos datus. Pirmajai versijai pietiek ar pieciem indikatoriem: P30, P90, P730, H-SAF SSM un Copernicus SWI."
+      ]
+    ],
+    [
+      [
+        "Uzdevumu bloks",
+        "Ko tas nozīmē sistēmā",
+        "Rezultāts"
+      ],
+      [
+        "1. Meteoroloģiskais monitorings",
+        "10 stacijas, augsnes mitrums/temperatūra, automātiska datu pārsūtīšana, QC",
+        "Lokāls ground truth un sasaluma/pārmitruma verifikācija"
+      ],
+      [
+        "2. Augsnes stāvoklis",
+        "H-SAF SSM, Copernicus SWI, nokrišņu summas, datu izgriešana uz Latviju",
+        "1 km mitruma un riska grid slāņi"
+      ],
+      [
+        "3. Elastības mehānisms",
+        "Percentiles, SPI, sezonāli sliekšņi, normatīvie hard-stop",
+        "Zinātniski pamatota riska/aizlieguma loģika"
+      ],
+      [
+        "4. Rīks",
+        "Pašvaldību karte, klikšķis uz novada, detalizēts grid skats, API",
+        "Operatīvs lēmumu atbalsta rīks"
+      ],
+      [
+        "5. Hidroloģija/N/P",
+        "Gruntsūdeņi, drenas, mazie baseini, slāpekļa/fosfora epizodes",
+        "Indeksa kalibrācija pret reāliem zudumu riskiem"
+      ]
+    ],
+    [
+      [
+        "Parametrs",
+        "Avots",
+        "Telpiskais/temporālais lietojums",
+        "Loma riska indeksā"
+      ],
+      [
+        "P30",
+        "CLIDATA / LVĢMC",
+        "30 dienu nokrišņu summa; iespējams aprēķināt stacijām/reģioniem/gridam",
+        "Īstermiņa slapjuma fons"
+      ],
+      [
+        "P90",
+        "CLIDATA / LVĢMC",
+        "90 dienu nokrišņu summa",
+        "Sezonāls mitruma fons"
+      ],
+      [
+        "P730",
+        "CLIDATA / LVĢMC",
+        "730 dienu vai 24 mēnešu nokrišņu summa",
+        "Ilgtermiņa hidroloģiskais fons"
+      ],
+      [
+        "H-SAF H28/H29 SSM",
+        "EUMETSAT H SAF / EUMETCast vai arhīvs",
+        "Virsmas augsnes mitrums; H28 0.5 km sampling, H29 12.5 km NRT",
+        "Virsējā slāņa pārmitrums, tehnoloģiskais/noteces risks"
+      ],
+      [
+        "Copernicus SWI",
+        "Copernicus Land Monitoring Service",
+        "1 km Eiropai, ikdienas produkts; vēsture no 2015/2014 produkta līmenī",
+        "Dziļāka mitruma dinamika un references periods"
+      ],
+      [
+        "Prognozētie nokrišņi",
+        "LVĢMC/NWP prognozes",
+        "24–72 h nākotnes summa",
+        "Tūlītējs noteces risks pēc izkliedes"
+      ],
+      [
+        "Sniegs/sasalums",
+        "Stacijas, LVĢMC, satelītu/QFLAG, modelis",
+        "Dienas vai subdienas hard-stop",
+        "Juridisks/fizisks aizliegums"
+      ],
+      [
+        "Upju/ezeru/gruntsūdens dati",
+        "LVĢMC/LBTU",
+        "Stacijas un baseini",
+        "Hidroloģiska piesātinājuma un N/P zudumu risks"
+      ]
+    ],
+    [
+      [
+        "Riska līmenis",
+        "Nosaukums",
+        "Interpretācija"
+      ],
+      [
+        "1",
+        "Zems risks",
+        "Apstākļi tuvi normai; izkliede pēc vispārējiem nosacījumiem"
+      ],
+      [
+        "2",
+        "Vidēji zems risks",
+        "Neliels mitruma fons vai lokāla piesardzība"
+      ],
+      [
+        "3",
+        "Paaugstināts risks",
+        "Vairāki indikatori virs normas; jāvērtē tuvāk"
+      ],
+      [
+        "4",
+        "Augsts risks",
+        "Būtiska pārmitruma/noteces iespēja; izkliedi augsta riska zonās atlikt"
+      ],
+      [
+        "5",
+        "Ļoti augsts risks",
+        "Ekstrēmi apstākļi vai hard-stop; izkliede nav pieļaujama vai nav ieteicama"
+      ]
+    ],
+    [
+      [
+        "Nokrišņu indikators",
+        "SPI alternatīva",
+        "Riska interpretācija"
+      ],
+      [
+        "P30 percentile",
+        "SPI-1",
+        "Īstermiņa slapjuma vai sausuma fons"
+      ],
+      [
+        "P90 percentile",
+        "SPI-3",
+        "Sezonāls mitruma fons"
+      ],
+      [
+        "P730 percentile",
+        "SPI-24",
+        "Ilgtermiņa hidroloģiskais fons"
+      ]
+    ],
+    [
+      [
+        "Ieteikums v0.1 izmantot P30/P90/P730 percentiles, jo tās ir skaidrāk komunicējamas pašvaldībām. SPI pieminēt metodikā kā alternatīvu normalizācijas veidu un vēlāk salīdzināt, kurš labāk skaidro LBTU N/P epizodes."
+      ]
+    ],
+    [
+      [
+        "Parametrs",
+        "Riska līmenis",
+        "Nozīme"
+      ],
+      [
+        "P30",
+        "5",
+        "Ļoti slapjš pēdējais mēnesis"
+      ],
+      [
+        "P90",
+        "4",
+        "Slapjš sezonas fons"
+      ],
+      [
+        "P730",
+        "2",
+        "Ilgtermiņa fons nav kritisks"
+      ],
+      [
+        "H-SAF SSM",
+        "5",
+        "Virsma ļoti slapja"
+      ],
+      [
+        "Copernicus SWI",
+        "4",
+        "Dziļāks mitrums augsts"
+      ],
+      [
+        "KIRI-LV",
+        "5",
+        "Otrais augstākais no [5,4,2,5,4] ir 5"
+      ]
+    ],
+    [
+      [
+        "Hard-stop grupa",
+        "GIS/datu slānis",
+        "Rīka statuss"
+      ],
+      [
+        "Sasaluša augsne",
+        "Augsnes temperatūra, modelis, satelītu surface-state flag",
+        "AIZLIEGTS / nepieciešama pārbaude"
+      ],
+      [
+        "Sniega sega",
+        "LVĢMC sniegs, satelītu sniega produkts, modelis",
+        "AIZLIEGTS"
+      ],
+      [
+        "Pārmitra/applūdusi augsne",
+        "SSM/SWI, plūdu zona, hidroloģija, stacijas",
+        "AIZLIEGTS vai ĻOTI AUGSTS RISKS"
+      ],
+      [
+        "Ūdensobjektu aizsargjoslas",
+        "Ūdensobjekti, grāvji, buferi",
+        "AIZLIEGTS konkrētajā buferī"
+      ],
+      [
+        "Slīpumi pret ūdensobjektiem",
+        "DEM, plūsmas virziens, ūdensobjektu distance",
+        "AUGSTS RISKS / AIZLIEGUMS pēc noteikumu interpretācijas"
+      ],
+      [
+        "Slēgtais periods",
+        "Kalendārs, kūtsmēslu tips, īpaši jutīgās teritorijas",
+        "AIZLIEGTS"
+      ],
+      [
+        "170 kg N/ha/gadā",
+        "Lauku/kadastru/saimniecību atribūti",
+        "Atbilstības bloks, nevis meteoroloģisks risks"
+      ]
+    ],
+    [
+      [
+        "Juridiskā atruna Normatīvie periodi, attālumi un interpretācijas jāapstiprina ar aktuālo MK noteikumu redakciju un juridisko/ministrijas speciālistu. Sistēmas arhitektūrā tie jāglabā konfigurācijas failos, lai tos varētu mainīt bez koda pārrakstīšanas."
+      ]
+    ]
+  ],
+  "pptm_slide_count": 22,
+  "pptm_has_macros": false,
+  "pptm_media": [
+    "ppt/media/image5.png",
+    "ppt/media/image4.png",
+    "ppt/media/image3.png",
+    "ppt/media/image2.png",
+    "ppt/media/image1.png"
+  ]
+}
