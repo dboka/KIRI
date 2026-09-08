@@ -90,6 +90,8 @@ baseLayer.once("load", () => markBasemapReady("raster"));
 const canvasRenderer = L.canvas({ padding: 0.22, tolerance: 5 });
 const dateCache = new Map();
 const jsonCache = new Map();
+const mergedGridCache = new Map();
+const maxMergedGridCacheSize = 18;
 
 let calendarManifest = null;
 let archiveManifest = null;
@@ -219,6 +221,16 @@ async function loadDateData(dateText) {
   ]).then(([overview, dayManifest]) => ({ overview, dayManifest, meta }));
   dateCache.set(dateText, data);
   return data;
+}
+
+function cacheMergedGrid(key, gridGeojson) {
+  if (mergedGridCache.has(key)) {
+    mergedGridCache.delete(key);
+  }
+  mergedGridCache.set(key, gridGeojson);
+  if (mergedGridCache.size <= maxMergedGridCacheSize) return;
+  const oldestKey = mergedGridCache.keys().next().value;
+  mergedGridCache.delete(oldestKey);
 }
 
 function formatMetric(value, suffix = "") {
@@ -398,15 +410,20 @@ async function openMunicipalityByCode(code, { fit = true } = {}) {
   setLoading(true);
 
   try {
+    const mergedGridKey = summary.grid_values_file
+      ? `${summary.static_grid_file}|${summary.grid_values_file}`
+      : null;
     const [boundaryGeojson, staticGridGeojson, gridValues] = await Promise.all([
       loadJson(`data/${summary.boundary_file}`),
       loadJson(`data/${summary.static_grid_file}`),
       summary.grid_values_file ? loadJson(`data/${summary.grid_values_file}`) : null,
     ]);
 
-    const gridGeojson = gridValues
-      ? mergeGridValues(staticGridGeojson, gridValues)
-      : staticGridGeojson;
+    let gridGeojson = mergedGridKey ? mergedGridCache.get(mergedGridKey) : staticGridGeojson;
+    if (!gridGeojson) {
+      gridGeojson = mergeGridValues(staticGridGeojson, gridValues);
+      cacheMergedGrid(mergedGridKey, gridGeojson);
+    }
 
     selectedBoundaryLayer = L.geoJSON(boundaryGeojson, {
       renderer: canvasRenderer,
@@ -519,7 +536,7 @@ function drawOverview(overviewGeojson, { fit = false } = {}) {
 }
 
 async function setActiveDate(dateText, { fit = false, keepMunicipality = true } = {}) {
-  if (dateText === activeDate && municipalityLayer) return;
+  if (dateText === activeDate) return;
   const previousMunicipality = keepMunicipality ? activeMunicipalityCode : null;
   setLoading(true);
   try {
@@ -530,12 +547,12 @@ async function setActiveDate(dateText, { fit = false, keepMunicipality = true } 
     updateDateChrome();
     updateCalendarSelection();
 
-    clearDetailLayers();
-    drawOverview(data.overview, { fit });
-
     if (previousMunicipality && manifest[previousMunicipality]) {
+      clearOverviewLayer();
       await openMunicipalityByCode(previousMunicipality, { fit: false });
     } else {
+      clearDetailLayers();
+      drawOverview(data.overview, { fit });
       detailPanel.hidden = true;
       backButton.hidden = true;
       activeMunicipalityCode = null;
