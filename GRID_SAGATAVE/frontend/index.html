@@ -23,8 +23,7 @@
     <link rel="canonical" href="https://dboka.github.io/KIRI/" />
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" />
-    <link rel="stylesheet" href="src/styles.css?v=18" />
+    <link rel="stylesheet" href="src/styles.css?v=29" />
   </head>
   <body>
     <main class="app-shell">
@@ -54,7 +53,7 @@
             <button id="backButton" class="back-button" type="button" hidden>
               Atpakaļ uz Latvijas karti
             </button>
-            <button id="calendarToggle" class="date-button" type="button" aria-expanded="true">
+            <button id="calendarToggle" class="date-button" type="button" aria-expanded="false">
               <span id="activeDateLabel">-</span>
             </button>
             <button id="archiveToggle" class="date-button" type="button" aria-expanded="false">
@@ -63,7 +62,7 @@
           </div>
         </div>
 
-        <section id="calendarPanel" class="calendar-panel" aria-label="Datuma izvēle">
+        <section id="calendarPanel" class="calendar-panel" aria-label="Datuma izvēle" hidden>
           <div class="calendar-head">
             <div>
               <div class="panel-kicker">60 dienu mitruma-first apskats</div>
@@ -93,7 +92,7 @@
           <div class="legend-row"><span class="swatch risk-4"></span>4. Augsts risks</div>
           <div class="legend-row"><span class="swatch risk-5"></span>5. Ļoti augsts risks / neizkliedēt</div>
 
-          <details class="thresholds" open>
+          <details class="thresholds">
             <summary>Sliekšņi</summary>
             <div class="threshold-grid">
               <span>H-SAF</span><strong>25 · 40 · 55 · 70%</strong>
@@ -175,15 +174,10 @@
         </aside>
 
         <div id="loadingState" class="loading-state" hidden>Ielādē datumu...</div>
-        <div class="footer-note">
-          Dati: VZD robežas, CLIDATA, H-SAF, Copernicus SWI, KIRI-LV 1 km grid
-        </div>
       </section>
     </main>
 
     <script src="vendor/leaflet/leaflet.js"></script>
-    <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
-    <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
-    <script src="src/main.js?v=18"></script>
+    <script src="src/main.js?v=29"></script>
   </body>
 </html>

@@ -43,15 +43,17 @@ body {
 .map-stage {
   position: relative;
   overflow: hidden;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    #0a1822;
-  background-size: 48px 48px;
+  background: #eef0ed;
 }
 
 #map {
   z-index: 1;
+}
+
+.leaflet-map-pane,
+.leaflet-tile-pane,
+.leaflet-overlay-pane {
+  will-change: transform;
 }
 
 .boot-overlay {
@@ -79,6 +81,50 @@ body {
 .boot-overlay.has-error .boot-progress::after {
   animation-play-state: paused;
   background: var(--risk-5);
+}
+
+.boot-copy {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.boot-kicker {
+  color: rgba(238, 246, 248, 0.58);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.boot-copy strong {
+  font-size: clamp(20px, 3vw, 30px);
+  line-height: 1.12;
+}
+
+.boot-copy p {
+  min-height: 20px;
+  margin: 0;
+  color: rgba(238, 246, 248, 0.68);
+  font-size: 13px;
+}
+
+.boot-progress {
+  position: relative;
+  width: min(320px, calc(100vw - 76px));
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.boot-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 44%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--risk-1), var(--risk-3), var(--risk-4));
+  animation: boot-progress 1.35s ease-in-out infinite;
 }
 
 .boot-mark {
@@ -146,67 +192,39 @@ body {
   animation-delay: 0.54s;
 }
 
-.boot-copy {
-  display: grid;
-  justify-items: center;
-  gap: 6px;
-  text-align: center;
-}
-
-.boot-kicker {
-  color: rgba(238, 246, 248, 0.58);
-  font-size: 12px;
-  font-weight: 760;
-}
-
-.boot-copy strong {
-  font-size: clamp(20px, 3vw, 30px);
-  line-height: 1.12;
-}
-
-.boot-copy p {
-  min-height: 20px;
-  margin: 0;
-  color: rgba(238, 246, 248, 0.68);
-  font-size: 13px;
-}
-
-.boot-progress {
-  position: relative;
-  width: min(320px, calc(100vw - 76px));
-  height: 4px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.13);
-}
-
-.boot-progress::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  width: 44%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--risk-1), var(--risk-3), var(--risk-4));
-  animation: boot-progress 1.35s ease-in-out infinite;
-}
-
 .leaflet-container {
-  background: transparent;
+  background: #eef0ed;
   font: inherit;
 }
 
-.maplibregl-map {
-  background: transparent !important;
-  pointer-events: none;
+.leaflet-tile {
+  background: #eef0ed;
+  outline: 1px solid transparent;
 }
 
 .map-is-moving .kiri-tooltip {
   opacity: 0;
 }
 
+.map-is-zooming .leaflet-tooltip-pane {
+  display: none;
+}
+
+.leaflet-overlay-pane canvas {
+  transition: none;
+}
+
+.map-is-zooming .leaflet-overlay-pane canvas {
+  opacity: 0.64;
+}
+
+.map-is-zooming .leaflet-overlay-pane {
+  pointer-events: none;
+}
+
 .leaflet-control-zoom {
   border: 0 !important;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
 }
 
 .leaflet-control-zoom a {
@@ -264,8 +282,8 @@ h1 {
   font: inherit;
   font-size: 12px;
   padding: 0 12px;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
-  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+  transition: background 0.12s ease, border-color 0.12s ease;
 }
 
 .back-button {
@@ -274,7 +292,6 @@ h1 {
 
 .back-button:hover {
   background: rgba(20, 41, 55, 0.92);
-  transform: translateY(-1px);
 }
 
 .date-button {
@@ -285,7 +302,6 @@ h1 {
 
 .date-button:hover {
   background: rgba(20, 41, 55, 0.92);
-  transform: translateY(-1px);
 }
 
 .calendar-panel,
@@ -299,8 +315,7 @@ h1 {
   border: 1px solid var(--panel-border);
   border-radius: 8px;
   background: rgba(5, 17, 27, 0.9);
-  box-shadow: 0 20px 58px rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(12px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
 }
 
 .archive-panel {
@@ -441,7 +456,7 @@ h1 {
   left: 24px;
   bottom: 88px;
   width: min(292px, calc(100vw - 48px));
-  max-height: min(460px, calc(100vh - 150px));
+  max-height: min(520px, calc(100vh - 132px));
   overflow: auto;
   padding: 12px 13px;
   border: 1px solid var(--panel-border);
@@ -450,7 +465,22 @@ h1 {
   color: var(--text);
   font-size: 12px;
   line-height: 1.8;
-  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+  scrollbar-color: rgba(155, 177, 190, 0.34) transparent;
+  scrollbar-width: thin;
+}
+
+.legend::-webkit-scrollbar {
+  width: 6px;
+}
+
+.legend::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.legend::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(155, 177, 190, 0.34);
 }
 
 .legend-title {
@@ -586,8 +616,7 @@ h1 {
   border: 1px solid var(--panel-border);
   border-radius: 8px;
   background: var(--panel);
-  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.42);
-  backdrop-filter: blur(9px);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.34);
   scrollbar-color: rgba(155, 177, 190, 0.5) rgba(7, 20, 31, 0.35);
   scrollbar-width: thin;
 }
@@ -713,16 +742,6 @@ h1 {
   font-size: 11px !important;
 }
 
-.footer-note {
-  position: absolute;
-  z-index: 500;
-  left: 24px;
-  bottom: 18px;
-  color: rgba(238, 246, 248, 0.52);
-  font-size: 11px;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
-}
-
 .loading-state {
   position: absolute;
   z-index: 700;
@@ -735,7 +754,7 @@ h1 {
   background: rgba(5, 17, 27, 0.88);
   color: rgba(238, 246, 248, 0.88);
   font-size: 12px;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
 }
 
 .kiri-tooltip {
@@ -743,11 +762,21 @@ h1 {
   border-radius: 7px !important;
   background: rgba(5, 17, 27, 0.92) !important;
   color: var(--text) !important;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.24) !important;
 }
 
 .kiri-tooltip::before {
   border-top-color: rgba(5, 17, 27, 0.92) !important;
+}
+
+@keyframes boot-progress {
+  0% {
+    transform: translateX(-110%);
+  }
+
+  100% {
+    transform: translateX(230%);
+  }
 }
 
 @keyframes boot-pulse {
@@ -773,16 +802,6 @@ h1 {
   50% {
     transform: scale(1.12);
     opacity: 1;
-  }
-}
-
-@keyframes boot-progress {
-  0% {
-    transform: translateX(-110%);
-  }
-
-  100% {
-    transform: translateX(230%);
   }
 }
 
@@ -815,7 +834,7 @@ h1 {
     left: 14px;
     bottom: 90px;
     width: min(278px, calc(100vw - 28px));
-    max-height: min(336px, calc(100dvh - 190px));
+    max-height: min(430px, calc(100dvh - 132px));
     font-size: 0.76rem;
   }
 
@@ -851,9 +870,6 @@ h1 {
     border-radius: 8px 8px 0 0;
   }
 
-  .footer-note {
-    display: none;
-  }
 }
 
 @media (max-width: 520px) {

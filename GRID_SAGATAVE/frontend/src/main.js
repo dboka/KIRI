@@ -24,8 +24,12 @@ const monthNames = {
 
 const weekdayLabels = ["P", "O", "T", "C", "P", "S", "Sv"];
 const latviaBounds = L.latLngBounds([55.55, 20.45], [58.25, 28.35]);
-const maplibreStyleUrl = "https://tiles.openfreemap.org/styles/positron";
-const fallbackTileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+const basemapTileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}";
+let resolveBasemapReady = null;
+let basemapReadySettled = false;
+const basemapReady = new Promise((resolve) => {
+  resolveBasemapReady = resolve;
+});
 
 const map = L.map("map", {
   preferCanvas: true,
@@ -35,69 +39,55 @@ const map = L.map("map", {
   maxZoom: 11.5,
   maxBounds: latviaBounds.pad(0.18),
   maxBoundsViscosity: 0.95,
-  zoomSnap: 0.25,
-  zoomDelta: 0.5,
-  scrollWheelZoom: "center",
-  wheelDebounceTime: 35,
-  wheelPxPerZoomLevel: 220,
+  zoomSnap: 0.5,
+  zoomDelta: 1,
+  scrollWheelZoom: true,
+  wheelDebounceTime: 25,
+  wheelPxPerZoomLevel: 180,
   bounceAtZoomLimits: false,
   inertia: true,
-  fadeAnimation: true,
-  zoomAnimation: true,
-  zoomAnimationThreshold: 2,
+  fadeAnimation: false,
+  zoomAnimation: false,
+  zoomAnimationThreshold: 3,
   markerZoomAnimation: false,
 });
 
 L.control.zoom({ position: "topright" }).addTo(map);
 
-let baseLayer = null;
-let fallbackLayer = null;
-
-function addRasterFallback() {
-  if (fallbackLayer) return;
-  document.body.classList.add("basemap-failed");
-  fallbackLayer = L.tileLayer(fallbackTileUrl, {
-    minZoom: 0,
-    maxZoom: 19,
-    maxNativeZoom: 19,
-    keepBuffer: 5,
-    updateWhenIdle: false,
-    updateWhenZooming: false,
-    crossOrigin: true,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  }).addTo(map);
-
-  fallbackLayer.on("tileload", () => {
-    document.body.classList.add("basemap-raster-fallback");
-  });
+function markBasemapReady(mode) {
+  if (basemapReadySettled) return;
+  basemapReadySettled = true;
+  document.body.classList.add(`basemap-${mode}-ready`);
+  resolveBasemapReady?.(mode);
 }
 
-function addMaplibreBasemap() {
-  if (!L.maplibreGL || !window.maplibregl) {
-    addRasterFallback();
-    return;
-  }
-
-  baseLayer = L.maplibreGL({
-    style: maplibreStyleUrl,
-    interactive: false,
-    renderWorldCopies: false,
-  }).addTo(map);
-
-  const glMap = baseLayer.getMaplibreMap?.();
-  if (glMap) {
-    glMap.on("load", () => {
-      document.body.classList.add("basemap-maplibre-ready");
-    });
-    glMap.on("error", () => {
-      addRasterFallback();
-    });
-  }
+function waitForBasemapReady(timeoutMs = 3000) {
+  return Promise.race([
+    basemapReady,
+    new Promise((resolve) => {
+      window.setTimeout(() => {
+        markBasemapReady("timeout");
+        resolve("timeout");
+      }, timeoutMs);
+    }),
+  ]);
 }
 
-addMaplibreBasemap();
+const baseLayer = L.tileLayer(basemapTileUrl, {
+  minZoom: 0,
+  maxZoom: 18,
+  maxNativeZoom: 18,
+  keepBuffer: 3,
+  updateWhenIdle: false,
+  updateWhenZooming: false,
+  crossOrigin: true,
+  attribution: "Tiles &copy; Esri, HERE, Garmin, OpenStreetMap contributors",
+}).addTo(map);
 
-const canvasRenderer = L.canvas({ padding: 0.55, tolerance: 8 });
+baseLayer.once("tileload", () => markBasemapReady("raster"));
+baseLayer.once("load", () => markBasemapReady("raster"));
+
+const canvasRenderer = L.canvas({ padding: 0.22, tolerance: 5 });
 const dateCache = new Map();
 const jsonCache = new Map();
 
@@ -113,6 +103,7 @@ let activeMunicipalityCode = null;
 let selectedGridCellLayer = null;
 let isMapMoving = false;
 let gridStyleFrame = null;
+let lastGridLineMode = null;
 
 window.kiriDebug = { status: "booting" };
 
@@ -131,6 +122,10 @@ const loadingState = document.querySelector("#loadingState");
 const bootOverlay = document.querySelector("#bootOverlay");
 const bootStatus = document.querySelector("#bootStatus");
 const bootStartedAt = window.performance.now();
+
+document.querySelectorAll(".thresholds").forEach((details) => {
+  details.open = false;
+});
 
 function getRiskColor(level) {
   return riskColors[level] || "#aab6bc";
@@ -170,9 +165,13 @@ function confidenceFillOpacity(confidence) {
   return 0.84;
 }
 
+function shouldDrawGridLines() {
+  return map.getZoom() >= 10.75;
+}
+
 function gridStyle(feature) {
   const level = feature.properties.final_risk_level ?? feature.properties.kiri_risk_level;
-  const drawCellLines = map.getZoom() >= 10.25;
+  const drawCellLines = shouldDrawGridLines();
   return {
     renderer: canvasRenderer,
     color: drawCellLines ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0)",
@@ -272,7 +271,7 @@ function setBootStatus(text) {
 function finishBootOverlay() {
   if (!bootOverlay) return;
   const elapsed = window.performance.now() - bootStartedAt;
-  const finishDelay = Math.max(0, 850 - elapsed);
+  const finishDelay = Math.max(0, 1100 - elapsed);
   window.setTimeout(() => {
     bootOverlay.classList.add("is-complete");
     window.setTimeout(() => {
@@ -418,7 +417,7 @@ async function openMunicipalityByCode(code, { fit = true } = {}) {
     gridLayer = L.geoJSON(gridGeojson, {
       renderer: canvasRenderer,
       style: gridStyle,
-      smoothFactor: 1.2,
+      smoothFactor: 0.75,
       bubblingMouseEvents: false,
       onEachFeature: (cellFeature, layer) => {
         layer.on("click", (event) => {
@@ -436,6 +435,7 @@ async function openMunicipalityByCode(code, { fit = true } = {}) {
         });
       },
     }).addTo(map);
+    lastGridLineMode = shouldDrawGridLines();
 
     selectedBoundaryLayer.bringToFront();
     if (fit) {
@@ -672,8 +672,11 @@ async function boot() {
   setBootStatus("Būvē kalendāru un arhīvu...");
   renderCalendar();
   renderArchive();
-  setBootStatus("Zīmē jaunāko kartes slāni...");
+  setBootStatus("Zīmē riska slāni...");
   await setActiveDate(calendarManifest.default_date, { fit: true, keepMunicipality: false });
+  setBootStatus("Gaida kartes pamatni...");
+  await waitForBasemapReady();
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   setBootStatus("Gatavs");
   finishBootOverlay();
 }
@@ -683,12 +686,20 @@ map.on("zoomstart movestart", () => {
   document.body.classList.add("map-is-moving");
 });
 
+map.on("zoomstart", () => {
+  document.body.classList.add("map-is-zooming");
+});
+
 map.on("moveend", () => {
   isMapMoving = false;
   document.body.classList.remove("map-is-moving");
 });
 
 map.on("zoomend", () => {
+  document.body.classList.remove("map-is-zooming");
+  const nextGridLineMode = shouldDrawGridLines();
+  if (nextGridLineMode === lastGridLineMode) return;
+  lastGridLineMode = nextGridLineMode;
   if (gridStyleFrame) {
     window.cancelAnimationFrame(gridStyleFrame);
   }
