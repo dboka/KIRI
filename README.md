@@ -34,6 +34,15 @@ KIRI-LV is an interactive manure spreading risk map for Latvia. The prototype co
 - `docs` - planning and project documentation.
 - `DATA_LAST_60` - local raw/intermediate latest data source; ignored by git.
 
+## Development Branches
+
+The operational product stays on `main`. Experimental work is kept in separate
+branches so it cannot change the published GitHub Pages version accidentally.
+
+- Current DEM pilot: `codex/experimental-dem-grid-27105`
+- [Branch and worktree workflow](docs/EXPERIMENTAL_BRANCH_WORKFLOW.md)
+- [DEM grid 27105 experiment notes](experiments/dem-grid-27105/README.md)
+
 ## GitHub Pages
 
 On every push to `main`, GitHub Actions deploys:

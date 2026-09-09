@@ -1,0 +1,48 @@
+{
+  "grid_id": "27105",
+  "resolution_m": 1.0,
+  "buffer_m": 300.0,
+  "crs": "EPSG:3059",
+  "vertical_datum": "LAS-2000,5",
+  "bounds": [
+    [
+      56.705678180466705,
+      24.813772230268185
+    ],
+    [
+      56.71477023632149,
+      24.83031021464883
+    ]
+  ],
+  "cell_bounds_lks92": [
+    549823.7198,
+    284932.061,
+    550823.7198,
+    285932.061
+  ],
+  "selected_ground_points": 4406855,
+  "raw_buffer_pixel_coverage": 0.5738,
+  "elevation_min_m": 31.7,
+  "elevation_mean_m": 36.01,
+  "elevation_max_m": 45.53,
+  "elevation_p05_m": 31.82,
+  "elevation_p95_m": 42.75,
+  "default_image": "dem_combined.png",
+  "images": {
+    "elevation": "dem_elevation.png",
+    "hillshade": "dem_hillshade.png",
+    "combined": "dem_combined.png"
+  },
+  "source": "LĢIA LiDAR: reljefa klase 2 un pilotam filtrēti 14. klases Daugavas virsmas punkti (30–35 m)",
+  "source_urls": [
+    "https://s3.storage.pub.lvdc.gov.lv/lgia-opendata/las/3343/3343-31-22.las",
+    "https://s3.storage.pub.lvdc.gov.lv/lgia-opendata/las/3343/3343-31-21.las",
+    "https://s3.storage.pub.lvdc.gov.lv/lgia-opendata/las/3343/3343-21-51.las",
+    "https://s3.storage.pub.lvdc.gov.lv/lgia-opendata/las/3343/3343-21-52.las",
+    "https://s3.storage.pub.lvdc.gov.lv/lgia-opendata/las/3334/3334-35-15.las",
+    "https://s3.storage.pub.lvdc.gov.lv/lgia-opendata/las/3343/3343-31-11.las",
+    "https://s3.storage.pub.lvdc.gov.lv/lgia-opendata/las/3334/3334-35-25.las",
+    "https://s3.storage.pub.lvdc.gov.lv/lgia-opendata/las/3334/3334-25-55.las",
+    "https://s3.storage.pub.lvdc.gov.lv/lgia-opendata/las/3343/3343-31-12.las"
+  ]
+}

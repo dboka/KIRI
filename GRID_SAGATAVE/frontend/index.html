@@ -23,7 +23,7 @@
     <link rel="canonical" href="https://dboka.github.io/KIRI/" />
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
-    <link rel="stylesheet" href="src/styles.css?v=30" />
+    <link rel="stylesheet" href="src/styles.css?v=33" />
   </head>
   <body>
     <main class="app-shell">
@@ -173,11 +173,86 @@
           </p>
         </aside>
 
+        <aside id="demPanel" class="detail-panel dem-panel" hidden>
+          <div class="panel-kicker">Grid šūna 27105 · pilotprojekts</div>
+          <h2>1 m reljefa skats</h2>
+          <div class="dem-source-badge">LĢIA LiDAR · LKS-92 TM · LAS-2000,5</div>
+
+          <section id="demRiskCard" class="dem-risk-card" aria-label="Grid šūnas riska kopsavilkums">
+            <div>
+              <span class="dem-risk-label">KIRI risks · <span id="demRiskDate">—</span></span>
+              <strong><span id="demRiskLevel">—</span>. <span id="demRiskName">—</span></strong>
+            </div>
+            <span id="demRiskConfidence" class="dem-confidence">—</span>
+          </section>
+
+          <div class="dem-risk-highlights">
+            <div><span>H-SAF mitrums</span><strong id="demHsaf">—</strong></div>
+            <div><span>P30 nokrišņi</span><strong id="demP30">—</strong></div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-label">Attēlojums</div>
+            <div class="dem-mode-switch" role="group" aria-label="Reljefa attēlojums">
+              <button class="is-active" type="button" data-dem-mode="combined">Reljefs</button>
+              <button type="button" data-dem-mode="elevation">Augstums</button>
+              <button type="button" data-dem-mode="hillshade">Ēnojums</button>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <label class="dem-opacity-label" for="demOpacity">
+              <span>Caurspīdīgums</span>
+              <strong id="demOpacityValue">72%</strong>
+            </label>
+            <input id="demOpacity" class="dem-opacity" type="range" min="15" max="100" value="72" />
+            <div class="dem-gradient" aria-hidden="true"></div>
+            <div class="dem-gradient-labels"><span id="demMinLegend">—</span><span id="demMaxLegend">—</span></div>
+          </div>
+
+          <div class="indicator-grid dem-stats">
+            <div class="indicator-card">
+              <span>Izšķirtspēja</span>
+              <strong id="demResolution">—</strong>
+            </div>
+            <div class="indicator-card">
+              <span>Vidējais augstums</span>
+              <strong id="demMean">—</strong>
+            </div>
+            <div class="indicator-card">
+              <span>Minimālais</span>
+              <strong id="demMin">—</strong>
+            </div>
+            <div class="indicator-card">
+              <span>Maksimālais</span>
+              <strong id="demMax">—</strong>
+            </div>
+          </div>
+
+          <details class="dem-risk-details">
+            <summary>Pilni šūnas riska dati</summary>
+            <div class="dem-risk-data-grid">
+              <div><span>SWI</span><strong id="demSwi">—</strong></div>
+              <div><span>P90</span><strong id="demP90">—</strong></div>
+              <div><span>P730</span><strong id="demP730">—</strong></div>
+              <div><span>Juridiskais statuss</span><strong id="demLegal">—</strong></div>
+            </div>
+            <div class="panel-label dem-reasons-label">Riska iemesli</div>
+            <ul id="demRiskReasons"></ul>
+            <div class="panel-label dem-reasons-label">Datu piezīmes</div>
+            <ul id="demDataWarnings"></ul>
+          </details>
+
+          <p class="demo-note">
+            DTM aprēķināts no 9 LĢIA LAS lapām ar 300 m buferi. Kartē redzama tikai precīzi izgrieztā 1 × 1 km šūna.
+          </p>
+        </aside>
+
         <div id="loadingState" class="loading-state" hidden>Ielādē datumu...</div>
       </section>
     </main>
 
     <script src="vendor/leaflet/leaflet.js"></script>
-    <script src="src/main.js?v=30"></script>
+    <script src="src/main.js?v=34"></script>
   </body>
 </html>
