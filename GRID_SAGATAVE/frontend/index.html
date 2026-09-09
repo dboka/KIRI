@@ -29,6 +29,22 @@
     <main class="app-shell">
       <section class="map-stage" aria-label="KIRI-LV karte">
         <div id="map"></div>
+        <section id="dem3dStage" class="dem-3d-stage" aria-label="Šūnas 27105 interaktīvais 3D reljefs" hidden>
+          <iframe
+            id="dem3dFrame"
+            title="Qgis2threejs 3D reljefs režģa šūnai 27105"
+            data-src="data/dem/27105/qgis2threejs/grid-27105.html"
+            loading="lazy"
+          ></iframe>
+          <div id="dem3dLoading" class="dem-3d-loading" role="status">
+            <span></span>
+            Veido 3D reljefu…
+          </div>
+          <div class="dem-3d-signature">
+            <strong>1 m LĢIA DTM</strong>
+            <span>Qgis2threejs · velc, lai grozītu · rullis pietuvina</span>
+          </div>
+        </section>
         <div id="bootOverlay" class="boot-overlay" role="status" aria-live="polite">
           <div class="boot-mark" aria-hidden="true">
             <span></span>
@@ -197,10 +213,11 @@
               <button class="is-active" type="button" data-dem-mode="combined">Reljefs</button>
               <button type="button" data-dem-mode="elevation">Augstums</button>
               <button type="button" data-dem-mode="hillshade">Ēnojums</button>
+              <button type="button" data-dem-mode="3d">3D</button>
             </div>
           </div>
 
-          <div class="panel-section">
+          <div class="panel-section dem-overlay-controls">
             <label class="dem-opacity-label" for="demOpacity">
               <span>Caurspīdīgums</span>
               <strong id="demOpacityValue">72%</strong>
@@ -208,6 +225,16 @@
             <input id="demOpacity" class="dem-opacity" type="range" min="15" max="100" value="72" />
             <div class="dem-gradient" aria-hidden="true"></div>
             <div class="dem-gradient-labels"><span id="demMinLegend">—</span><span id="demMaxLegend">—</span></div>
+          </div>
+
+          <div class="panel-section dem-3d-controls" aria-label="3D reljefa vadība">
+            <div class="panel-label">3D vadība</div>
+            <div class="dem-3d-actions">
+              <button id="dem3dOrbit" type="button" aria-pressed="false">Auto rotācija</button>
+              <button id="dem3dWireframe" type="button" aria-pressed="false">Režģis</button>
+              <button id="dem3dReset" type="button">Atiestatīt</button>
+            </div>
+            <p class="dem-3d-note">1 m avota DEM · optimizēts ~300 × 300 tīmekļa mesh · Z ×3,2</p>
           </div>
 
           <div class="indicator-grid dem-stats">
@@ -253,6 +280,6 @@
     </main>
 
     <script src="vendor/leaflet/leaflet.js"></script>
-    <script src="src/main.js?v=34"></script>
+    <script src="src/main.js?v=35"></script>
   </body>
 </html>

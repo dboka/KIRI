@@ -12,6 +12,7 @@
 - maska, kas paslēpj DEM ārpus izvēlētās šūnas;
 - šūnas KIRI riska informācija arī detalizētajā skatā;
 - atgriešanās uz Ogres novada un Latvijas interaktīvo skatu.
+- eksperimentāls Qgis2threejs 3D reljefa skats tajā pašā detalizētajā panelī.
 
 Pilota tiešā lokālā adrese:
 
@@ -39,3 +40,21 @@ Tas ir tehnisks pilots, nevis vēl pilns virszemes noteces modelis. DEM apraksta
 reljefu, bet kūtsmēslu izkliedes riskam papildus būs vajadzīgi nokrišņi, augsnes
 mitrums, infiltrācija, sniegs/sasalums, lauka robežas un hidroloģiskā
 savienojamība.
+
+## Qgis2threejs eksports
+
+Eksporta skripts izmanto oriģinālo 1000 × 1000 pikseļu, 1 m GeoTIFF kā datu
+avotu. Pārlūka 3D mesh pēc noklusējuma tiek optimizēts līdz aptuveni 300 × 300
+virsotnēm, lai reljefu varētu plūstoši grozīt arī parastā datorā.
+
+Nepieciešams QGIS 3 un Qgis2threejs 2.10.x. Piemērs:
+
+```powershell
+& "C:\Program Files\QGIS 3.40.7\bin\python-qgis-ltr.bat" `
+  experiments\dem-grid-27105\export_qgis2threejs.py `
+  --plugin-dir "C:\ceļš\uz\Qgis2threejs"
+```
+
+Skripts ģenerē `GRID_SAGATAVE/frontend/data/dem/27105/qgis2threejs` saturu.
+Eksportētajā skatā var grozīt reljefu, pietuvināt, ieslēgt 3D apgaismojumu un
+mainīt reljefa materiāla caurspīdīgumu.

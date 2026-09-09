@@ -50,6 +50,86 @@ body {
   z-index: 1;
 }
 
+.dem-3d-stage {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 38% 42%, rgba(72, 142, 129, 0.18), transparent 34%),
+    #07151d;
+}
+
+.dem-3d-stage[hidden] {
+  display: none;
+}
+
+.dem-3d-stage iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.dem-3d-stage.is-loading iframe {
+  opacity: 0;
+}
+
+.dem-3d-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translate(-50%, -50%);
+  color: rgba(238, 246, 248, 0.78);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.dem-3d-loading[hidden] {
+  display: none;
+}
+
+.dem-3d-loading span {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(105, 207, 187, 0.24);
+  border-top-color: #69cfbb;
+  border-radius: 50%;
+  animation: dem-3d-spin 0.8s linear infinite;
+}
+
+.dem-3d-signature {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  display: grid;
+  gap: 3px;
+  padding: 9px 11px;
+  border: 1px solid rgba(120, 220, 199, 0.28);
+  border-radius: 7px;
+  color: #eafaf6;
+  background: rgba(7, 21, 29, 0.82);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+.dem-3d-signature strong {
+  color: #a9e7dc;
+  font-size: 0.72rem;
+}
+
+.dem-3d-signature span {
+  color: rgba(238, 246, 248, 0.66);
+  font-size: 0.66rem;
+}
+
 .leaflet-map-pane,
 .leaflet-tile-pane,
 .leaflet-overlay-pane {
@@ -830,7 +910,7 @@ h1 {
 
 .dem-mode-switch {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 5px;
   margin-top: 8px;
 }
@@ -867,6 +947,50 @@ h1 {
   width: 100%;
   margin: 10px 0 13px;
   accent-color: #65c8b5;
+}
+
+.dem-3d-controls {
+  display: none;
+}
+
+.dem-3d-active .dem-overlay-controls {
+  display: none;
+}
+
+.dem-3d-active .dem-3d-controls {
+  display: block;
+}
+
+.dem-3d-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.dem-3d-actions button {
+  min-height: 34px;
+  padding: 5px 6px;
+  border: 1px solid rgba(217, 231, 238, 0.17);
+  border-radius: 6px;
+  color: rgba(238, 246, 248, 0.72);
+  background: rgba(8, 27, 42, 0.7);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.7rem;
+}
+
+.dem-3d-actions button:hover,
+.dem-3d-actions button.is-active {
+  border-color: rgba(105, 207, 187, 0.7);
+  color: #effffb;
+  background: rgba(33, 123, 108, 0.38);
+}
+
+.dem-3d-note {
+  margin: 8px 0 0 !important;
+  color: rgba(238, 246, 248, 0.56) !important;
+  font-size: 0.67rem !important;
 }
 
 .dem-gradient {
@@ -966,6 +1090,12 @@ h1 {
 
   100% {
     transform: translateX(230%);
+  }
+}
+
+@keyframes dem-3d-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 

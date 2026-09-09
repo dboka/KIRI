@@ -122,6 +122,12 @@ const detailPanel = document.querySelector("#detailPanel");
 const demPanel = document.querySelector("#demPanel");
 const demOpacity = document.querySelector("#demOpacity");
 const demOpacityValue = document.querySelector("#demOpacityValue");
+const dem3dStage = document.querySelector("#dem3dStage");
+const dem3dFrame = document.querySelector("#dem3dFrame");
+const dem3dLoading = document.querySelector("#dem3dLoading");
+const dem3dOrbit = document.querySelector("#dem3dOrbit");
+const dem3dWireframe = document.querySelector("#dem3dWireframe");
+const dem3dReset = document.querySelector("#dem3dReset");
 const backButton = document.querySelector("#backButton");
 const calendarToggle = document.querySelector("#calendarToggle");
 const calendarPanel = document.querySelector("#calendarPanel");
@@ -365,10 +371,44 @@ function demImagePath(mode = activeDemMode) {
   return `data/dem/${demMetadata.grid_id}/${filename}`;
 }
 
+function getDem3dApp() {
+  try {
+    return dem3dFrame.contentWindow?.Q3D?.application || null;
+  } catch (error) {
+    console.warn("3D viewer is not accessible", error);
+    return null;
+  }
+}
+
+function setDem3dButtonState(button, active) {
+  button.classList.toggle("is-active", active);
+  button.setAttribute("aria-pressed", String(active));
+}
+
+function stopDem3dAnimation() {
+  const viewer = getDem3dApp();
+  if (viewer?.controls?.autoRotate) viewer.setRotateAnimationMode(false);
+  setDem3dButtonState(dem3dOrbit, false);
+}
+
 function setDemMode(mode) {
-  if (!demMetadata?.images?.[mode]) return;
+  const is3d = mode === "3d";
+  if (!is3d && !demMetadata?.images?.[mode]) return;
   activeDemMode = mode;
-  demOverlay?.setUrl(demImagePath(mode));
+  document.body.classList.toggle("dem-3d-active", is3d);
+  dem3dStage.hidden = !is3d;
+
+  if (is3d) {
+    if (!dem3dFrame.src) {
+      dem3dStage.classList.add("is-loading");
+      dem3dFrame.src = dem3dFrame.dataset.src;
+    }
+  } else {
+    stopDem3dAnimation();
+    demOverlay?.setUrl(demImagePath(mode));
+    demOverlay?.setOpacity(Number(demOpacity.value) / 100);
+  }
+
   document.querySelectorAll("[data-dem-mode]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.demMode === mode);
   });
@@ -438,7 +478,9 @@ function createDemOutsideMask(bounds) {
 }
 
 function removeDemViewLayers() {
-  document.body.classList.remove("dem-view-active");
+  document.body.classList.remove("dem-view-active", "dem-3d-active");
+  dem3dStage.hidden = true;
+  stopDem3dAnimation();
   if (demOverlay) {
     demOverlay.remove();
     demOverlay = null;
@@ -974,6 +1016,34 @@ demOpacity.addEventListener("input", () => {
   const value = Number(demOpacity.value);
   demOpacityValue.textContent = `${value}%`;
   demOverlay?.setOpacity(value / 100);
+});
+
+dem3dFrame.addEventListener("load", () => {
+  dem3dStage.classList.remove("is-loading");
+  dem3dLoading.hidden = true;
+});
+
+dem3dOrbit.addEventListener("click", () => {
+  const viewer = getDem3dApp();
+  if (!viewer?.controls) return;
+  const active = !viewer.controls.autoRotate;
+  viewer.setRotateAnimationMode(active);
+  setDem3dButtonState(dem3dOrbit, active);
+});
+
+dem3dWireframe.addEventListener("click", () => {
+  const viewer = getDem3dApp();
+  if (!viewer) return;
+  const active = !viewer._wireframeMode;
+  viewer.setWireframeMode(active);
+  setDem3dButtonState(dem3dWireframe, active);
+});
+
+dem3dReset.addEventListener("click", () => {
+  const viewer = getDem3dApp();
+  if (!viewer?.controls) return;
+  viewer.controls.reset();
+  viewer.render();
 });
 
 calendarToggle.addEventListener("click", () => {
