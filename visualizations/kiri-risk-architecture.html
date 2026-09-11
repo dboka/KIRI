@@ -1,0 +1,208 @@
+<div class="kiri-architecture">
+  <style>
+    .kiri-architecture {
+      --accent: var(--color-accent, #2563eb);
+      --accent-soft: color-mix(in srgb, var(--accent) 10%, var(--color-background-primary));
+      --green: var(--color-success, #16835b);
+      --amber: var(--color-warning, #c57712);
+      color: var(--color-text-primary);
+      font-family: var(--font-sans);
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .kiri-architecture * { box-sizing: border-box; }
+    .kiri-architecture h1 { margin: 0 0 6px; font-size: 28px; line-height: 1.15; }
+    .kiri-architecture h2 { margin: 0 0 8px; font-size: 17px; }
+    .kiri-architecture p { margin: 0; line-height: 1.45; }
+    .kiri-architecture ul { margin: 10px 0 0; padding-left: 18px; line-height: 1.5; }
+    .kiri-architecture .subtle { color: var(--color-text-secondary); }
+    .kiri-architecture .lead { margin-bottom: 20px; }
+    .kiri-architecture .input-label,
+    .kiri-architecture .section-label {
+      color: var(--color-text-secondary);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin: 0 0 8px;
+    }
+    .kiri-architecture .inputs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .kiri-architecture .card { min-width: 0; }
+    .kiri-architecture .number {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      margin-bottom: 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 800;
+    }
+    .kiri-architecture .tech {
+      margin-top: 12px;
+      color: var(--color-text-secondary);
+      font-size: 13px;
+    }
+    .kiri-architecture .current {
+      border: 2px solid var(--accent);
+      background: var(--accent-soft);
+    }
+    .kiri-architecture .current-note {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .kiri-architecture .merge {
+      text-align: center;
+      padding: 13px 0 9px;
+      color: var(--color-text-secondary);
+      font-size: 14px;
+      font-weight: 650;
+    }
+    .kiri-architecture .merge .arrow { display: block; color: var(--accent); font-size: 24px; line-height: 1; }
+    .kiri-architecture .paths {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .kiri-architecture .path-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .kiri-architecture .dot { width: 12px; height: 12px; border-radius: 50%; flex: 0 0 auto; }
+    .kiri-architecture .surface .dot { background: var(--amber); }
+    .kiri-architecture .drainage .dot { background: var(--green); }
+    .kiri-architecture .result {
+      border: 2px solid var(--color-border-strong);
+      text-align: center;
+    }
+    .kiri-architecture .formula {
+      margin: 12px auto 0;
+      max-width: 820px;
+      padding: 12px;
+      border-radius: var(--border-radius-lg);
+      background: var(--color-background-secondary);
+      font-size: 17px;
+      font-weight: 750;
+    }
+    .kiri-architecture .outputs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .kiri-architecture .output {
+      padding: 10px;
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--border-radius-md);
+      background: var(--color-background-primary);
+    }
+    .kiri-architecture .output strong { display: block; margin-bottom: 3px; }
+    .kiri-architecture .validation {
+      margin-top: 14px;
+      padding: 13px 15px;
+      border-left: 4px solid var(--green);
+      border-radius: var(--border-radius-md);
+      background: color-mix(in srgb, var(--green) 8%, var(--color-background-primary));
+      line-height: 1.45;
+    }
+    .kiri-architecture .legend {
+      margin-top: 12px;
+      color: var(--color-text-secondary);
+      font-size: 13px;
+      text-align: center;
+    }
+    @media (max-width: 760px) {
+      .kiri-architecture .inputs,
+      .kiri-architecture .paths,
+      .kiri-architecture .outputs { grid-template-columns: 1fr; }
+      .kiri-architecture h1 { font-size: 23px; }
+    }
+  </style>
+
+  <div class="lead">
+    <h1>KIRI-LV: kā noteikt kūtsmēslu izkliedes risku</h1>
+    <p class="subtle">Vienam laukam izvēlētā dienā: trīs ievades → divi piesārņojuma ceļi → viens saprotams lēmums.</p>
+  </div>
+
+  <div class="input-label">Trīs lietas, kas modelim jāzina</div>
+  <div class="inputs">
+    <section class="card current">
+      <span class="number">1</span>
+      <h2>Kad? Ūdens stāvoklis</h2>
+      <ul>
+        <li>augsnes mitrums;</li>
+        <li>nesenie nokrišņi;</li>
+        <li>lietus un sniega kušanas prognoze.</li>
+      </ul>
+      <p class="tech">(Tehniski: esošais H-SAF + SWI + CLIDATA kodols, papildināts ar prognozi.)</p>
+      <span class="current-note">Šo daļu KIRI jau dara</span>
+    </section>
+
+    <section class="card">
+      <span class="number">2</span>
+      <h2>Kur? Lauka jutīgums</h2>
+      <ul>
+        <li>lauka robeža un reljefa slīpums;</li>
+        <li>plūsmas ceļš līdz upei vai grāvim;</li>
+        <li>augsne un meliorācijas drenāža.</li>
+      </ul>
+      <p class="tech">(Tehniski: LAD lauki + LĢIA reljefs + augsnes un meliorācijas WFS slāņi.)</p>
+    </section>
+
+    <section class="card">
+      <span class="number">3</span>
+      <h2>Kas? Plānotā izkliede</h2>
+      <ul>
+        <li>kūtsmēslu veids un deva;</li>
+        <li>iestrādes metode un laiks;</li>
+        <li>veģetācija vai kaila augsne.</li>
+      </ul>
+      <p class="tech">(Tehniski: īsa lietotāja forma vai lauku darbu žurnāla dati.)</p>
+    </section>
+  </div>
+
+  <div class="merge"><span class="arrow">↓</span>Modelis apvieno visas trīs ievades</div>
+
+  <div class="section-label">Jānovērtē divi atšķirīgi piesārņojuma ceļi</div>
+  <div class="paths">
+    <section class="card surface">
+      <div class="path-title"><span class="dot"></span><h2>4A. Virszemes notece</h2></div>
+      <p>Vai ūdens plūdīs pāri laukam un aiznesīs mēslus uz grāvi vai ūdensteci?</p>
+      <p class="tech">(Tehniski: nokrišņu/runoff modelis + reljefa plūsmas ceļš + attālums līdz ūdenim.)</p>
+    </section>
+    <section class="card drainage">
+      <div class="path-title"><span class="dot"></span><h2>4B. Drenāžas notece</h2></div>
+      <p>Vai ūdens un barības vielas ātri nonāks drenu sistēmā un tālāk ūdenstecē?</p>
+      <p class="tech">(Tehniski: drenētā platība + augsnes piesātinājums + drenāžas plūsmas empīrisks slieksnis.)</p>
+    </section>
+  </div>
+
+  <div class="merge"><span class="arrow">↓</span>Izvēlas augstāko vai kombinēto ceļu risku</div>
+
+  <section class="card result">
+    <span class="number">5</span>
+    <h2>Lēmums konkrētam laukam un laikam</h2>
+    <div class="formula">Risks = ūdens kustības iespēja × savienojums ar ūdensteci × kūtsmēslu mobilitāte</div>
+    <div class="outputs">
+      <div class="output"><strong>Riska klase 1–5</strong><span class="subtle">Vai izkliedēt ir droši?</span></div>
+      <div class="output"><strong>Juridiskais statuss</strong><span class="subtle">Atļauts vai aizliegts?</span></div>
+      <div class="output"><strong>Pārliecība + iemesli</strong><span class="subtle">Kāpēc modelis tā lēma?</span></div>
+    </div>
+    <p class="tech">(Tehniski: lauka/dienas JSON API un kartes luksofors ar 2–3 galvenajiem riska iemesliem.)</p>
+  </section>
+
+  <div class="validation"><strong>Kalibrēšana un pārbaude:</strong> LBTU Bērzes, Mellupītes un Vienziemītes noteču novērojumi + pilotlauku sensori → pielāgo 4A/4B sliekšņus Latvijas apstākļiem. (Tehniski: backtesting pret novērotām noteces epizodēm.)</div>
+  <p class="legend">Galvenā doma: “surface runoff” nav viss kūtsmēslu izkliedes risks — Latvijas modelī atsevišķi jāredz arī meliorācijas drenāžas ceļš.</p>
+</div>

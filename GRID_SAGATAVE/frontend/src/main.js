@@ -110,7 +110,7 @@ let demOutlineLayer = null;
 let demMaskLayer = null;
 let demMetadata = null;
 let demViewActive = false;
-let activeDemMode = "combined";
+let activeDemMode = "3d";
 let activeDemCellProperties = null;
 let isMapMoving = false;
 let gridStyleFrame = null;
@@ -518,7 +518,7 @@ async function openDemView(cellFeature) {
   demViewActive = true;
   document.body.classList.add("dem-view-active");
   activeDemCellProperties = cellFeature.properties;
-  activeDemMode = "combined";
+  activeDemMode = "3d";
 
   if (gridLayer && map.hasLayer(gridLayer)) gridLayer.remove();
   detailPanel.hidden = true;
@@ -526,12 +526,6 @@ async function openDemView(cellFeature) {
   backButton.hidden = false;
   backButton.textContent = "Atpakaļ uz Ogres novada gridu";
 
-  const opacity = Number(demOpacity.value) / 100;
-  demOverlay = L.imageOverlay(demImagePath(), metadata.bounds, {
-    opacity,
-    interactive: false,
-    crossOrigin: false,
-  }).addTo(map);
   demMaskLayer = createDemOutsideMask(metadata.bounds);
   demOutlineLayer = L.geoJSON(cellFeature, {
     renderer: canvasRenderer,
@@ -551,7 +545,7 @@ async function openDemView(cellFeature) {
   document.querySelector("#demMinLegend").textContent = `${metadata.elevation_min_m} m`;
   document.querySelector("#demMaxLegend").textContent = `${metadata.elevation_max_m} m`;
   setDemRiskContent(cellFeature.properties);
-  setDemMode("combined");
+  setDemMode("3d");
 
   const compactLayout = window.innerWidth <= 760;
   map.fitBounds(metadata.bounds, {
