@@ -63,15 +63,39 @@ def frontend_status() -> dict[str, object]:
 
 
 def git_commit_and_push(branch: str) -> None:
-    run_step("Stage KIRI v0.1.3 operational update", ["git", "add", "-A"], PROJECT_DIR)
-    status = subprocess.run(
-        ["git", "status", "--porcelain"],
+    current_branch = subprocess.run(
+        ["git", "branch", "--show-current"],
         cwd=PROJECT_DIR,
         check=True,
         capture_output=True,
         text=True,
     ).stdout.strip()
-    if not status:
+    if current_branch != branch:
+        raise RuntimeError(
+            f"Refusing to push the '{current_branch or 'detached HEAD'}' checkout to '{branch}'. "
+            f"Run the operational update from a dedicated '{branch}' worktree."
+        )
+
+    run_step(
+        "Stage KIRI v0.1.3 operational update",
+        [
+            "git",
+            "add",
+            "--",
+            "GRID_SAGATAVE/frontend/data",
+            "GRID_SAGATAVE/clean",
+            ":(exclude)GRID_SAGATAVE/frontend/data/dem",
+        ],
+        PROJECT_DIR,
+    )
+    staged_files = subprocess.run(
+        ["git", "diff", "--cached", "--name-only"],
+        cwd=PROJECT_DIR,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    if not staged_files:
         print("\n== Commit KIRI v0.1.3 operational update ==")
         print("No git changes to commit.")
         return

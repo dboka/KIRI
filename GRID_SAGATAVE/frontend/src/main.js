@@ -24,9 +24,7 @@ const monthNames = {
 
 const weekdayLabels = ["P", "O", "T", "C", "P", "S", "Sv"];
 const latviaBounds = L.latLngBounds([55.55, 20.45], [58.25, 28.35]);
-const basemapTileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-const demPilotGridIds = new Set(["27105"]);
-const demPilotMunicipalityByGridId = { "27105": "100016688" };
+const basemapTileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}";
 let resolveBasemapReady = null;
 let basemapReadySettled = false;
 const basemapReady = new Promise((resolve) => {
@@ -38,7 +36,7 @@ const map = L.map("map", {
   zoomControl: false,
   attributionControl: true,
   minZoom: 6.5,
-  maxZoom: 19,
+  maxZoom: 11.5,
   maxBounds: latviaBounds.pad(0.18),
   maxBoundsViscosity: 0.95,
   zoomSnap: 0.5,
@@ -77,13 +75,13 @@ function waitForBasemapReady(timeoutMs = 3000) {
 
 const baseLayer = L.tileLayer(basemapTileUrl, {
   minZoom: 0,
-  maxZoom: 19,
-  maxNativeZoom: 19,
+  maxZoom: 18,
+  maxNativeZoom: 18,
   keepBuffer: 3,
   updateWhenIdle: false,
   updateWhenZooming: false,
   crossOrigin: true,
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  attribution: "Tiles &copy; Esri, HERE, Garmin, OpenStreetMap contributors",
 }).addTo(map);
 
 baseLayer.once("tileload", () => markBasemapReady("raster"));
@@ -105,13 +103,6 @@ let selectedBoundaryLayer = null;
 let gridLayer = null;
 let activeMunicipalityCode = null;
 let selectedGridCellLayer = null;
-let demOverlay = null;
-let demOutlineLayer = null;
-let demMaskLayer = null;
-let demMetadata = null;
-let demViewActive = false;
-let activeDemMode = "3d";
-let activeDemCellProperties = null;
 let isMapMoving = false;
 let gridStyleFrame = null;
 let lastGridLineMode = null;
@@ -119,15 +110,6 @@ let lastGridLineMode = null;
 window.kiriDebug = { status: "booting" };
 
 const detailPanel = document.querySelector("#detailPanel");
-const demPanel = document.querySelector("#demPanel");
-const demOpacity = document.querySelector("#demOpacity");
-const demOpacityValue = document.querySelector("#demOpacityValue");
-const dem3dStage = document.querySelector("#dem3dStage");
-const dem3dFrame = document.querySelector("#dem3dFrame");
-const dem3dLoading = document.querySelector("#dem3dLoading");
-const dem3dOrbit = document.querySelector("#dem3dOrbit");
-const dem3dWireframe = document.querySelector("#dem3dWireframe");
-const dem3dReset = document.querySelector("#dem3dReset");
 const backButton = document.querySelector("#backButton");
 const calendarToggle = document.querySelector("#calendarToggle");
 const calendarPanel = document.querySelector("#calendarPanel");
@@ -365,223 +347,7 @@ function setPanelContent(summary, cellProperties = null) {
   document.querySelector("#confidenceCard").textContent = "klikšķini uz grid";
 }
 
-function demImagePath(mode = activeDemMode) {
-  if (!demMetadata) return null;
-  const filename = demMetadata.images?.[mode] || demMetadata.default_image;
-  return `data/dem/${demMetadata.grid_id}/${filename}`;
-}
-
-function getDem3dApp() {
-  try {
-    return dem3dFrame.contentWindow?.Q3D?.application || null;
-  } catch (error) {
-    console.warn("3D viewer is not accessible", error);
-    return null;
-  }
-}
-
-function setDem3dButtonState(button, active) {
-  button.classList.toggle("is-active", active);
-  button.setAttribute("aria-pressed", String(active));
-}
-
-function stopDem3dAnimation() {
-  const viewer = getDem3dApp();
-  if (viewer?.controls?.autoRotate) viewer.setRotateAnimationMode(false);
-  setDem3dButtonState(dem3dOrbit, false);
-}
-
-function setDemMode(mode) {
-  const is3d = mode === "3d";
-  if (!is3d && !demMetadata?.images?.[mode]) return;
-  activeDemMode = mode;
-  document.body.classList.toggle("dem-3d-active", is3d);
-  dem3dStage.hidden = !is3d;
-
-  if (is3d) {
-    if (!dem3dFrame.src) {
-      dem3dStage.classList.add("is-loading");
-      dem3dFrame.src = dem3dFrame.dataset.src;
-    }
-  } else {
-    stopDem3dAnimation();
-    demOverlay?.setUrl(demImagePath(mode));
-    demOverlay?.setOpacity(Number(demOpacity.value) / 100);
-  }
-
-  document.querySelectorAll("[data-dem-mode]").forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.demMode === mode);
-  });
-}
-
-function resetMapInteractionState() {
-  isMapMoving = false;
-  document.body.classList.remove("map-is-moving", "map-is-zooming");
-}
-
-function setDemRiskContent(cellProperties) {
-  const level = Number(cellProperties.final_risk_level ?? cellProperties.kiri_risk_level);
-  const label = cellProperties.final_risk_label_lv
-    || cellProperties.kiri_risk_label_lv
-    || riskLabels[level]
-    || "Risks nav";
-  const confidenceLabels = { high: "Augsta uzticamība", medium: "Vidēja uzticamība", low: "Zema uzticamība" };
-  const legalLabels = { not_evaluated: "Nav izvērtēts" };
-  const hsafValue = cellProperties.HSAF_SSM_pct ?? cellProperties.hsaf_ssm;
-  const swiValue = cellProperties.SWI010_pct ?? cellProperties.swi;
-
-  document.querySelector("#demRiskCard").style.setProperty("--dem-risk-color", getRiskColor(level));
-  document.querySelector("#demRiskDate").textContent = cellProperties.date || activeDate || "—";
-  document.querySelector("#demRiskLevel").textContent = Number.isFinite(level) ? level : "—";
-  document.querySelector("#demRiskName").textContent = label;
-  document.querySelector("#demRiskConfidence").textContent =
-    confidenceLabels[cellProperties.confidence] || cellProperties.confidence || "Uzticamība nav zināma";
-  document.querySelector("#demHsaf").textContent =
-    `${formatMetric(hsafValue, "%")} · ${formatRisk(cellProperties.hsaf_ssm_risk)}`;
-  document.querySelector("#demP30").textContent =
-    `${formatMetric(cellProperties.P30_mm, " mm")} · ${formatRisk(cellProperties.p30_risk)}`;
-  document.querySelector("#demSwi").textContent =
-    `${formatMetric(swiValue, "%")} · ${formatRisk(cellProperties.swi_risk)}`;
-  document.querySelector("#demP90").textContent =
-    `${formatMetric(cellProperties.P90_mm, " mm")} · ${formatRisk(cellProperties.p90_risk)}`;
-  document.querySelector("#demP730").textContent =
-    `${formatMetric(cellProperties.P730_mm, " mm")} · ${formatRisk(cellProperties.p730_risk)}`;
-  document.querySelector("#demLegal").textContent =
-    legalLabels[cellProperties.legal_status] || cellProperties.legal_status || "Nav datu";
-  renderList(
-    "#demRiskReasons",
-    cellProperties.main_reasons || cellProperties.active_reasons,
-    "Nav identificētu riska iemeslu",
-  );
-  renderList(
-    "#demDataWarnings",
-    [...normalizeFactors(cellProperties.context_reasons), ...normalizeFactors(cellProperties.data_warnings)],
-    "Nav datu brīdinājumu",
-  );
-}
-
-function createDemOutsideMask(bounds) {
-  const [[south, west], [north, east]] = bounds;
-  const options = {
-    renderer: canvasRenderer,
-    stroke: false,
-    fillColor: "#07131c",
-    fillOpacity: 0.97,
-    interactive: false,
-  };
-  return L.layerGroup([
-    L.rectangle([[-85, -180], [south, 180]], options),
-    L.rectangle([[north, -180], [85, 180]], options),
-    L.rectangle([[south, -180], [north, west]], options),
-    L.rectangle([[south, east], [north, 180]], options),
-  ]).addTo(map);
-}
-
-function removeDemViewLayers() {
-  document.body.classList.remove("dem-view-active", "dem-3d-active");
-  dem3dStage.hidden = true;
-  stopDem3dAnimation();
-  if (demOverlay) {
-    demOverlay.remove();
-    demOverlay = null;
-  }
-  if (demOutlineLayer) {
-    demOutlineLayer.remove();
-    demOutlineLayer = null;
-  }
-  if (demMaskLayer) {
-    demMaskLayer.remove();
-    demMaskLayer = null;
-  }
-}
-
-async function restoreMunicipalityView({ fit = true } = {}) {
-  const municipalityCode = activeMunicipalityCode;
-  removeDemViewLayers();
-  demViewActive = false;
-  demPanel.hidden = true;
-  backButton.textContent = "Atpakaļ uz Latvijas karti";
-  resetMapInteractionState();
-  if (municipalityCode) {
-    await openMunicipalityByCode(municipalityCode, { fit });
-  }
-}
-
-async function openDemView(cellFeature) {
-  const gridId = String(cellFeature.properties.grid_id);
-  if (!demPilotGridIds.has(gridId)) return false;
-  const metadata = await loadOptionalJson(`data/dem/${gridId}/metadata.json`);
-  if (!metadata) return false;
-
-  removeDemViewLayers();
-  demMetadata = metadata;
-  demViewActive = true;
-  document.body.classList.add("dem-view-active");
-  activeDemCellProperties = cellFeature.properties;
-  activeDemMode = "3d";
-
-  if (gridLayer && map.hasLayer(gridLayer)) gridLayer.remove();
-  detailPanel.hidden = true;
-  demPanel.hidden = false;
-  backButton.hidden = false;
-  backButton.textContent = "Atpakaļ uz Ogres novada gridu";
-
-  demMaskLayer = createDemOutsideMask(metadata.bounds);
-  demOutlineLayer = L.geoJSON(cellFeature, {
-    renderer: canvasRenderer,
-    interactive: false,
-    className: "dem-cell-outline",
-    style: {
-      color: "rgba(255,255,255,0.96)",
-      weight: 2,
-      fillOpacity: 0,
-    },
-  }).addTo(map);
-
-  document.querySelector("#demResolution").textContent = `${metadata.resolution_m} m`;
-  document.querySelector("#demMean").textContent = `${metadata.elevation_mean_m} m`;
-  document.querySelector("#demMin").textContent = `${metadata.elevation_min_m} m`;
-  document.querySelector("#demMax").textContent = `${metadata.elevation_max_m} m`;
-  document.querySelector("#demMinLegend").textContent = `${metadata.elevation_min_m} m`;
-  document.querySelector("#demMaxLegend").textContent = `${metadata.elevation_max_m} m`;
-  setDemRiskContent(cellFeature.properties);
-  setDemMode("3d");
-
-  const compactLayout = window.innerWidth <= 760;
-  map.fitBounds(metadata.bounds, {
-    paddingTopLeft: compactLayout ? [24, 112] : [30, 80],
-    paddingBottomRight: compactLayout
-      ? [24, demPanel.offsetHeight + 24]
-      : [Math.min(demPanel.offsetWidth + 36, window.innerWidth * 0.44), 44],
-    maxZoom: 17,
-  });
-  return true;
-}
-
-async function openPilotGridById(gridId) {
-  const municipalityCode = demPilotMunicipalityByGridId[gridId];
-  if (!municipalityCode) return false;
-  await openMunicipalityByCode(municipalityCode, { fit: false });
-  let pilotLayer = null;
-  gridLayer?.eachLayer((layer) => {
-    if (String(layer.feature?.properties?.grid_id) === gridId) pilotLayer = layer;
-  });
-  if (!pilotLayer) return false;
-  selectedGridCellLayer = pilotLayer;
-  pilotLayer.setStyle({
-    weight: 1.1,
-    color: "rgba(255,255,255,0.98)",
-    fillOpacity: 0.9,
-    opacity: 0.95,
-  });
-  setPanelContent(manifest[municipalityCode], pilotLayer.feature.properties);
-  return openDemView(pilotLayer.feature);
-}
-
 function clearDetailLayers() {
-  removeDemViewLayers();
-  demViewActive = false;
-  demPanel.hidden = true;
   if (gridLayer) {
     gridLayer.remove();
     gridLayer = null;
@@ -601,7 +367,6 @@ function clearOverviewLayer() {
 }
 
 async function showOverview({ fit = true } = {}) {
-  resetMapInteractionState();
   activeMunicipalityCode = null;
   clearDetailLayers();
   if (!municipalityLayer && activeDate) {
@@ -620,7 +385,6 @@ async function showOverview({ fit = true } = {}) {
   }
   detailPanel.hidden = true;
   backButton.hidden = true;
-  backButton.textContent = "Atpakaļ uz Latvijas karti";
 }
 
 function updateDateChrome() {
@@ -635,12 +399,10 @@ function updateDateChrome() {
 
 async function openMunicipalityByCode(code, { fit = true } = {}) {
   if (!manifest || !manifest[code]) return;
-  resetMapInteractionState();
   activeMunicipalityCode = code;
   const summary = manifest[code];
   detailPanel.hidden = false;
   backButton.hidden = false;
-  backButton.textContent = "Atpakaļ uz Latvijas karti";
   setPanelContent(summary);
 
   clearDetailLayers();
@@ -675,7 +437,7 @@ async function openMunicipalityByCode(code, { fit = true } = {}) {
       smoothFactor: 0.75,
       bubblingMouseEvents: false,
       onEachFeature: (cellFeature, layer) => {
-        layer.on("click", async (event) => {
+        layer.on("click", (event) => {
           if (selectedGridCellLayer && selectedGridCellLayer !== event.target) {
             gridLayer.resetStyle(selectedGridCellLayer);
           }
@@ -687,17 +449,6 @@ async function openMunicipalityByCode(code, { fit = true } = {}) {
             opacity: 0.95,
           });
           setPanelContent(summary, cellFeature.properties);
-          if (demPilotGridIds.has(String(cellFeature.properties.grid_id))) {
-            try {
-              setLoading(true);
-              await openDemView(cellFeature);
-            } catch (error) {
-              console.error(error);
-              alert("Neizdevās atvērt šūnas 27105 reljefa skatu.");
-            } finally {
-              setLoading(false);
-            }
-          }
         });
       },
     }).addTo(map);
@@ -705,12 +456,9 @@ async function openMunicipalityByCode(code, { fit = true } = {}) {
 
     selectedBoundaryLayer.bringToFront();
     if (fit) {
-      const compactLayout = window.innerWidth <= 760;
       map.fitBounds(selectedBoundaryLayer.getBounds(), {
-        paddingTopLeft: compactLayout ? [24, 112] : [24, 72],
-        paddingBottomRight: compactLayout
-          ? [24, detailPanel.offsetHeight + 24]
-          : [Math.min(detailPanel.offsetWidth + 34, window.innerWidth * 0.46), 42],
+        paddingTopLeft: [24, 72],
+        paddingBottomRight: [Math.min(detailPanel.offsetWidth + 34, window.innerWidth * 0.46), 42],
         maxZoom: 10.5,
       });
     }
@@ -943,11 +691,6 @@ async function boot() {
   renderArchive();
   setBootStatus("Zīmē riska slāni...");
   await setActiveDate(calendarManifest.default_date, { fit: true, keepMunicipality: false });
-  const requestedGridId = new URLSearchParams(window.location.search).get("grid");
-  if (requestedGridId) {
-    setBootStatus(`Atver grid šūnu ${requestedGridId}...`);
-    await openPilotGridById(requestedGridId);
-  }
   setBootStatus("Gaida kartes pamatni...");
   await waitForBasemapReady();
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
@@ -983,63 +726,12 @@ map.on("zoomend", () => {
   });
 });
 
-backButton.addEventListener("click", async () => {
-  if (demViewActive) {
-    try {
-      setLoading(true);
-      await restoreMunicipalityView({ fit: true });
-    } catch (error) {
-      console.error(error);
-      alert("Neizdevās atgriezties uz Ogres novada gridu.");
-    } finally {
-      setLoading(false);
-    }
-    return;
-  }
+backButton.addEventListener("click", () => {
   showOverview({ fit: true }).catch((error) => {
     console.error(error);
     alert("Neizdevās atgriezties uz Latvijas karti.");
   });
 });
-
-document.querySelectorAll("[data-dem-mode]").forEach((button) => {
-  button.addEventListener("click", () => setDemMode(button.dataset.demMode));
-});
-
-demOpacity.addEventListener("input", () => {
-  const value = Number(demOpacity.value);
-  demOpacityValue.textContent = `${value}%`;
-  demOverlay?.setOpacity(value / 100);
-});
-
-dem3dFrame.addEventListener("load", () => {
-  dem3dStage.classList.remove("is-loading");
-  dem3dLoading.hidden = true;
-});
-
-dem3dOrbit.addEventListener("click", () => {
-  const viewer = getDem3dApp();
-  if (!viewer?.controls) return;
-  const active = !viewer.controls.autoRotate;
-  viewer.setRotateAnimationMode(active);
-  setDem3dButtonState(dem3dOrbit, active);
-});
-
-dem3dWireframe.addEventListener("click", () => {
-  const viewer = getDem3dApp();
-  if (!viewer) return;
-  const active = !viewer._wireframeMode;
-  viewer.setWireframeMode(active);
-  setDem3dButtonState(dem3dWireframe, active);
-});
-
-dem3dReset.addEventListener("click", () => {
-  const viewer = getDem3dApp();
-  if (!viewer?.controls) return;
-  viewer.controls.reset();
-  viewer.render();
-});
-
 calendarToggle.addEventListener("click", () => {
   const hidden = calendarPanel.toggleAttribute("hidden");
   calendarToggle.setAttribute("aria-expanded", String(!hidden));
