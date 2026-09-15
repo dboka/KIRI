@@ -1,0 +1,57 @@
+{
+  "grid_id": "40658",
+  "crs": "EPSG:3059",
+  "core_bounds": [
+    497823.72,
+    317932.061,
+    498823.72,
+    318932.061
+  ],
+  "analysis_bounds": [
+    497323.72,
+    317432.061,
+    499323.72,
+    319432.061
+  ],
+  "buffer_m": 500,
+  "model_status": "Eksperimentāla statiska noteces uzņēmība",
+  "warning": "Nav iekļauti aktuāli nokrišņi, prognoze, augsnes mitrums vai kūtsmēslu deva.",
+  "components": {
+    "slope": 0.34,
+    "flow_accumulation": 0.31,
+    "distance_to_water": 0.23,
+    "distance_to_melioration": 0.12
+  },
+  "restriction_classes": {
+    "1": "Zems ierobežojums",
+    "2": "Piesardzība",
+    "3": "Augsts ierobežojums",
+    "4": "Neizkliedēt"
+  },
+  "restriction_rules": {
+    "inputs": [
+      "static_runoff_susceptibility",
+      "soil_texture",
+      "soil_hydromorphy",
+      "slope",
+      "water_distance",
+      "melioration_distance"
+    ],
+    "scope": "Tikai LAD lauku blokos; ūdens objekti ir NoData.",
+    "status": "Tehnisks prototips, nav juridiski validēts."
+  },
+  "melioration_layers": [],
+  "risk_min": 14.4,
+  "risk_mean": 32.4,
+  "risk_max": 57.2,
+  "risk_p90": 45.5,
+  "arrow_count": 7,
+  "flow_path_count": 7,
+  "analysis_resolution_m": 5.0,
+  "restriction_class_area_ha": {
+    "1": 0.0,
+    "2": 0.0,
+    "3": 2.38,
+    "4": 0.3
+  }
+}

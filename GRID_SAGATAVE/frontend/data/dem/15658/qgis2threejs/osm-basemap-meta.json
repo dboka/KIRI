@@ -1,0 +1,12 @@
+{
+  "source": "OpenStreetMap XYZ",
+  "source_crs": "EPSG:3857",
+  "target_crs": "EPSG:3059",
+  "bounds3059": [
+    430323.7198,
+    258432.061,
+    432323.7198,
+    260432.061
+  ],
+  "attribution": "© OpenStreetMap contributors"
+}

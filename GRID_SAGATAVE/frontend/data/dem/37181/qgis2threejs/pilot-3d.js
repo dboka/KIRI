@@ -76,6 +76,30 @@
   terrain.renderOrder = 0;
   scene.add(terrain);
 
+  // OSM draped on the same DEM geometry, aligned to the LKS-92 bounds.
+  const osmTexture = await new Promise((resolve, reject) => {
+    const loader = new THREE.TextureLoader();
+    loader.load("osm-basemap.png?v=3", resolve, undefined, reject);
+  });
+  osmTexture.encoding = THREE.sRGBEncoding;
+  osmTexture.minFilter = THREE.LinearFilter;
+  osmTexture.magFilter = THREE.LinearFilter;
+  osmTexture.generateMipmaps = false;
+  const osmMaterial = new THREE.MeshBasicMaterial({
+    map: osmTexture,
+    transparent: true,
+    opacity: 0.62,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+    polygonOffsetUnits: -2,
+    side: THREE.DoubleSide,
+  });
+  const osmTerrain = new THREE.Mesh(terrainGeometry, osmMaterial);
+  osmTerrain.name = "osm";
+  osmTerrain.renderOrder = 1;
+  osmTerrain.visible = false;
+
   const groups = {};
   function layerGroup(key) {
     if (!groups[key]) {
@@ -86,9 +110,58 @@
     return groups[key];
   }
   groups.restriction = terrain;
+  groups.osm = osmTerrain;
+  scene.add(osmTerrain);
   layerGroup("fields");
   layerGroup("catchments");
   layerGroup("flow");
+  layerGroup("buildings");
+  layerGroup("companies");
+
+  // OSM building footprints are extruded into simple clickable 3D volumes.
+  // Heights come from the OSM `height` tag when present; otherwise a
+  // conservative type-based default is used.
+  for (const building of meta.buildings || []) {
+    if (!building.ring || building.ring.length < 4) continue;
+    const shape = new THREE.Shape();
+    building.ring.forEach((point, index) => {
+      const p = xyz(point, 0);
+      if (index === 0) shape.moveTo(p.x, -p.z); else shape.lineTo(p.x, -p.z);
+    });
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+      depth: Math.max(2, Number(building.height) || 4), bevelEnabled: false,
+      curveSegments: 1, steps: 1,
+    });
+    geometry.rotateX(-Math.PI / 2);
+    const center = building.ring.reduce((acc, point) => [acc[0] + point[0], acc[1] + point[1]], [0, 0]);
+    center[0] /= building.ring.length; center[1] /= building.ring.length;
+    geometry.translate(0, elevation(center[0], center[1]), 0);
+    const material = new THREE.MeshStandardMaterial({ color: 0xe8a66b, transparent: true, opacity: 0.82, roughness: 0.82 });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.renderOrder = 9;
+    mesh.userData = { kind: "building", name: building.name || "OSM ēka", type: building.type, height: building.height };
+    groups.buildings.add(mesh);
+  }
+
+  for (const company of meta.companies || []) {
+    const house = new THREE.Group();
+    const base = new THREE.Mesh(
+      new THREE.BoxGeometry(18, 12, 16),
+      new THREE.MeshStandardMaterial({ color: 0xd9825b, roughness: 0.82 }),
+    );
+    base.position.y = 6;
+    const roof = new THREE.Mesh(
+      new THREE.ConeGeometry(14, 8, 4),
+      new THREE.MeshStandardMaterial({ color: 0x7b3f4a, roughness: 0.78 }),
+    );
+    roof.rotation.y = Math.PI / 4;
+    roof.position.y = 16;
+    house.add(base, roof);
+    house.position.copy(xyz(company.point, 0));
+    house.renderOrder = 16;
+    house.userData = { kind: "company", id: company.id, name: company.name, type: company.type, tags: company.tags || {} };
+    groups.companies.add(house);
+  }
 
   function addTube(group, line, color, radius, opacity, lift, renderOrder) {
     if (!line || line.length < 2) return;
@@ -239,6 +312,27 @@
   function setWireframeMode(active) { terrainMaterial.wireframe = active; window.Q3D.application._wireframeMode = active; render(); }
   window.Q3D = { application: { controls, _wireframeMode: false, setRotateAnimationMode, setWireframeMode, render } };
 
+  const featureInfo = document.querySelector("#featureInfo");
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+  renderer.domElement.addEventListener("click", (event) => {
+    const rect = renderer.domElement.getBoundingClientRect();
+    pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(pointer, camera);
+    const hits = raycaster.intersectObjects([...groups.buildings.children, ...groups.companies.children], true);
+    if (!hits.length || !featureInfo) return;
+    let selected = hits[0].object;
+    while (selected && !selected.userData?.kind) selected = selected.parent;
+    const data = selected?.userData || {};
+    const title = data.kind === "company" ? "Lauksaimniecības uzņēmums / objekts" : "OSM ēka";
+    const detail = data.kind === "company"
+      ? `${data.name || "Nenorādīts nosaukums"}<br><small>${data.type || ""}<br>Reģ. Nr.: ${data.id || "—"}<br>${data.tags?.address || "Adrese nav norādīta"}</small>`
+      : `${data.name || "Nenorādīts nosaukums"}<br><small>Tips: ${data.type || "—"} · augstums: ${data.height || "—"} m</small>`;
+    featureInfo.innerHTML = `<strong>${title}</strong>${detail}`;
+    featureInfo.hidden = false;
+  });
+
   let synchronizedProgress = 0;
   let lastFrame = performance.now();
   (function animate(now) {
@@ -258,6 +352,6 @@
   });
   document.querySelector("#loading").classList.add("done");
 })().catch((error) => {
-  document.querySelector("#loading").textContent = "3D ainu neizdevās ielādēt";
+  document.querySelector("#loading").textContent = `3D ainu neizdevās ielādēt: ${error?.message || error}`;
   console.error(error);
 });

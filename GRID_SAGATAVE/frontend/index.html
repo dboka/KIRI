@@ -23,17 +23,17 @@
     <link rel="canonical" href="https://dboka.github.io/KIRI/" />
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
-    <link rel="stylesheet" href="src/styles.css?v=33" />
+    <link rel="stylesheet" href="src/styles.css?v=42" />
   </head>
   <body>
     <main class="app-shell">
       <section class="map-stage" aria-label="KIRI-LV karte">
         <div id="map"></div>
-        <section id="dem3dStage" class="dem-3d-stage" aria-label="Šūnas 27105 interaktīvais 3D reljefs" hidden>
+        <section id="dem3dStage" class="dem-3d-stage" aria-label="Interaktīvais 3D reljefs" hidden>
           <iframe
             id="dem3dFrame"
             title="Qgis2threejs 3D reljefs režģa šūnai 27105"
-            data-src="data/dem/27105/qgis2threejs/grid-27105.html"
+            data-src="data/dem/27105/qgis2threejs/grid-27105.html?v=44"
             loading="lazy"
           ></iframe>
           <div id="dem3dLoading" class="dem-3d-loading" role="status">
@@ -190,9 +190,9 @@
         </aside>
 
         <aside id="demPanel" class="detail-panel dem-panel" hidden>
-          <div class="panel-kicker">Grid šūna 27105 · pilotprojekts</div>
+              <div id="demPanelKicker" class="panel-kicker">Grid šūna · pilotprojekts</div>
           <h2>1 m reljefs un noteces risks</h2>
-          <div class="dem-source-badge">LĢIA LiDAR · LKS-92 TM · LAS-2000,5</div>
+          <div id="demSourceBadge" class="dem-source-badge">LĢIA LiDAR · LKS-92 TM · LAS-2000,5</div>
 
           <section id="demRiskCard" class="dem-risk-card" aria-label="Grid šūnas riska kopsavilkums">
             <div>
@@ -235,22 +235,10 @@
           </div>
 
           <div class="indicator-grid dem-stats">
-            <div class="indicator-card">
-              <span>Izšķirtspēja</span>
-              <strong id="demResolution">—</strong>
-            </div>
-            <div class="indicator-card">
-              <span>Vidējais augstums</span>
-              <strong id="demMean">—</strong>
-            </div>
-            <div class="indicator-card">
-              <span>Minimālais</span>
-              <strong id="demMin">—</strong>
-            </div>
-            <div class="indicator-card">
-              <span>Maksimālais</span>
-              <strong id="demMax">—</strong>
-            </div>
+            <div class="indicator-card"><span>Izšķirtspēja</span><strong id="demResolution">—</strong></div>
+            <div class="indicator-card"><span>Vidējais augstums</span><strong id="demMean">—</strong></div>
+            <div class="indicator-card"><span>Minimālais</span><strong id="demMin">—</strong></div>
+            <div class="indicator-card"><span>Maksimālais</span><strong id="demMax">—</strong></div>
           </div>
 
           <details class="dem-risk-details">
@@ -267,9 +255,7 @@
             <ul id="demDataWarnings"></ul>
           </details>
 
-          <p class="demo-note">
-            DTM aprēķināts no 9 LĢIA LAS lapām ar 300 m buferi. Kartē redzama tikai precīzi izgrieztā 1 × 1 km šūna.
-          </p>
+          <p id="demSourceNote" class="demo-note">DTM aprēķināts no LĢIA LAS lapām ar 500 m buferi. Kartē redzama tikai precīzi izgrieztā 1 × 1 km šūna.</p>
         </aside>
 
         <div id="loadingState" class="loading-state" hidden>Ielādē datumu...</div>
@@ -277,6 +263,6 @@
     </main>
 
     <script src="vendor/leaflet/leaflet.js"></script>
-    <script src="src/main.js?v=35"></script>
+    <script src="src/main.js?v=50"></script>
   </body>
 </html>

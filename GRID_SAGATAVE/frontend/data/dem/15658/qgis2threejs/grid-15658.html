@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>KIRI 27105 · RESTRICTION 3D</title>
-    <link rel="stylesheet" href="pilot-3d.css?v=42">
+    <title>KIRI 15658 · RESTRICTION 3D</title>
+    <link rel="stylesheet" href="pilot-3d.css?v=43">
   </head>
   <body>
     <div id="scene"></div>
     <div class="scene-head">
-      <div class="kicker">ŠŪNA 27105 · 1 KM + 500 M BUFERIS</div>
+      <div class="kicker">ŠŪNA 15658 · 1 KM + 500 M BUFERIS</div>
       <strong>RESTRICTION v0.1 · 3D</strong>
       <span>Reljefs, noteces trajektorijas un telpiskie ierobežojumi</span>
     </div>
@@ -26,6 +26,7 @@
       <div class="layer-title">Telpiskie slāņi</div>
       <div class="layers primary-layers">
         <label><input type="checkbox" data-layer="restriction" checked><i class="restriction-line"></i>Riska virsma</label>
+        <label><input type="checkbox" data-layer="osm"><i style="background:#d4c9aa"></i>OSM fons (caurspīdīgs)</label>
         <label><input type="checkbox" data-layer="fields" checked><i class="field"></i>LAD lauku bloki</label>
         <label><input type="checkbox" data-layer="catchments" checked><i class="catchment"></i>Upju sateces baseins</label>
         <label><input type="checkbox" data-layer="flow" checked><i class="arrow"></i>Noteces simulācija</label>
@@ -65,12 +66,13 @@
         <span id="flowCount">— trajektorijas</span>
       </div>
       <p>Slāņi ir tehniskās analīzes prototips un nav juridiski validēts izkliedes lēmums.</p>
+      <p class="map-attribution">Kartes fons: © OpenStreetMap contributors</p>
     </aside>
 
     <div class="hint">Velc, lai grozītu · rullis pietuvina · labais taustiņš pārbīda</div>
     <div id="loading">Veido klasificēto 3D analīzes ainu…</div>
     <script src="threejs/three.min.js"></script>
     <script src="threejs/OrbitControls.js"></script>
-    <script src="pilot-3d.js?v=44"></script>
+    <script src="pilot-3d.js?v=49"></script>
   </body>
 </html>

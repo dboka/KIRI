@@ -1,0 +1,6 @@
+/* KIRI shell integration for the generated Qgis2threejs viewer. */
+html, body, #view { background: #07151d; }
+#toolbtns, #popup, #header, #footer { display: none !important; }
+#progress { z-index: 1200; }
+#progressbar { background: #69cfbb; }
+canvas { outline: none; }

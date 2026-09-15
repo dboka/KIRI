@@ -76,6 +76,30 @@
   terrain.renderOrder = 0;
   scene.add(terrain);
 
+  // OSM draped on the same DEM geometry, aligned to the LKS-92 bounds.
+  const osmTexture = await new Promise((resolve, reject) => {
+    const loader = new THREE.TextureLoader();
+    loader.load("osm-basemap.png?v=3", resolve, undefined, reject);
+  });
+  osmTexture.encoding = THREE.sRGBEncoding;
+  osmTexture.minFilter = THREE.LinearFilter;
+  osmTexture.magFilter = THREE.LinearFilter;
+  osmTexture.generateMipmaps = false;
+  const osmMaterial = new THREE.MeshBasicMaterial({
+    map: osmTexture,
+    transparent: true,
+    opacity: 0.62,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+    polygonOffsetUnits: -2,
+    side: THREE.DoubleSide,
+  });
+  const osmTerrain = new THREE.Mesh(terrainGeometry, osmMaterial);
+  osmTerrain.name = "osm";
+  osmTerrain.renderOrder = 1;
+  osmTerrain.visible = false;
+
   const groups = {};
   function layerGroup(key) {
     if (!groups[key]) {
@@ -86,6 +110,8 @@
     return groups[key];
   }
   groups.restriction = terrain;
+  groups.osm = osmTerrain;
+  scene.add(osmTerrain);
   layerGroup("fields");
   layerGroup("catchments");
   layerGroup("flow");
@@ -258,6 +284,6 @@
   });
   document.querySelector("#loading").classList.add("done");
 })().catch((error) => {
-  document.querySelector("#loading").textContent = "3D ainu neizdevās ielādēt";
+  document.querySelector("#loading").textContent = `3D ainu neizdevās ielādēt: ${error?.message || error}`;
   console.error(error);
 });

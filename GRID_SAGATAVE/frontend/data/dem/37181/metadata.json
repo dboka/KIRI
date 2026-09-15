@@ -1,0 +1,35 @@
+{
+  "grid_id": "37181",
+  "resolution_m": 1,
+  "elevation_min_m": -2.0,
+  "elevation_max_m": 22.89,
+  "elevation_mean_m": 10.45,
+  "bounds": [
+    [
+      56.928471399218985,
+      24.136758539664477
+    ],
+    [
+      56.94639822321825,
+      24.169699914521487
+    ]
+  ],
+  "default_image": "restriction-terrain.png",
+  "images": {
+    "restriction": "restriction-terrain.png"
+  },
+  "buffer_m": 500,
+  "crs": "EPSG:3059",
+  "vertical_datum": "EGM96 / SRTM fallback",
+  "cell_bounds_lks92": [
+    508823.72,
+    309932.061,
+    509823.72,
+    310932.061
+  ],
+  "analysis_resolution_m": 5,
+  "analysis_type": "Eksperimentāla statiska noteces uzņēmība",
+  "analysis_warning": "Tehnisks prototips: šai šūnai izmantots SRTM DEM fallback; meliorācijas/LAD servisa objekti var nebūt pieejami.",
+  "source_badge": "SRTM 1 arc-sec · EPSG:3059 · tehnisks fallback",
+  "source_note": "DTM pārrēķināts no SRTM 1 arc-sec reljefa ar 500 m buferi. Kartē redzama precīzi izgrieztā 1 × 1 km šūna."
+}

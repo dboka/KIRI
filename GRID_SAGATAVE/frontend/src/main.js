@@ -25,8 +25,8 @@ const monthNames = {
 const weekdayLabels = ["P", "O", "T", "C", "P", "S", "Sv"];
 const latviaBounds = L.latLngBounds([55.55, 20.45], [58.25, 28.35]);
 const basemapTileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-const demPilotGridIds = new Set(["27105"]);
-const demPilotMunicipalityByGridId = { "27105": "100016688" };
+const demPilotGridIds = new Set(["27105", "15658", "15212", "37181", "40658"]);
+const demPilotMunicipalityByGridId = { "27105": "100016688", "15658": "100016622", "15212": "100016622", "37181": "100003003", "40658": "100003003" };
 let resolveBasemapReady = null;
 let basemapReadySettled = false;
 const basemapReady = new Promise((resolve) => {
@@ -41,7 +41,7 @@ const map = L.map("map", {
   maxZoom: 19,
   maxBounds: latviaBounds.pad(0.18),
   maxBoundsViscosity: 0.95,
-  zoomSnap: 0.5,
+  zoomSnap: 1,
   zoomDelta: 1,
   scrollWheelZoom: true,
   wheelDebounceTime: 25,
@@ -77,9 +77,9 @@ function waitForBasemapReady(timeoutMs = 3000) {
 
 const baseLayer = L.tileLayer(basemapTileUrl, {
   minZoom: 0,
-  maxZoom: 19,
-  maxNativeZoom: 19,
-  keepBuffer: 3,
+  maxZoom: 18,
+  maxNativeZoom: 18,
+  keepBuffer: 1,
   updateWhenIdle: false,
   updateWhenZooming: false,
   crossOrigin: true,
@@ -399,7 +399,8 @@ function setDemMode(mode) {
   dem3dStage.hidden = !is3d;
 
   if (is3d) {
-    if (!dem3dFrame.src) {
+    const expectedScene = `grid-${demMetadata?.grid_id}.html`;
+    if (!dem3dFrame.src || !dem3dFrame.src.includes(expectedScene)) {
       dem3dStage.classList.add("is-loading");
       dem3dFrame.src = dem3dFrame.dataset.src;
     }
@@ -519,12 +520,14 @@ async function openDemView(cellFeature) {
   document.body.classList.add("dem-view-active");
   activeDemCellProperties = cellFeature.properties;
   activeDemMode = "3d";
+  dem3dFrame.removeAttribute("src");
+  dem3dFrame.dataset.src = `data/dem/${gridId}/qgis2threejs/grid-${gridId}.html?v=1`;
 
   if (gridLayer && map.hasLayer(gridLayer)) gridLayer.remove();
   detailPanel.hidden = true;
   demPanel.hidden = false;
   backButton.hidden = false;
-  backButton.textContent = "Atpakaļ uz Ogres novada gridu";
+  backButton.textContent = `Atpakaļ uz ${["15658", "15212"].includes(gridId) ? "Dobeles novada" : "Ogres novada"} gridu`;
 
   demMaskLayer = createDemOutsideMask(metadata.bounds);
   demOutlineLayer = L.geoJSON(cellFeature, {
@@ -539,6 +542,10 @@ async function openDemView(cellFeature) {
   }).addTo(map);
 
   document.querySelector("#demResolution").textContent = `${metadata.resolution_m} m`;
+  document.querySelector("#demPanelKicker").textContent = `Grid šūna ${gridId} · pilotprojekts`;
+  document.querySelector("#demSourceNote").textContent = metadata.source_note ?? `DTM aprēķināts ar ${metadata.buffer_m ?? 500} m buferi. Kartē redzama tikai precīzi izgrieztā 1 × 1 km šūna.`;
+  const sourceBadge = document.querySelector("#demSourceBadge");
+  if (sourceBadge && metadata.source_badge) sourceBadge.textContent = metadata.source_badge;
   document.querySelector("#demMean").textContent = `${metadata.elevation_mean_m} m`;
   document.querySelector("#demMin").textContent = `${metadata.elevation_min_m} m`;
   document.querySelector("#demMax").textContent = `${metadata.elevation_max_m} m`;
@@ -615,7 +622,7 @@ async function showOverview({ fit = true } = {}) {
       padding: [28, 28],
       duration: 0.45,
       easeLinearity: 0.35,
-      maxZoom: 7,
+      maxZoom: 8,
     });
   }
   detailPanel.hidden = true;
@@ -693,7 +700,7 @@ async function openMunicipalityByCode(code, { fit = true } = {}) {
               await openDemView(cellFeature);
             } catch (error) {
               console.error(error);
-              alert("Neizdevās atvērt šūnas 27105 reljefa skatu.");
+              alert(`Neizdevās atvērt šūnas ${cellFeature.properties.grid_id} reljefa skatu.`);
             } finally {
               setLoading(false);
             }
@@ -783,7 +790,7 @@ function drawOverview(overviewGeojson, { fit = false } = {}) {
   }).addTo(map);
 
   if (fit) {
-    map.fitBounds(municipalityLayer.getBounds(), { padding: [28, 28], maxZoom: 7 });
+    map.fitBounds(municipalityLayer.getBounds(), { padding: [28, 28], maxZoom: 8 });
   }
 }
 
@@ -962,6 +969,10 @@ map.on("zoomstart movestart", () => {
 
 map.on("zoomstart", () => {
   document.body.classList.add("map-is-zooming");
+  // Uz laiku paslēpj smago 1 km režģa canvas slāni, lai OSM tile zooms
+  // notiktu bez tūkstošiem poligonu pārzīmēšanas katrā kadrā.
+  if (gridLayer) gridLayer.setStyle({ opacity: 0, fillOpacity: 0 });
+  if (selectedBoundaryLayer) selectedBoundaryLayer.setStyle({ opacity: 0, fillOpacity: 0 });
 });
 
 map.on("moveend", () => {
@@ -971,6 +982,8 @@ map.on("moveend", () => {
 
 map.on("zoomend", () => {
   document.body.classList.remove("map-is-zooming");
+  if (gridLayer) gridLayer.setStyle(gridStyle);
+  if (selectedBoundaryLayer) selectedBoundaryLayer.setStyle(boundaryStyle);
   const nextGridLineMode = shouldDrawGridLines();
   if (nextGridLineMode === lastGridLineMode) return;
   lastGridLineMode = nextGridLineMode;

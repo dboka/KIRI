@@ -1,0 +1,32 @@
+{
+  "grid_id": "15212",
+  "resolution_m": 1,
+  "buffer_m": 500,
+  "crs": "EPSG:3059",
+  "vertical_datum": "LAS-2000,5",
+  "elevation_min_m": 87.94,
+  "elevation_max_m": 111.86,
+  "elevation_mean_m": 95.22,
+  "bounds": [
+    [
+      56.460798885893574,
+      22.87741252823019
+    ],
+    [
+      56.469927124719995,
+      22.893375769923583
+    ]
+  ],
+  "cell_bounds_lks92": [
+    430823.7198,
+    257932.061,
+    431823.7198,
+    258932.061
+  ],
+  "default_image": "restriction-terrain.png",
+  "images": {
+    "restriction": "restriction-terrain.png",
+    "risk": "risk-terrain.png"
+  },
+  "analysis_resolution_m": 5
+}
