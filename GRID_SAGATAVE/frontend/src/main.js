@@ -20,6 +20,7 @@ const monthNames = {
   "2026-07": "Jūlijs 2026",
   "2026-08": "Augusts 2026",
   "2026-09": "Septembris 2026",
+  "2026-10": "Oktobris 2026",
 };
 
 const weekdayLabels = ["P", "O", "T", "C", "P", "S", "Sv"];
@@ -106,6 +107,9 @@ let selectedGridCellLayer = null;
 let isMapMoving = false;
 let gridStyleFrame = null;
 let lastGridLineMode = null;
+let activeIndicatorTarget = null;
+let activeIndicatorSeries = null;
+let indicatorHoverIndex = 0;
 
 window.kiriDebug = { status: "booting" };
 
@@ -123,6 +127,25 @@ const dateCoverage = document.querySelector("#dateCoverage");
 const loadingState = document.querySelector("#loadingState");
 const bootOverlay = document.querySelector("#bootOverlay");
 const bootStatus = document.querySelector("#bootStatus");
+const riskBadge = document.querySelector("#riskBadge");
+const indicatorHistoryButtons = document.querySelectorAll(".indicator-history-button");
+const indicatorHistoryDialog = document.querySelector("#indicatorHistoryDialog");
+const indicatorHistoryClose = document.querySelector("#indicatorHistoryClose");
+const indicatorHistoryKicker = document.querySelector("#indicatorHistoryKicker");
+const indicatorHistoryTitle = document.querySelector("#indicatorHistoryTitle");
+const indicatorHistorySubtitle = document.querySelector("#indicatorHistorySubtitle");
+const indicatorChartTitle = document.querySelector("#indicatorChartTitle");
+const indicatorChartMeta = document.querySelector("#indicatorChartMeta");
+const indicatorHistoryRange = document.querySelector("#indicatorHistoryRange");
+const indicatorChartState = document.querySelector("#indicatorChartState");
+const indicatorChartFrame = document.querySelector("#indicatorChartFrame");
+const indicatorHistoryChart = document.querySelector("#indicatorHistoryChart");
+const indicatorChartTooltip = document.querySelector("#indicatorChartTooltip");
+const indicatorDownloadButton = document.querySelector("#indicatorDownloadButton");
+const indicatorLegendLabel = document.querySelector("#indicatorLegendLabel");
+const indicatorPointLabel = document.querySelector("#indicatorPointLabel");
+const indicatorFallbackLegend = document.querySelector("#indicatorFallbackLegend");
+const indicatorCredit = document.querySelector("#indicatorCredit");
 const bootStartedAt = window.performance.now();
 
 document.querySelectorAll(".thresholds").forEach((details) => {
@@ -186,7 +209,7 @@ function gridStyle(feature) {
 
 async function loadJson(path) {
   if (!jsonCache.has(path)) {
-    jsonCache.set(path, fetch(path).then((response) => {
+    jsonCache.set(path, fetch(path, { cache: "no-cache" }).then((response) => {
       if (!response.ok) {
         throw new Error(`Could not load ${path}: ${response.status}`);
       }
@@ -197,7 +220,7 @@ async function loadJson(path) {
 }
 
 async function loadOptionalJson(path) {
-  const response = await fetch(path);
+  const response = await fetch(path, { cache: "no-cache" });
   if (response.status === 404) {
     return null;
   }
@@ -294,17 +317,15 @@ function finishBootOverlay() {
 
 function setPanelContent(summary, cellProperties = null) {
   const isCell = Boolean(cellProperties);
+  const overallRisk = isCell
+    ? (cellProperties.final_risk_level ?? cellProperties.kiri_risk_level ?? "-")
+    : summary.overall_risk;
   document.querySelector("#panelKicker").textContent = isCell
     ? `${activeDate} · Grid šūna ${cellProperties.grid_id}`
     : `${activeDate} · Pašvaldības skats`;
   document.querySelector("#panelTitle").textContent = summary.municipality_name;
-  document.querySelector("#overallRisk").textContent = isCell
-    ? (cellProperties.final_risk_level ?? cellProperties.kiri_risk_level ?? "-")
-    : summary.overall_risk;
-  document.querySelector("#activeRisk").textContent = isCell
-    ? (cellProperties.active_risk ?? "-")
-    : "klikšķini uz grid";
-  document.querySelector("#highRiskPercent").textContent = formatMetric(summary.high_risk_percent);
+  document.querySelector("#overallRisk").textContent = overallRisk;
+  riskBadge.style.setProperty("--risk-color", getRiskColor(Number(overallRisk)));
   document.querySelector("#recommendation").textContent = summary.recommendation;
 
   renderList(
@@ -319,6 +340,12 @@ function setPanelContent(summary, cellProperties = null) {
   );
 
   if (isCell) {
+    activeIndicatorTarget = {
+      gridId: String(cellProperties.grid_id),
+      municipalityCode: String(activeMunicipalityCode),
+      municipalityName: summary.municipality_name,
+    };
+    indicatorHistoryButtons.forEach((button) => { button.disabled = false; });
     const swiValue = cellProperties.SWI010_pct ?? cellProperties.swi;
     const hsafValue = cellProperties.HSAF_SSM_pct ?? cellProperties.hsaf_ssm;
     const hsafAge = Number(cellProperties.hsaf_age_days || 0);
@@ -335,7 +362,6 @@ function setPanelContent(summary, cellProperties = null) {
       `${formatMetric(hsafValue, "%")}, ${formatRisk(cellProperties.hsaf_ssm_risk)} · ${hsafAgeText}`;
     document.querySelector("#swiCard").textContent =
       `${formatMetric(swiValue, "%")}, ${formatRisk(cellProperties.swi_risk)}`;
-    document.querySelector("#confidenceCard").textContent = cellProperties.confidence || "-";
     return;
   }
 
@@ -344,7 +370,313 @@ function setPanelContent(summary, cellProperties = null) {
   document.querySelector("#p730Card").textContent = "klikšķini uz grid";
   document.querySelector("#hsafCard").textContent = "klikšķini uz grid";
   document.querySelector("#swiCard").textContent = "klikšķini uz grid";
-  document.querySelector("#confidenceCard").textContent = "klikšķini uz grid";
+  activeIndicatorTarget = null;
+  indicatorHistoryButtons.forEach((button) => { button.disabled = true; });
+}
+
+const indicatorConfigs = {
+  hsaf: {
+    title: "H-SAF virsmas augsnes mitrums",
+    shortLabel: "H-SAF SSM",
+    unit: "%",
+    pointLabel: "Satelīta pārlidojums",
+    credit: "H-SAF dati · KIRI-LV apstrāde",
+    fixedDomain: [0, 100],
+  },
+  swi: {
+    title: "Copernicus augsnes mitruma indekss",
+    shortLabel: "Copernicus SWI",
+    unit: "%",
+    pointLabel: "SWI datu punkts",
+    credit: "Copernicus SWI dati · KIRI-LV apstrāde",
+    fixedDomain: [0, 100],
+  },
+  p30: {
+    title: "30 dienu nokrišņu uzkrājums",
+    shortLabel: "P30",
+    unit: "mm",
+    pointLabel: "Nokrišņu aprēķins",
+    credit: "KIRI-LV interpolētie nokrišņu dati",
+    baselineZero: true,
+  },
+  p90: {
+    title: "90 dienu nokrišņu uzkrājums",
+    shortLabel: "P90",
+    unit: "mm",
+    pointLabel: "Nokrišņu aprēķins",
+    credit: "KIRI-LV interpolētie nokrišņu dati",
+    baselineZero: true,
+  },
+  p730: {
+    title: "730 dienu nokrišņu fons",
+    shortLabel: "P730",
+    unit: "mm",
+    pointLabel: "Ilgtermiņa aprēķins",
+    credit: "KIRI-LV interpolētais ilgtermiņa nokrišņu fons",
+    zoomedDomain: true,
+  },
+};
+
+const indicatorDateFormatter = new Intl.DateTimeFormat("lv-LV", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+const indicatorAxisDateFormatter = new Intl.DateTimeFormat("lv-LV", {
+  day: "numeric",
+  month: "short",
+  timeZone: "UTC",
+});
+
+function parseChartDate(dateText) {
+  return new Date(`${dateText}T12:00:00Z`);
+}
+
+function formatIndicatorValue(value, unit) {
+  if (!isIndicatorValue(value)) return "Nav datu";
+  return `${Number(value).toLocaleString("lv-LV", { minimumFractionDigits: 1, maximumFractionDigits: 2 })} ${unit}`;
+}
+
+function isIndicatorValue(value) {
+  return value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
+}
+
+function buildChartPath(values, xFor, yFor) {
+  let path = "";
+  let drawing = false;
+  values.forEach((value, index) => {
+    if (!isIndicatorValue(value)) {
+      drawing = false;
+      return;
+    }
+    path += `${drawing ? " L" : "M"}${xFor(index).toFixed(2)} ${yFor(Number(value)).toFixed(2)}`;
+    drawing = true;
+  });
+  return path;
+}
+
+function buildFallbackPath(values, ages, xFor, yFor) {
+  let path = "";
+  for (let index = 1; index < values.length; index += 1) {
+    const current = Number(values[index]);
+    const previous = Number(values[index - 1]);
+    if (!isIndicatorValue(values[index]) || !isIndicatorValue(values[index - 1]) || Number(ages[index] || 0) <= 0) continue;
+    path += `M${xFor(index - 1).toFixed(2)} ${yFor(previous).toFixed(2)} L${xFor(index).toFixed(2)} ${yFor(current).toFixed(2)}`;
+  }
+  return path;
+}
+
+function chartDomain(config, values, thresholds) {
+  if (config.fixedDomain) return config.fixedDomain;
+  const numericValues = values.filter(isIndicatorValue).map(Number);
+  const minValue = Math.min(...numericValues, ...thresholds);
+  const maxValue = Math.max(...numericValues, ...thresholds);
+  if (config.zoomedDomain) {
+    const padding = Math.max(50, (maxValue - minValue) * 0.12);
+    return [Math.max(0, Math.floor((minValue - padding) / 50) * 50), Math.ceil((maxValue + padding) / 50) * 50];
+  }
+  const step = maxValue > 400 ? 100 : maxValue > 160 ? 50 : 20;
+  return [0, Math.ceil((maxValue * 1.08) / step) * step];
+}
+
+function renderIndicatorHistoryChart(history, series, indicatorKey) {
+  const config = indicatorConfigs[indicatorKey];
+  const dates = history.dates;
+  const values = series.v;
+  const ages = series.a || values.map(() => 0);
+  const numericValues = values.filter(isIndicatorValue).map(Number);
+  if (!numericValues.length) {
+    indicatorChartFrame.hidden = true;
+    indicatorChartState.hidden = false;
+    indicatorChartState.textContent = `Šai grid šūnai saglabātajā periodā nav ${config.shortLabel} datu.`;
+    indicatorDownloadButton.disabled = true;
+    return;
+  }
+
+  const width = 1120;
+  const height = 520;
+  const margin = { top: 34, right: 52, bottom: 66, left: 70 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const thresholds = history.thresholds || [];
+  const [yMin, yMax] = chartDomain(config, values, thresholds);
+  const xFor = (index) => margin.left + (index / Math.max(1, dates.length - 1)) * plotWidth;
+  const yFor = (value) => margin.top + plotHeight - ((value - yMin) / Math.max(1, yMax - yMin)) * plotHeight;
+  const linePath = buildChartPath(values, xFor, yFor);
+  const fallbackPath = indicatorKey === "hsaf" ? buildFallbackPath(values, ages, xFor, yFor) : "";
+  const visibleThresholds = thresholds.filter((value) => value > yMin && value < yMax);
+  const yTicks = Array.from({ length: 6 }, (_, index) => yMin + ((yMax - yMin) * index) / 5);
+
+  const xTickCount = Math.min(6, dates.length);
+  const xTickIndexes = Array.from({ length: xTickCount }, (_, index) =>
+    Math.round((index * (dates.length - 1)) / Math.max(1, xTickCount - 1)));
+  const bandEdges = [yMin, ...visibleThresholds, yMax];
+  const riskBands = bandEdges.slice(0, -1).map((low, index) => {
+    const high = bandEdges[index + 1];
+    const riskLevel = Math.min(5, 1 + thresholds.filter((threshold) => threshold <= low).length);
+    return [low, high, getRiskColor(riskLevel)];
+  });
+
+  const observedDots = values.map((value, index) => {
+    if (!isIndicatorValue(value) || (indicatorKey === "hsaf" && Number(ages[index] || 0) !== 0)) return "";
+    return `<circle cx="${xFor(index).toFixed(2)}" cy="${yFor(Number(value)).toFixed(2)}" r="3.1" fill="#a3163d" />`;
+  }).join("");
+  const fallbackDots = values.map((value, index) => {
+    if (indicatorKey !== "hsaf" || !isIndicatorValue(value) || Number(ages[index] || 0) <= 0) return "";
+    return `<circle cx="${xFor(index).toFixed(2)}" cy="${yFor(Number(value)).toFixed(2)}" r="2.7" fill="#fbfbfa" stroke="#cf6972" stroke-width="1.7" />`;
+  }).join("");
+
+  indicatorHistoryChart.innerHTML = `
+    <defs>
+      <clipPath id="hsafPlotClip"><rect x="${margin.left}" y="${margin.top}" width="${plotWidth}" height="${plotHeight}" /></clipPath>
+      <linearGradient id="hsafLineGradient" x1="0" x2="1"><stop offset="0" stop-color="#6e1735" /><stop offset="1" stop-color="#b41843" /></linearGradient>
+    </defs>
+    <g clip-path="url(#hsafPlotClip)">
+      ${riskBands.map(([low, high, color]) => `<rect x="${margin.left}" y="${yFor(high)}" width="${plotWidth}" height="${Math.max(0, yFor(low) - yFor(high))}" fill="${color}" opacity="0.045" />`).join("")}
+    </g>
+    ${yTicks.map((value) => `
+      <line x1="${margin.left}" x2="${width - margin.right}" y1="${yFor(value)}" y2="${yFor(value)}" stroke="#d8dcde" stroke-width="1" />
+      <text x="${margin.left - 13}" y="${yFor(value) + 5}" text-anchor="end" fill="#59636b" font-size="13">${Math.round(value).toLocaleString("lv-LV")}</text>
+    `).join("")}
+    ${visibleThresholds.map((value) => `
+      <line x1="${margin.left}" x2="${width - margin.right}" y1="${yFor(value)}" y2="${yFor(value)}" stroke="#a3163d" stroke-width="1" stroke-dasharray="4 6" opacity="0.28" />
+      <text x="${width - margin.right - 5}" y="${yFor(value) - 6}" text-anchor="end" fill="#9a6a76" font-size="10">slieksnis ${value} ${config.unit}</text>
+    `).join("")}
+    ${xTickIndexes.map((index, tickIndex) => `
+      <text x="${xFor(index)}" y="${height - 29}" text-anchor="${tickIndex === 0 ? "start" : tickIndex === xTickIndexes.length - 1 ? "end" : "middle"}" fill="#4c555c" font-size="13">${indicatorAxisDateFormatter.format(parseChartDate(dates[index]))}</text>
+    `).join("")}
+    <g clip-path="url(#hsafPlotClip)">
+      <path d="${linePath}" fill="none" stroke="url(#hsafLineGradient)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="${fallbackPath}" fill="none" stroke="#e58b8e" stroke-width="4.2" stroke-dasharray="5 5" stroke-linecap="round" opacity="0.95" />
+      ${observedDots}${fallbackDots}
+      <line id="hsafChartCursor" y1="${margin.top}" y2="${height - margin.bottom}" stroke="#213d58" stroke-width="1" opacity="0.4" />
+      <circle id="hsafChartHoverDot" r="6.5" fill="#a3163d" stroke="#fff" stroke-width="2.5" />
+      <rect id="hsafChartHitArea" x="${margin.left}" y="${margin.top}" width="${plotWidth}" height="${plotHeight}" fill="transparent" />
+    </g>
+    <text x="${margin.left}" y="18" fill="#76818a" font-size="11" font-weight="700">${config.shortLabel}, ${config.unit}</text>
+  `;
+
+  activeIndicatorSeries = {
+    indicatorKey,
+    config,
+    dates,
+    values,
+    ages,
+    gridId: activeIndicatorTarget.gridId,
+    municipalityName: activeIndicatorTarget.municipalityName,
+    chart: { width, margin, plotWidth, xFor, yFor },
+  };
+  const activeIndex = dates.indexOf(activeDate);
+  const lastValueIndex = values.reduce((latest, value, index) => isIndicatorValue(value) ? index : latest, 0);
+  indicatorHoverIndex = activeIndex >= 0 ? activeIndex : lastValueIndex;
+  indicatorChartState.hidden = true;
+  indicatorChartFrame.hidden = false;
+  indicatorDownloadButton.disabled = false;
+  updateIndicatorChartHover(indicatorHoverIndex);
+}
+
+function updateIndicatorChartHover(index) {
+  if (!activeIndicatorSeries) return;
+  const { dates, values, ages, chart, config, indicatorKey } = activeIndicatorSeries;
+  indicatorHoverIndex = Math.max(0, Math.min(dates.length - 1, index));
+  const value = Number(values[indicatorHoverIndex]);
+  const hasValue = isIndicatorValue(values[indicatorHoverIndex]);
+  const x = chart.xFor(indicatorHoverIndex);
+  const cursor = document.querySelector("#hsafChartCursor");
+  const dot = document.querySelector("#hsafChartHoverDot");
+  cursor.setAttribute("x1", x);
+  cursor.setAttribute("x2", x);
+  dot.setAttribute("cx", x);
+  dot.setAttribute("cy", hasValue ? chart.yFor(value) : chart.margin.top);
+  dot.style.display = hasValue ? "" : "none";
+
+  const dateLabel = indicatorDateFormatter.format(parseChartDate(dates[indicatorHoverIndex]));
+  const age = Number(ages[indicatorHoverIndex]);
+  const status = !hasValue
+    ? `${config.shortLabel} nav pieejams`
+    : indicatorKey === "hsaf" && age > 0
+      ? `Iepriekšējais pārlidojums · ${age} d. vecs`
+      : config.pointLabel;
+  const valueLabel = document.createElement("strong");
+  valueLabel.textContent = formatIndicatorValue(values[indicatorHoverIndex], config.unit);
+  const dateElement = document.createElement("span");
+  dateElement.textContent = dateLabel;
+  const statusElement = document.createElement("small");
+  statusElement.textContent = status;
+  indicatorChartTooltip.replaceChildren(valueLabel, dateElement, statusElement);
+  indicatorChartTooltip.hidden = false;
+  const frameWidth = indicatorChartFrame.clientWidth;
+  const rawLeft = (x / chart.width) * frameWidth;
+  indicatorChartTooltip.style.left = `${Math.max(88, Math.min(frameWidth - 88, rawLeft))}px`;
+  indicatorHistoryChart.setAttribute("aria-label", `${dateLabel}: ${formatIndicatorValue(values[indicatorHoverIndex], config.unit)}. ${status}`);
+}
+
+async function openIndicatorHistory(indicatorKey, button) {
+  if (!activeIndicatorTarget) return;
+  const config = indicatorConfigs[indicatorKey];
+  const target = { ...activeIndicatorTarget };
+  const loadingLabel = button.querySelector("i");
+  const previousLabel = loadingLabel.textContent;
+  button.classList.add("is-loading");
+  loadingLabel.textContent = "Ielādē…";
+
+  try {
+    const history = await loadJson(`data/indicator_history/${indicatorKey}/${target.municipalityCode}.json`);
+    if (!activeIndicatorTarget || activeIndicatorTarget.gridId !== target.gridId) return;
+    const series = history.series[target.gridId];
+    if (!series) throw new Error(`${config.shortLabel} history missing for grid ${target.gridId}`);
+
+    activeIndicatorSeries = null;
+    indicatorChartFrame.hidden = true;
+    indicatorChartState.hidden = false;
+    indicatorChartState.textContent = `Ielādē ${config.shortLabel} vēsturi…`;
+    indicatorHistoryKicker.textContent = `KIRI-LV · ${config.shortLabel} laika rinda`;
+    indicatorHistoryTitle.textContent = config.title;
+    indicatorHistorySubtitle.textContent = `${target.municipalityName} · Grid šūna ${target.gridId}`;
+    indicatorChartTitle.textContent = config.title;
+    indicatorChartMeta.textContent = `Visas saglabātās KIRI-LV dienas · vienība: ${config.unit}`;
+    indicatorHistoryRange.textContent = `${indicatorAxisDateFormatter.format(parseChartDate(history.dates[0]))}–${indicatorAxisDateFormatter.format(parseChartDate(history.dates.at(-1)))} · ${history.dates.length} dienas`;
+    indicatorLegendLabel.textContent = config.shortLabel;
+    indicatorPointLabel.textContent = config.pointLabel;
+    indicatorFallbackLegend.hidden = indicatorKey !== "hsaf";
+    indicatorCredit.textContent = config.credit;
+    indicatorDownloadButton.disabled = true;
+    renderIndicatorHistoryChart(history, series, indicatorKey);
+    if (!indicatorHistoryDialog.open) indicatorHistoryDialog.showModal();
+  } catch (error) {
+    console.error(error);
+    indicatorChartFrame.hidden = true;
+    indicatorChartState.hidden = false;
+    indicatorChartState.textContent = `Neizdevās ielādēt šīs šūnas ${config.shortLabel} vēsturi.`;
+    indicatorHistoryTitle.textContent = config.title;
+    indicatorHistorySubtitle.textContent = `${target.municipalityName} · Grid šūna ${target.gridId}`;
+    indicatorHistoryRange.textContent = "Dati nav pieejami";
+    if (!indicatorHistoryDialog.open) indicatorHistoryDialog.showModal();
+  } finally {
+    button.classList.remove("is-loading");
+    loadingLabel.textContent = previousLabel;
+  }
+}
+
+function downloadIndicatorHistoryCsv() {
+  if (!activeIndicatorSeries) return;
+  const { dates, values, ages, gridId, indicatorKey, config } = activeIndicatorSeries;
+  const includeAge = indicatorKey === "hsaf";
+  const rows = [`date,grid_id,${indicatorKey}_${config.unit === "%" ? "pct" : "mm"}${includeAge ? ",hsaf_age_days" : ""}`];
+  dates.forEach((date, index) => {
+    const row = [date, gridId, values[index] ?? ""];
+    if (includeAge) row.push(ages[index] ?? "");
+    rows.push(row.join(","));
+  });
+  const blob = new Blob([`\ufeff${rows.join("\n")}`], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `KIRI_${indicatorKey.toUpperCase()}_${gridId}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 function clearDetailLayers() {
@@ -740,6 +1072,36 @@ calendarToggle.addEventListener("click", () => {
 archiveToggle.addEventListener("click", () => {
   const hidden = archivePanel.toggleAttribute("hidden");
   archiveToggle.setAttribute("aria-expanded", String(!hidden));
+});
+
+indicatorHistoryButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    openIndicatorHistory(button.dataset.indicator, button).catch((error) => console.error(error));
+  });
+});
+
+indicatorHistoryClose.addEventListener("click", () => indicatorHistoryDialog.close());
+indicatorDownloadButton.addEventListener("click", downloadIndicatorHistoryCsv);
+
+indicatorHistoryDialog.addEventListener("click", (event) => {
+  if (event.target === indicatorHistoryDialog) indicatorHistoryDialog.close();
+});
+
+indicatorHistoryChart.addEventListener("pointermove", (event) => {
+  if (!activeIndicatorSeries) return;
+  const bounds = indicatorHistoryChart.getBoundingClientRect();
+  const svgX = ((event.clientX - bounds.left) / bounds.width) * activeIndicatorSeries.chart.width;
+  const plotPosition = (svgX - activeIndicatorSeries.chart.margin.left) / activeIndicatorSeries.chart.plotWidth;
+  const index = Math.round(plotPosition * (activeIndicatorSeries.dates.length - 1));
+  updateIndicatorChartHover(index);
+});
+
+indicatorHistoryChart.addEventListener("keydown", (event) => {
+  if (!activeIndicatorSeries || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+  event.preventDefault();
+  if (event.key === "Home") updateIndicatorChartHover(0);
+  else if (event.key === "End") updateIndicatorChartHover(activeIndicatorSeries.dates.length - 1);
+  else updateIndicatorChartHover(indicatorHoverIndex + (event.key === "ArrowRight" ? 1 : -1));
 });
 
 boot().catch((error) => {

@@ -23,7 +23,7 @@
     <link rel="canonical" href="https://dboka.github.io/KIRI/" />
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
-    <link rel="stylesheet" href="src/styles.css?v=30" />
+    <link rel="stylesheet" href="src/styles.css?v=32" />
   </head>
   <body>
     <main class="app-shell">
@@ -113,18 +113,7 @@
         <aside id="detailPanel" class="detail-panel" hidden>
           <div id="panelKicker" class="panel-kicker">Pašvaldības skats</div>
           <h2 id="panelTitle">Pašvaldība</h2>
-          <div class="risk-badge">Kopējais risks: <strong id="overallRisk">-</strong></div>
-
-          <div class="panel-metrics">
-            <div class="metric-tile">
-              <div class="metric-label">Aktīvais mitruma risks</div>
-              <div class="metric-value"><span id="activeRisk">-</span></div>
-            </div>
-            <div class="metric-tile">
-              <div class="metric-label">Augsta riska šūnas</div>
-              <div class="metric-value"><span id="highRiskPercent">-</span>%</div>
-            </div>
-          </div>
+          <div id="riskBadge" class="risk-badge">RISKS <strong id="overallRisk">-</strong></div>
 
           <div class="panel-section">
             <div class="panel-label">Dominējošie aktīvie faktori</div>
@@ -142,42 +131,92 @@
           </div>
 
           <div class="indicator-grid">
-            <div class="indicator-card">
-              <span>H-SAF SSM</span>
+            <button
+              class="indicator-card indicator-card-button indicator-history-button"
+              type="button"
+              aria-haspopup="dialog"
+              aria-controls="indicatorHistoryDialog"
+              data-indicator="hsaf"
+              disabled
+            >
+              <span>H-SAF SSM <i>Skatīt vēsturi</i></span>
               <strong id="hsafCard">-</strong>
-            </div>
-            <div class="indicator-card">
-              <span>Copernicus SWI</span>
+              <b class="indicator-card-action" aria-hidden="true">↗</b>
+            </button>
+            <button class="indicator-card indicator-card-button indicator-history-button" type="button" aria-haspopup="dialog" aria-controls="indicatorHistoryDialog" data-indicator="swi" disabled>
+              <span>Copernicus SWI <i>Skatīt vēsturi</i></span>
               <strong id="swiCard">-</strong>
-            </div>
-            <div class="indicator-card">
-              <span>P30</span>
+              <b class="indicator-card-action" aria-hidden="true">↗</b>
+            </button>
+            <button class="indicator-card indicator-card-button indicator-history-button" type="button" aria-haspopup="dialog" aria-controls="indicatorHistoryDialog" data-indicator="p30" disabled>
+              <span>P30 <i>Skatīt vēsturi</i></span>
               <strong id="p30Card">-</strong>
-            </div>
-            <div class="indicator-card">
-              <span>P90</span>
+              <b class="indicator-card-action" aria-hidden="true">↗</b>
+            </button>
+            <button class="indicator-card indicator-card-button indicator-history-button" type="button" aria-haspopup="dialog" aria-controls="indicatorHistoryDialog" data-indicator="p90" disabled>
+              <span>P90 <i>Skatīt vēsturi</i></span>
               <strong id="p90Card">-</strong>
-            </div>
-            <div class="indicator-card">
-              <span>P730 ilgtermiņa fons</span>
+              <b class="indicator-card-action" aria-hidden="true">↗</b>
+            </button>
+            <button class="indicator-card indicator-card-button indicator-history-button" type="button" aria-haspopup="dialog" aria-controls="indicatorHistoryDialog" data-indicator="p730" disabled>
+              <span>P730 ilgtermiņa fons <i>Skatīt vēsturi</i></span>
               <strong id="p730Card">-</strong>
-            </div>
-            <div class="indicator-card">
-              <span>Uzticamība</span>
-              <strong id="confidenceCard">-</strong>
-            </div>
+              <b class="indicator-card-action" aria-hidden="true">↗</b>
+            </button>
           </div>
 
-          <p class="demo-note">
-            v0.1.3: H-SAF ir galvenais mitruma indikators; P730 tiek izmantots tikai kā ilgtermiņa konteksts.
-          </p>
         </aside>
+
+        <dialog id="indicatorHistoryDialog" class="hsaf-dialog" aria-labelledby="indicatorHistoryTitle">
+          <div class="hsaf-dialog-shell">
+            <header class="hsaf-dialog-header">
+              <div>
+                <div id="indicatorHistoryKicker" class="hsaf-dialog-kicker">KIRI-LV · Indikatora laika rinda</div>
+                <h2 id="indicatorHistoryTitle">Indikatora vēsture</h2>
+                <p id="indicatorHistorySubtitle">Grid šūna</p>
+              </div>
+              <div class="hsaf-dialog-actions">
+                <button id="indicatorDownloadButton" class="hsaf-download" type="button" disabled>
+                  <span aria-hidden="true">↓</span> CSV
+                </button>
+                <button id="indicatorHistoryClose" class="hsaf-dialog-close" type="button" aria-label="Aizvērt grafiku">×</button>
+              </div>
+            </header>
+
+            <div class="hsaf-chart-heading">
+              <div>
+                <strong id="indicatorChartTitle">Indikatora vēsture</strong>
+                <span id="indicatorChartMeta">Visas saglabātās KIRI-LV dienas</span>
+              </div>
+              <div id="indicatorHistoryRange" class="hsaf-history-range">Ielādē datus…</div>
+            </div>
+
+            <div id="indicatorChartState" class="hsaf-chart-state" role="status">Ielādē indikatora vēsturi…</div>
+            <div id="indicatorChartFrame" class="hsaf-chart-frame" hidden>
+              <svg id="indicatorHistoryChart" class="hsaf-history-chart" viewBox="0 0 1120 520" role="img" tabindex="0" aria-label="Interaktīvs indikatora vēstures grafiks"></svg>
+              <div id="indicatorChartTooltip" class="hsaf-chart-tooltip" hidden></div>
+            </div>
+
+            <footer class="hsaf-chart-footer">
+              <div class="hsaf-chart-legend">
+                <span><i class="hsaf-legend-line"></i><b id="indicatorLegendLabel">Indikators</b></span>
+                <span><i class="hsaf-legend-dot"></i><b id="indicatorPointLabel">Datu punkts</b></span>
+                <span id="indicatorFallbackLegend"><i class="hsaf-legend-fallback"></i>Iepriekšējā pārlidojuma vērtība</span>
+              </div>
+              <div class="copernicus-credit" aria-label="Datu avots">
+                <span>EU</span>
+                <strong>Copernicus</strong>
+                <small id="indicatorCredit">KIRI-LV datu apstrāde</small>
+              </div>
+            </footer>
+          </div>
+        </dialog>
 
         <div id="loadingState" class="loading-state" hidden>Ielādē datumu...</div>
       </section>
     </main>
 
     <script src="vendor/leaflet/leaflet.js"></script>
-    <script src="src/main.js?v=30"></script>
+    <script src="src/main.js?v=34"></script>
   </body>
 </html>

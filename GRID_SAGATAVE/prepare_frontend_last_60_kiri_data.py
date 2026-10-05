@@ -19,6 +19,7 @@ from src.normalization.normalize_kiri_v01 import (
     validation_summary,
 )
 from repair_last_60_municipality_names import load_name_map
+from build_indicator_history import build_indicator_histories
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -29,6 +30,7 @@ FRONTEND_DATA = BASE_DIR / "frontend" / "data"
 DATE_DATA_DIR = FRONTEND_DATA / "dates"
 STATIC_DIR = FRONTEND_DATA / "grid_static"
 VALUES_DIR = FRONTEND_DATA / "grid_values"
+INDICATOR_HISTORY_DIR = FRONTEND_DATA / "indicator_history"
 ARCHIVE_MANIFEST = FRONTEND_DATA / "archive_manifest.json"
 CALENDAR_MANIFEST = FRONTEND_DATA / "calendar_manifest.json"
 DATA_METADATA = FRONTEND_DATA / "data_metadata.json"
@@ -384,6 +386,52 @@ def build_date_row(date_text: str, manifest: dict, normalized: pd.DataFrame, qc:
         str(level): int((normalized["kiri_risk_level"] == level).sum())
         for level in range(1, 6)
     }
+
+
+def build_date_row_from_frontend_payload(date_text: str) -> dict:
+    manifest = read_json(DATE_DATA_DIR / date_text / "manifest.json")
+    row_count = 0
+    swi_missing = 0
+    hsaf_missing = 0
+    risk_counts = {str(level): 0 for level in range(1, 6)}
+    raw_risk_counts = {str(level): 0 for level in range(1, 6)}
+
+    for path in sorted((VALUES_DIR / date_text).glob("*.json")):
+        payload = read_json(path)
+        field_index = {field: index for index, field in enumerate(payload["fields"])}
+        swi_index = field_index.get("SWI010_pct", field_index.get("swi"))
+        hsaf_index = field_index.get("HSAF_SSM_pct", field_index.get("hsaf_ssm"))
+        final_risk_index = field_index.get("final_risk_level")
+        raw_risk_index = field_index.get("kiri_risk_level")
+        visible_index = field_index.get("map_visible")
+        for row in payload["rows"]:
+            row_count += 1
+            if swi_index is None or row[swi_index] is None:
+                swi_missing += 1
+            if hsaf_index is None or row[hsaf_index] is None:
+                hsaf_missing += 1
+            raw_risk = row[raw_risk_index] if raw_risk_index is not None else None
+            if raw_risk is not None and str(int(raw_risk)) in raw_risk_counts:
+                raw_risk_counts[str(int(raw_risk))] += 1
+            is_visible = visible_index is None or row[visible_index] is not False
+            final_risk = row[final_risk_index] if final_risk_index is not None else raw_risk
+            if is_visible and final_risk is not None and str(int(final_risk)) in risk_counts:
+                risk_counts[str(int(final_risk))] += 1
+
+    return {
+        "date": date_text,
+        "label": date_text,
+        "overview_file": f"dates/{date_text}/overview.geojson",
+        "manifest_file": f"dates/{date_text}/manifest.json",
+        "grid_file_count": len(manifest),
+        "municipality_count": len(manifest),
+        "row_count": row_count,
+        "risk_counts": risk_counts,
+        "raw_risk_counts": raw_risk_counts,
+        "swi_missing": swi_missing,
+        "hsaf_missing": hsaf_missing,
+        "recovered_from_frontend_payload": True,
+    }
     visible_risk_counts = {
         str(level): int((visible_normalized["final_risk_level"] == level).sum())
         for level in range(1, 6)
@@ -507,21 +555,6 @@ def main() -> None:
 
     expected_codes = set(old_manifest)
     complete_files = [path for path in indicator_files if has_complete_municipalities(path, expected_codes)]
-    visible_files = complete_files[-args.visible_days :] if args.visible_days else complete_files
-    if len(visible_files) < args.visible_days:
-        raise ValueError(
-            f"Only {len(visible_files)} complete indicator dates available; requested {args.visible_days}."
-        )
-    visible_dates = {
-        path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "")
-        for path in visible_files
-    }
-    all_dates = [
-        path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "")
-        for path in indicator_files
-    ]
-    if args.prune_old_json:
-        prune_to_visible_window(visible_dates)
     previous_calendar = read_optional_json(CALENDAR_MANIFEST)
     previous_archive = read_optional_json(ARCHIVE_MANIFEST)
     previous_rows = {
@@ -529,13 +562,38 @@ def main() -> None:
         for row in [*previous_archive.get("dates", []), *previous_calendar.get("dates", [])]
         if row.get("date")
     }
+    source_dates = {
+        path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "")
+        for path in complete_files
+    }
+    saved_payload_dates = {
+        path.name
+        for path in VALUES_DIR.iterdir()
+        if path.is_dir() and date_payload_complete(path.name, expected_codes)
+    }
+    all_dates = sorted(source_dates | saved_payload_dates)
+    visible_date_list = all_dates[-args.visible_days :] if args.visible_days else all_dates
+    if len(visible_date_list) < args.visible_days:
+        raise ValueError(
+            f"Only {len(visible_date_list)} complete source or saved frontend dates available; requested {args.visible_days}."
+        )
+    visible_dates = set(visible_date_list)
+    if args.prune_old_json:
+        prune_to_visible_window(visible_dates)
+        all_dates = visible_date_list
     calendar_dates = []
     archive_rows = []
+    indexed_dates = set()
     hsaf_history: dict[str, tuple[pd.Timestamp, float]] = {}
-    files_to_prepare = complete_files if args.materialize_archive_payloads else visible_files
+    files_to_prepare = complete_files if args.materialize_archive_payloads else [
+        path
+        for path in complete_files
+        if path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "") in visible_dates
+    ]
     force_dates = set(args.force_dates)
     for path in files_to_prepare:
         date_text = path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "")
+        indexed_dates.add(date_text)
         is_visible = date_text in visible_dates
         previous_row = previous_rows.get(date_text)
         if previous_row and date_text not in force_dates and date_payload_complete(date_text, expected_codes):
@@ -564,6 +622,14 @@ def main() -> None:
             calendar_dates.append(date_row)
         archive_rows.append(date_row)
 
+    preserved_payload_dates = sorted(saved_payload_dates - indexed_dates)
+    for date_text in preserved_payload_dates:
+        row = previous_rows.get(date_text) or build_date_row_from_frontend_payload(date_text)
+        print(f"Indexing preserved frontend date {date_text}")
+        if date_text in visible_dates:
+            calendar_dates.append(row)
+        archive_rows.append(row)
+
     if not args.materialize_archive_payloads:
         archived_known_rows = [
             row
@@ -571,6 +637,9 @@ def main() -> None:
             if row.get("date") and row.get("date") not in visible_dates
         ]
         archive_rows = [*archived_known_rows, *archive_rows]
+
+    calendar_dates = sorted({row["date"]: row for row in calendar_dates}.values(), key=lambda row: row["date"])
+    archive_rows = sorted({row["date"]: row for row in archive_rows}.values(), key=lambda row: row["date"])
 
     calendar = {
         "generated_from": str(INDICATOR_DIR),
@@ -585,6 +654,7 @@ def main() -> None:
             "municipality_manifest": "dates/<date>/manifest.json",
             "static_grid_geometry": "grid_static/<municipality_code>.geojson",
             "daily_grid_values": "grid_values/<date>/<municipality_code>.json",
+            "indicator_history": "indicator_history/<indicator>/<municipality_code>.json",
         },
     }
     metadata = {
@@ -617,6 +687,12 @@ def main() -> None:
     }
     write_json(CALENDAR_MANIFEST, calendar)
     write_json(ARCHIVE_MANIFEST, build_archive_manifest(all_dates, visible_dates, archive_rows))
+    history_stats = build_indicator_histories(
+        VALUES_DIR,
+        INDICATOR_HISTORY_DIR,
+        force_rebuild=bool(force_dates),
+    )
+    metadata["indicator_history"] = history_stats
     write_json(DATA_METADATA, metadata)
     print(
         json.dumps(
@@ -624,6 +700,7 @@ def main() -> None:
                 **{k: calendar[k] for k in ["date_count", "default_date", "performance_note"]},
                 "update_policy": calendar["update_policy"],
                 "static_grid_files": static_grid_count,
+                "indicator_history": history_stats,
             },
             indent=2,
         )

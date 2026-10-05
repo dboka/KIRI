@@ -24,6 +24,10 @@ https://dboka.github.io/KIRI/
 - The frontend must work as static files; no backend is required.
 - `.nojekyll` is included in `GRID_SAGATAVE/frontend` so GitHub Pages serves all data files directly.
 - Large local input/intermediate data folders are not deployed.
+- Interaktīvo grafiku vēsture tiek glabāta kompaktās pašvaldību datnēs zem
+  `frontend/data/indicator_history/<indicator>/<municipality_code>.json`.
+- `indicator_history/index.json` fiksē indikatorus, datumu pārklājumu un datņu skaitu;
+  ikdienas workflow pārbauda, ka visu piecu indikatoru rindas sakrīt ar arhīva datumiem.
 
 ## Daily Data Refresh Contract
 
