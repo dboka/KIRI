@@ -230,6 +230,22 @@ async function loadOptionalJson(path) {
   return response.json();
 }
 
+async function loadGzipJson(path) {
+  if (!jsonCache.has(path)) {
+    jsonCache.set(path, fetch(path, { cache: "no-cache" }).then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`Could not load ${path}: ${response.status}`);
+      }
+      if (typeof DecompressionStream === "undefined") {
+        throw new Error("Šī pārlūka versija neatbalsta saspiesto grafiku datu ielādi.");
+      }
+      const stream = response.body.pipeThrough(new DecompressionStream("gzip"));
+      return new Response(stream).json();
+    }));
+  }
+  return jsonCache.get(path);
+}
+
 async function loadDateData(dateText) {
   if (dateCache.has(dateText)) {
     return dateCache.get(dateText);
@@ -623,7 +639,7 @@ async function openIndicatorHistory(indicatorKey, button) {
   loadingLabel.textContent = "Ielādē…";
 
   try {
-    const history = await loadJson(`data/indicator_history/${indicatorKey}/${target.municipalityCode}.json`);
+    const history = await loadGzipJson(`data/indicator_history/${indicatorKey}/${target.municipalityCode}.json.gz`);
     if (!activeIndicatorTarget || activeIndicatorTarget.gridId !== target.gridId) return;
     const series = history.series[target.gridId];
     if (!series) throw new Error(`${config.shortLabel} history missing for grid ${target.gridId}`);

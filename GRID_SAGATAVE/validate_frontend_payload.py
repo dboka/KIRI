@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 from pathlib import Path
 
@@ -10,6 +11,11 @@ REQUIRED_INDICATORS = {"hsaf", "swi", "p30", "p90", "p730"}
 
 def read_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def read_gzip_json(path: Path) -> dict:
+    with gzip.open(path, "rt", encoding="utf-8") as source:
+        return json.load(source)
 
 
 def validate(root: Path) -> dict[str, object]:
@@ -46,10 +52,10 @@ def validate(root: Path) -> dict[str, object]:
     latest_manifest = read_json(root / calendar["dates"][-1]["manifest_file"])
     series_count = 0
     for indicator in sorted(REQUIRED_INDICATORS):
-        files = list((history_root / indicator).glob("*.json"))
+        files = list((history_root / indicator).glob("*.json.gz"))
         assert len(files) == 43, indicator
         for code in latest_manifest:
-            payload = read_json(history_root / indicator / f"{code}.json")
+            payload = read_gzip_json(history_root / indicator / f"{code}.json.gz")
             assert payload["dates"] == archive_dates, (indicator, code)
             assert payload["series"], (indicator, code)
             for row in payload["series"].values():

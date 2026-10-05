@@ -25,7 +25,7 @@ def main() -> None:
         ),
         "static_grid_files": static_count,
         "daily_value_dates": date_count,
-        "indicator_history_files": len(list(HISTORY_DIR.glob("*/*.json"))) if HISTORY_DIR.exists() else 0,
+        "indicator_history_files": len(list(HISTORY_DIR.glob("*/*.json.gz"))) if HISTORY_DIR.exists() else 0,
         "indicator_history_date_count": history.get("date_count", 0),
         "indicator_history_date_end": history.get("date_end"),
         "static_dir": str(STATIC_DIR),

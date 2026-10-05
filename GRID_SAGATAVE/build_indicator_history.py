@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 from pathlib import Path
 
@@ -29,6 +30,21 @@ def write_json(path: Path, payload: dict) -> None:
     data = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     temp_path = path.with_name(f"{path.name}.tmp")
     temp_path.write_bytes(data)
+    temp_path.replace(path)
+
+
+def read_gzip_json(path: Path) -> dict:
+    with gzip.open(path, "rt", encoding="utf-8") as source:
+        return json.load(source)
+
+
+def write_gzip_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    data = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    temp_path = path.with_name(f"{path.name}.tmp")
+    with temp_path.open("wb") as raw:
+        with gzip.GzipFile(filename="", mode="wb", fileobj=raw, mtime=0) as target:
+            target.write(data)
     temp_path.replace(path)
 
 
@@ -64,10 +80,10 @@ def load_existing_histories(
     payloads = {}
     prefixes = []
     for key in INDICATORS:
-        path = history_dir / key / f"{municipality_code}.json"
+        path = history_dir / key / f"{municipality_code}.json.gz"
         if not path.exists():
             return 0, {name: {} for name in INDICATORS}
-        payload = read_json(path)
+        payload = read_gzip_json(path)
         existing_dates = payload.get("dates", [])
         if payload.get("version") != HISTORY_VERSION or existing_dates != dates[: len(existing_dates)]:
             return 0, {name: {} for name in INDICATORS}
@@ -130,7 +146,7 @@ def update_municipality_history(
             "thresholds": config["thresholds"],
             "series": histories[key],
         }
-        write_json(history_dir / key / f"{municipality_code}.json", output)
+        write_gzip_json(history_dir / key / f"{municipality_code}.json.gz", output)
 
     cell_count = max((len(series) for series in histories.values()), default=0)
     return cell_count, len(dates) - start_index
@@ -159,10 +175,10 @@ def build_indicator_histories(
         updated_date_count += updated_dates
         print(f"Indicator history {position}/{len(codes)}: {code} ({cells} cells, {updated_dates} new dates)", flush=True)
 
-    expected_files = {f"{code}.json" for code in codes}
+    expected_files = {f"{code}.json.gz" for code in codes}
     for key in INDICATORS:
         metric_dir = history_dir / key
-        for path in metric_dir.glob("*.json"):
+        for path in metric_dir.iterdir():
             if path.name not in expected_files:
                 path.unlink()
 
@@ -174,6 +190,7 @@ def build_indicator_histories(
         "date_end": dates[-1] if dates else None,
         "cell_count": cell_count,
         "updated_date_count": updated_date_count,
+        "compressed": True,
     }
     write_json(
         history_dir / "index.json",
@@ -185,7 +202,7 @@ def build_indicator_histories(
                     "unit": config["unit"],
                     "thresholds": config["thresholds"],
                     "file_count": len(codes),
-                    "path": f"{key}/<municipality_code>.json",
+                    "path": f"{key}/<municipality_code>.json.gz",
                 }
                 for key, config in INDICATORS.items()
             },

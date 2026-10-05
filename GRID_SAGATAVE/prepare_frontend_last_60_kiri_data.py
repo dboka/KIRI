@@ -386,6 +386,25 @@ def build_date_row(date_text: str, manifest: dict, normalized: pd.DataFrame, qc:
         str(level): int((normalized["kiri_risk_level"] == level).sum())
         for level in range(1, 6)
     }
+    visible_risk_counts = {
+        str(level): int((visible_normalized["final_risk_level"] == level).sum())
+        for level in range(1, 6)
+    }
+    return {
+        "date": date_text,
+        "label": date_text,
+        "overview_file": f"dates/{date_text}/overview.geojson",
+        "manifest_file": f"dates/{date_text}/manifest.json",
+        "grid_file_count": len(manifest),
+        "municipality_count": len(manifest),
+        "row_count": int(len(normalized)),
+        "risk_counts": visible_risk_counts,
+        "raw_risk_counts": risk_counts,
+        "swi_missing": int(pd.to_numeric(normalized["SWI010_pct"], errors="coerce").isna().sum()),
+        "hsaf_missing": int(pd.to_numeric(normalized["HSAF_SSM_pct"], errors="coerce").isna().sum()),
+        "data_quality": qc,
+        "validation_summary": validation_summary(normalized),
+    }
 
 
 def build_date_row_from_frontend_payload(date_text: str) -> dict:
@@ -431,25 +450,6 @@ def build_date_row_from_frontend_payload(date_text: str) -> dict:
         "swi_missing": swi_missing,
         "hsaf_missing": hsaf_missing,
         "recovered_from_frontend_payload": True,
-    }
-    visible_risk_counts = {
-        str(level): int((visible_normalized["final_risk_level"] == level).sum())
-        for level in range(1, 6)
-    }
-    return {
-        "date": date_text,
-        "label": date_text,
-        "overview_file": f"dates/{date_text}/overview.geojson",
-        "manifest_file": f"dates/{date_text}/manifest.json",
-        "grid_file_count": len(manifest),
-        "municipality_count": len(manifest),
-        "row_count": int(len(normalized)),
-        "risk_counts": visible_risk_counts,
-        "raw_risk_counts": risk_counts,
-        "swi_missing": int(pd.to_numeric(normalized["SWI010_pct"], errors="coerce").isna().sum()),
-        "hsaf_missing": int(pd.to_numeric(normalized["HSAF_SSM_pct"], errors="coerce").isna().sum()),
-        "data_quality": qc,
-        "validation_summary": validation_summary(normalized),
     }
 
 
@@ -654,7 +654,7 @@ def main() -> None:
             "municipality_manifest": "dates/<date>/manifest.json",
             "static_grid_geometry": "grid_static/<municipality_code>.geojson",
             "daily_grid_values": "grid_values/<date>/<municipality_code>.json",
-            "indicator_history": "indicator_history/<indicator>/<municipality_code>.json",
+            "indicator_history": "indicator_history/<indicator>/<municipality_code>.json.gz",
         },
     }
     metadata = {
