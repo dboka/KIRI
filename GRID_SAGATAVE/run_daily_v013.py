@@ -46,6 +46,51 @@ def run_step(name: str, command: list[str], cwd: Path = BASE_DIR) -> None:
     subprocess.run(command, cwd=cwd, check=True)
 
 
+def git_text(*args: str) -> str:
+    return subprocess.run(
+        ["git", *args],
+        cwd=PROJECT_DIR,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def ensure_push_branch(branch: str) -> None:
+    current_branch = git_text("branch", "--show-current")
+    if current_branch != branch:
+        raise RuntimeError(
+            f"Refusing to update '{current_branch or 'detached HEAD'}' as '{branch}'. "
+            f"Run the scheduled update from the dedicated '{branch}' checkout."
+        )
+
+
+def sync_with_remote(branch: str) -> None:
+    ensure_push_branch(branch)
+    if git_text("status", "--porcelain"):
+        raise RuntimeError("Scheduled checkout has uncommitted changes; refusing automatic git synchronization.")
+    run_step("Fetch latest GitHub state", ["git", "fetch", "origin", branch], PROJECT_DIR)
+    remote_ref = f"origin/{branch}"
+    local_is_ancestor = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", "HEAD", remote_ref], cwd=PROJECT_DIR
+    ).returncode == 0
+    remote_is_ancestor = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", remote_ref, "HEAD"], cwd=PROJECT_DIR
+    ).returncode == 0
+    if local_is_ancestor and not remote_is_ancestor:
+        run_step("Fast-forward scheduled checkout", ["git", "merge", "--ff-only", remote_ref], PROJECT_DIR)
+    elif not local_is_ancestor and not remote_is_ancestor:
+        raise RuntimeError(
+            f"Scheduled checkout and {remote_ref} have diverged. Resolve once manually before the next run."
+        )
+
+
+def validate_release() -> None:
+    run_step("Validate frontend JavaScript", ["node", "--check", "frontend/src/main.js"])
+    run_step("Validate map and all indicator histories", [sys.executable, "validate_frontend_payload.py"])
+    run_step("Validate SWI climatology", [sys.executable, "build_swi_climatology.py", "validate"])
+
+
 def frontend_status() -> dict[str, object]:
     manifest_path = BASE_DIR / "frontend" / "data" / "calendar_manifest.json"
     archive_path = BASE_DIR / "frontend" / "data" / "archive_manifest.json"
@@ -63,18 +108,7 @@ def frontend_status() -> dict[str, object]:
 
 
 def git_commit_and_push(branch: str) -> None:
-    current_branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        cwd=PROJECT_DIR,
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
-    if current_branch != branch:
-        raise RuntimeError(
-            f"Refusing to push the '{current_branch or 'detached HEAD'}' checkout to '{branch}'. "
-            f"Run the operational update from a dedicated '{branch}' worktree."
-        )
+    ensure_push_branch(branch)
 
     run_step(
         "Stage KIRI v0.1.3 operational update",
@@ -102,13 +136,26 @@ def git_commit_and_push(branch: str) -> None:
     current = frontend_status()
     message = f"Update KIRI-LV v0.1.3 operational data to {current['default_date']}"
     run_step("Commit KIRI v0.1.3 operational update", ["git", "commit", "-m", message], PROJECT_DIR)
-    run_step("Push KIRI v0.1.3 operational update", ["git", "push", "origin", f"HEAD:{branch}"], PROJECT_DIR)
+    push = subprocess.run(["git", "push", "origin", f"HEAD:{branch}"], cwd=PROJECT_DIR)
+    if push.returncode == 0:
+        return
+    print("Initial push was rejected; rebasing the generated data commit onto the latest remote state.")
+    run_step("Fetch concurrent GitHub changes", ["git", "fetch", "origin", branch], PROJECT_DIR)
+    try:
+        run_step("Rebase generated data update", ["git", "rebase", f"origin/{branch}"], PROJECT_DIR)
+    except subprocess.CalledProcessError:
+        subprocess.run(["git", "rebase", "--abort"], cwd=PROJECT_DIR, check=False)
+        raise
+    run_step("Retry KIRI operational push", ["git", "push", "origin", f"HEAD:{branch}"], PROJECT_DIR)
 
 
 def main() -> None:
     args = parse_args()
     visible_days = args.days if args.days is not None else args.visible_days
     started_at = datetime.now().isoformat(timespec="seconds")
+
+    if args.commit_and_push:
+        sync_with_remote(args.push_branch)
 
     command = [
         sys.executable,
@@ -144,6 +191,7 @@ def main() -> None:
             command.extend([flag, value])
 
     run_step("Run clean KIRI v0.1.3 daily refresh", command)
+    validate_release()
     if args.commit_and_push:
         git_commit_and_push(args.push_branch)
 

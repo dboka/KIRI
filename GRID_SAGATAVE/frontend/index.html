@@ -23,7 +23,7 @@
     <link rel="canonical" href="https://dboka.github.io/KIRI/" />
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
-    <link rel="stylesheet" href="src/styles.css?v=32" />
+    <link rel="stylesheet" href="src/styles.css?v=34" />
   </head>
   <body>
     <main class="app-shell">
@@ -202,6 +202,9 @@
                 <span><i class="hsaf-legend-line"></i><b id="indicatorLegendLabel">Indikators</b></span>
                 <span><i class="hsaf-legend-dot"></i><b id="indicatorPointLabel">Datu punkts</b></span>
                 <span id="indicatorFallbackLegend"><i class="hsaf-legend-fallback"></i>Iepriekšējā pārlidojuma vērtība</span>
+                <span id="swiClimatologyOuterLegend" hidden><i class="swi-legend-outer"></i>P10–P90 klimatoloģija</span>
+                <span id="swiClimatologyInnerLegend" hidden><i class="swi-legend-inner"></i>P25–P75 tipiskais diapazons</span>
+                <span id="swiClimatologyMeanLegend" hidden><i class="swi-legend-mean"></i>2015–2024 vidējais</span>
               </div>
               <div class="copernicus-credit" aria-label="Datu avots">
                 <span>EU</span>
@@ -217,6 +220,6 @@
     </main>
 
     <script src="vendor/leaflet/leaflet.js"></script>
-    <script src="src/main.js?v=34"></script>
+    <script src="src/main.js?v=36"></script>
   </body>
 </html>

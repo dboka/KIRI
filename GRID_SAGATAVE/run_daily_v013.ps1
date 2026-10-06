@@ -8,13 +8,14 @@ $LogDir = Join-Path $ProjectDir "DATA_LAST_60\logs"
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 $Stamp = Get-Date -Format "yyyyMMdd_HHmmss"
 $LogPath = Join-Path $LogDir "daily_v013_$Stamp.log"
+$ExitCode = 1
 
 try {
   Start-Transcript -Path $LogPath -Force | Out-Null
-  python .\run_daily_v013.py @args
+  & python .\run_daily_v013.py @args
   $ExitCode = $LASTEXITCODE
 } finally {
-  Stop-Transcript | Out-Null
+  try { Stop-Transcript | Out-Null } catch { }
 }
 
 exit $ExitCode

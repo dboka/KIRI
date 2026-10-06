@@ -992,6 +992,10 @@ h1 {
   font-size: 10px;
 }
 
+.hsaf-chart-tooltip small:empty {
+  display: none;
+}
+
 .hsaf-chart-footer {
   display: flex;
   align-items: flex-end;
@@ -1036,6 +1040,23 @@ h1 {
 
 .hsaf-legend-fallback {
   border-top: 2px dashed #d76a71;
+}
+
+.swi-legend-outer,
+.swi-legend-inner {
+  height: 9px;
+}
+
+.swi-legend-outer {
+  background: #dce9f2;
+}
+
+.swi-legend-inner {
+  background: #a9c9df;
+}
+
+.swi-legend-mean {
+  border-top: 2px dotted #3d7095;
 }
 
 .copernicus-credit {

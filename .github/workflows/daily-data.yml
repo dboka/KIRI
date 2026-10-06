@@ -87,6 +87,7 @@ jobs:
           node --check GRID_SAGATAVE\frontend\src\main.js
           python GRID_SAGATAVE\prepare_frontend_compact_pages_data.py
           python GRID_SAGATAVE\validate_frontend_payload.py
+          python GRID_SAGATAVE\build_swi_climatology.py validate
 
       - name: Commit and push data changes
         shell: powershell

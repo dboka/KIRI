@@ -45,6 +45,14 @@ python GRID_SAGATAVE\run_daily_v013.py --visible-days 60
 
 The runner updates only the missing suffix of the 60-day window, preserves older JSON payloads under `frontend/data/dates` and `frontend/data/grid_values`, updates `archive_manifest.json`, cleans temporary H-SAF/SWI raw files, commits changed frontend data to `main`, and then the existing Pages workflow deploys the pushed static site.
 
+The Windows wrapper is registered or repaired with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File GRID_SAGATAVE\register_windows_daily_task.ps1 -ProjectDir C:\Users\deniss.boka\MESLI_PROJECT\KIRI_PRODUCTION
+```
+
+The task synchronizes its dedicated `main` checkout before processing, validates the map payload, all five indicator-history charts, and the fixed SWI climatology payload before publishing. A rejected concurrent push is rebased and retried once. Task Scheduler retries a failed run three times at 20-minute intervals, starts a missed run when the computer becomes available, and wakes the computer when supported.
+
 Expected live URL:
 
 ```text

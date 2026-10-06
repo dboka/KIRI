@@ -145,6 +145,9 @@ const indicatorDownloadButton = document.querySelector("#indicatorDownloadButton
 const indicatorLegendLabel = document.querySelector("#indicatorLegendLabel");
 const indicatorPointLabel = document.querySelector("#indicatorPointLabel");
 const indicatorFallbackLegend = document.querySelector("#indicatorFallbackLegend");
+const swiClimatologyOuterLegend = document.querySelector("#swiClimatologyOuterLegend");
+const swiClimatologyInnerLegend = document.querySelector("#swiClimatologyInnerLegend");
+const swiClimatologyMeanLegend = document.querySelector("#swiClimatologyMeanLegend");
 const indicatorCredit = document.querySelector("#indicatorCredit");
 const bootStartedAt = window.performance.now();
 
@@ -241,6 +244,23 @@ async function loadGzipJson(path) {
       }
       const stream = response.body.pipeThrough(new DecompressionStream("gzip"));
       return new Response(stream).json();
+    }));
+  }
+  return jsonCache.get(path);
+}
+
+async function loadOptionalGzipBinary(path) {
+  if (!jsonCache.has(path)) {
+    jsonCache.set(path, fetch(path, { cache: "no-cache" }).then(async (response) => {
+      if (response.status === 404) return null;
+      if (!response.ok) {
+        throw new Error(`Could not load ${path}: ${response.status}`);
+      }
+      if (typeof DecompressionStream === "undefined") {
+        throw new Error("Šī pārlūka versija neatbalsta saspiesto klimatoloģijas datu ielādi.");
+      }
+      const stream = response.body.pipeThrough(new DecompressionStream("gzip"));
+      return new Response(stream).arrayBuffer();
     }));
   }
   return jsonCache.get(path);
@@ -400,11 +420,11 @@ const indicatorConfigs = {
     fixedDomain: [0, 100],
   },
   swi: {
-    title: "Copernicus augsnes mitruma indekss",
+    title: "Copernicus SWI010 un klimatoloģija",
     shortLabel: "Copernicus SWI",
     unit: "%",
     pointLabel: "SWI datu punkts",
-    credit: "Copernicus SWI dati · KIRI-LV apstrāde",
+    credit: "CLMS SWI v1 · 2015–2024 klimatoloģija · KIRI-LV",
     fixedDomain: [0, 100],
   },
   p30: {
@@ -473,6 +493,108 @@ function buildChartPath(values, xFor, yFor) {
   return path;
 }
 
+function buildChartBandPath(lowValues, highValues, xFor, yFor) {
+  const paths = [];
+  let start = null;
+  const flush = (end) => {
+    if (start === null || end < start) return;
+    const low = [];
+    const high = [];
+    for (let index = start; index <= end; index += 1) {
+      low.push(`${xFor(index).toFixed(2)} ${yFor(Number(lowValues[index])).toFixed(2)}`);
+    }
+    for (let index = end; index >= start; index -= 1) {
+      high.push(`${xFor(index).toFixed(2)} ${yFor(Number(highValues[index])).toFixed(2)}`);
+    }
+    paths.push(`M${low.join(" L")} L${high.join(" L")} Z`);
+    start = null;
+  };
+  lowValues.forEach((value, index) => {
+    const valid = isIndicatorValue(value) && isIndicatorValue(highValues[index]);
+    if (valid && start === null) start = index;
+    if (!valid) flush(index - 1);
+  });
+  flush(lowValues.length - 1);
+  return paths.join(" ");
+}
+
+function swiClimatologyDayIndex(dateText) {
+  const parsed = parseChartDate(dateText);
+  const reference = Date.UTC(2000, parsed.getUTCMonth(), parsed.getUTCDate());
+  return Math.round((reference - Date.UTC(2000, 0, 1)) / 86400000);
+}
+
+function decodeSwiClimatology(buffer, gridId) {
+  if (!buffer || buffer.byteLength < 12) return null;
+  const view = new DataView(buffer);
+  const magic = String.fromCharCode(...new Uint8Array(buffer, 0, 4));
+  const version = view.getUint8(4);
+  const fieldCount = view.getUint8(5);
+  const dayCount = view.getUint16(6, true);
+  const cellCount = view.getUint32(8, true);
+  if (magic !== "SWIC" || version !== 1 || fieldCount !== 7 || dayCount !== 366) {
+    throw new Error("Unsupported SWI climatology payload");
+  }
+  const idsOffset = 12;
+  const valuesOffset = idsOffset + cellCount * 4;
+  const expectedBytes = valuesOffset + cellCount * dayCount * fieldCount;
+  if (buffer.byteLength !== expectedBytes) throw new Error("Incomplete SWI climatology payload");
+  const target = Number(gridId);
+  let low = 0;
+  let high = cellCount - 1;
+  let cellIndex = -1;
+  while (low <= high) {
+    const middle = Math.floor((low + high) / 2);
+    const value = view.getUint32(idsOffset + middle * 4, true);
+    if (value === target) {
+      cellIndex = middle;
+      break;
+    }
+    if (value < target) low = middle + 1;
+    else high = middle - 1;
+  }
+  if (cellIndex < 0) return null;
+  const fields = ["p10", "p25", "p50", "p75", "p90", "mean", "count"];
+  const climatology = { dayCount, fields: {}, scale: 0.5 };
+  fields.forEach((field) => { climatology.fields[field] = []; });
+  for (let dayIndex = 0; dayIndex < dayCount; dayIndex += 1) {
+    const offset = valuesOffset + ((cellIndex * dayCount + dayIndex) * fieldCount);
+    fields.forEach((field, fieldIndex) => {
+      const raw = view.getUint8(offset + fieldIndex);
+      climatology.fields[field].push(raw === 255 ? null : field === "count" ? raw : raw * 0.5);
+    });
+  }
+  return climatology;
+}
+
+function alignSwiClimatology(dates, climatology) {
+  if (!climatology) return null;
+  const aligned = { p10: [], p25: [], p50: [], p75: [], p90: [], mean: [], count: [] };
+  dates.forEach((dateText) => {
+    const dayIndex = swiClimatologyDayIndex(dateText);
+    Object.keys(aligned).forEach((field) => aligned[field].push(climatology.fields[field][dayIndex]));
+  });
+  return aligned;
+}
+
+function estimateSwiPercentile(value, climate, index) {
+  if (!isIndicatorValue(value) || !climate) return null;
+  const anchors = [0, 10, 25, 50, 75, 90, 100];
+  const levels = [0, climate.p10[index], climate.p25[index], climate.p50[index], climate.p75[index], climate.p90[index], 100];
+  if (levels.some((level) => !isIndicatorValue(level))) return null;
+  const numericValue = Number(value);
+  for (let position = 1; position < levels.length; position += 1) {
+    const lower = Number(levels[position - 1]);
+    const upper = Number(levels[position]);
+    if (numericValue <= upper || position === levels.length - 1) {
+      if (upper <= lower) return anchors[position];
+      const fraction = Math.max(0, Math.min(1, (numericValue - lower) / (upper - lower)));
+      return anchors[position - 1] + fraction * (anchors[position] - anchors[position - 1]);
+    }
+  }
+  return 100;
+}
+
 function buildFallbackPath(values, ages, xFor, yFor) {
   let path = "";
   for (let index = 1; index < values.length; index += 1) {
@@ -497,7 +619,7 @@ function chartDomain(config, values, thresholds) {
   return [0, Math.ceil((maxValue * 1.08) / step) * step];
 }
 
-function renderIndicatorHistoryChart(history, series, indicatorKey) {
+function renderIndicatorHistoryChart(history, series, indicatorKey, climatology = null) {
   const config = indicatorConfigs[indicatorKey];
   const dates = history.dates;
   const values = series.v;
@@ -521,6 +643,16 @@ function renderIndicatorHistoryChart(history, series, indicatorKey) {
   const xFor = (index) => margin.left + (index / Math.max(1, dates.length - 1)) * plotWidth;
   const yFor = (value) => margin.top + plotHeight - ((value - yMin) / Math.max(1, yMax - yMin)) * plotHeight;
   const linePath = buildChartPath(values, xFor, yFor);
+  const alignedClimatology = indicatorKey === "swi" ? alignSwiClimatology(dates, climatology) : null;
+  const climatologyOuterPath = alignedClimatology
+    ? buildChartBandPath(alignedClimatology.p10, alignedClimatology.p90, xFor, yFor)
+    : "";
+  const climatologyInnerPath = alignedClimatology
+    ? buildChartBandPath(alignedClimatology.p25, alignedClimatology.p75, xFor, yFor)
+    : "";
+  const climatologyMeanPath = alignedClimatology
+    ? buildChartPath(alignedClimatology.mean, xFor, yFor)
+    : "";
   const fallbackPath = indicatorKey === "hsaf" ? buildFallbackPath(values, ages, xFor, yFor) : "";
   const visibleThresholds = thresholds.filter((value) => value > yMin && value < yMax);
   const yTicks = Array.from({ length: 6 }, (_, index) => yMin + ((yMax - yMin) * index) / 5);
@@ -550,7 +682,7 @@ function renderIndicatorHistoryChart(history, series, indicatorKey) {
       <linearGradient id="hsafLineGradient" x1="0" x2="1"><stop offset="0" stop-color="#6e1735" /><stop offset="1" stop-color="#b41843" /></linearGradient>
     </defs>
     <g clip-path="url(#hsafPlotClip)">
-      ${riskBands.map(([low, high, color]) => `<rect x="${margin.left}" y="${yFor(high)}" width="${plotWidth}" height="${Math.max(0, yFor(low) - yFor(high))}" fill="${color}" opacity="0.045" />`).join("")}
+      ${alignedClimatology ? "" : riskBands.map(([low, high, color]) => `<rect x="${margin.left}" y="${yFor(high)}" width="${plotWidth}" height="${Math.max(0, yFor(low) - yFor(high))}" fill="${color}" opacity="0.045" />`).join("")}
     </g>
     ${yTicks.map((value) => `
       <line x1="${margin.left}" x2="${width - margin.right}" y1="${yFor(value)}" y2="${yFor(value)}" stroke="#d8dcde" stroke-width="1" />
@@ -564,6 +696,9 @@ function renderIndicatorHistoryChart(history, series, indicatorKey) {
       <text x="${xFor(index)}" y="${height - 29}" text-anchor="${tickIndex === 0 ? "start" : tickIndex === xTickIndexes.length - 1 ? "end" : "middle"}" fill="#4c555c" font-size="13">${indicatorAxisDateFormatter.format(parseChartDate(dates[index]))}</text>
     `).join("")}
     <g clip-path="url(#hsafPlotClip)">
+      <path d="${climatologyOuterPath}" fill="#dce9f2" opacity="0.82" />
+      <path d="${climatologyInnerPath}" fill="#a9c9df" opacity="0.8" />
+      <path d="${climatologyMeanPath}" fill="none" stroke="#3d7095" stroke-width="1.8" stroke-dasharray="2 4" stroke-linecap="round" stroke-linejoin="round" />
       <path d="${linePath}" fill="none" stroke="url(#hsafLineGradient)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
       <path d="${fallbackPath}" fill="none" stroke="#e58b8e" stroke-width="4.2" stroke-dasharray="5 5" stroke-linecap="round" opacity="0.95" />
       ${observedDots}${fallbackDots}
@@ -580,6 +715,7 @@ function renderIndicatorHistoryChart(history, series, indicatorKey) {
     dates,
     values,
     ages,
+    climatology: alignedClimatology,
     gridId: activeIndicatorTarget.gridId,
     municipalityName: activeIndicatorTarget.municipalityName,
     chart: { width, margin, plotWidth, xFor, yFor },
@@ -595,7 +731,7 @@ function renderIndicatorHistoryChart(history, series, indicatorKey) {
 
 function updateIndicatorChartHover(index) {
   if (!activeIndicatorSeries) return;
-  const { dates, values, ages, chart, config, indicatorKey } = activeIndicatorSeries;
+  const { dates, values, ages, climatology, chart, config, indicatorKey } = activeIndicatorSeries;
   indicatorHoverIndex = Math.max(0, Math.min(dates.length - 1, index));
   const value = Number(values[indicatorHoverIndex]);
   const hasValue = isIndicatorValue(values[indicatorHoverIndex]);
@@ -621,7 +757,16 @@ function updateIndicatorChartHover(index) {
   dateElement.textContent = dateLabel;
   const statusElement = document.createElement("small");
   statusElement.textContent = status;
-  indicatorChartTooltip.replaceChildren(valueLabel, dateElement, statusElement);
+  const climateElement = document.createElement("small");
+  if (indicatorKey === "swi" && climatology && isIndicatorValue(climatology.mean[indicatorHoverIndex])) {
+    const median = Number(climatology.p50[indicatorHoverIndex]);
+    const mean = Number(climatology.mean[indicatorHoverIndex]);
+    const percentile = estimateSwiPercentile(values[indicatorHoverIndex], climatology, indicatorHoverIndex);
+    const anomaly = hasValue ? Number(values[indicatorHoverIndex]) - mean : null;
+    const anomalyLabel = anomaly === null ? "" : ` · ${anomaly >= 0 ? "+" : ""}${anomaly.toLocaleString("lv-LV", { maximumFractionDigits: 1 })} pp`;
+    climateElement.textContent = `2015–2024 vid.: ${formatIndicatorValue(mean, config.unit)} · P50: ${formatIndicatorValue(median, config.unit)}${percentile === null ? "" : ` · ${Math.round(percentile)}. percentīle`}${anomalyLabel}`;
+  }
+  indicatorChartTooltip.replaceChildren(valueLabel, dateElement, statusElement, climateElement);
   indicatorChartTooltip.hidden = false;
   const frameWidth = indicatorChartFrame.clientWidth;
   const rawLeft = (x / chart.width) * frameWidth;
@@ -639,7 +784,12 @@ async function openIndicatorHistory(indicatorKey, button) {
   loadingLabel.textContent = "Ielādē…";
 
   try {
-    const history = await loadGzipJson(`data/indicator_history/${indicatorKey}/${target.municipalityCode}.json.gz`);
+    const [history, climatologyBuffer] = await Promise.all([
+      loadGzipJson(`data/indicator_history/${indicatorKey}/${target.municipalityCode}.json.gz`),
+      indicatorKey === "swi"
+        ? loadOptionalGzipBinary(`data/swi_climatology/${target.municipalityCode}.bin.gz`)
+        : Promise.resolve(null),
+    ]);
     if (!activeIndicatorTarget || activeIndicatorTarget.gridId !== target.gridId) return;
     const series = history.series[target.gridId];
     if (!series) throw new Error(`${config.shortLabel} history missing for grid ${target.gridId}`);
@@ -652,14 +802,21 @@ async function openIndicatorHistory(indicatorKey, button) {
     indicatorHistoryTitle.textContent = config.title;
     indicatorHistorySubtitle.textContent = `${target.municipalityName} · Grid šūna ${target.gridId}`;
     indicatorChartTitle.textContent = config.title;
-    indicatorChartMeta.textContent = `Visas saglabātās KIRI-LV dienas · vienība: ${config.unit}`;
+    const climatology = indicatorKey === "swi" ? decodeSwiClimatology(climatologyBuffer, target.gridId) : null;
+    indicatorChartMeta.textContent = indicatorKey === "swi" && climatology
+      ? `Saglabātās KIRI-LV dienas pret 2015–2024 klimatoloģiju · 15 dienu logs · vienība: ${config.unit}`
+      : `Visas saglabātās KIRI-LV dienas · vienība: ${config.unit}`;
     indicatorHistoryRange.textContent = `${indicatorAxisDateFormatter.format(parseChartDate(history.dates[0]))}–${indicatorAxisDateFormatter.format(parseChartDate(history.dates.at(-1)))} · ${history.dates.length} dienas`;
     indicatorLegendLabel.textContent = config.shortLabel;
     indicatorPointLabel.textContent = config.pointLabel;
     indicatorFallbackLegend.hidden = indicatorKey !== "hsaf";
+    const hasSwiClimatology = indicatorKey === "swi" && Boolean(climatology);
+    swiClimatologyOuterLegend.hidden = !hasSwiClimatology;
+    swiClimatologyInnerLegend.hidden = !hasSwiClimatology;
+    swiClimatologyMeanLegend.hidden = !hasSwiClimatology;
     indicatorCredit.textContent = config.credit;
     indicatorDownloadButton.disabled = true;
-    renderIndicatorHistoryChart(history, series, indicatorKey);
+    renderIndicatorHistoryChart(history, series, indicatorKey, climatology);
     if (!indicatorHistoryDialog.open) indicatorHistoryDialog.showModal();
   } catch (error) {
     console.error(error);
@@ -678,12 +835,24 @@ async function openIndicatorHistory(indicatorKey, button) {
 
 function downloadIndicatorHistoryCsv() {
   if (!activeIndicatorSeries) return;
-  const { dates, values, ages, gridId, indicatorKey, config } = activeIndicatorSeries;
+  const { dates, values, ages, climatology, gridId, indicatorKey, config } = activeIndicatorSeries;
   const includeAge = indicatorKey === "hsaf";
-  const rows = [`date,grid_id,${indicatorKey}_${config.unit === "%" ? "pct" : "mm"}${includeAge ? ",hsaf_age_days" : ""}`];
+  const includeClimatology = indicatorKey === "swi" && climatology;
+  const rows = [`date,grid_id,${indicatorKey}_${config.unit === "%" ? "pct" : "mm"}${includeAge ? ",hsaf_age_days" : ""}${includeClimatology ? ",clim_p10,clim_p25,clim_p50,clim_p75,clim_p90,clim_mean,estimated_percentile" : ""}`];
   dates.forEach((date, index) => {
     const row = [date, gridId, values[index] ?? ""];
     if (includeAge) row.push(ages[index] ?? "");
+    if (includeClimatology) {
+      row.push(
+        climatology.p10[index] ?? "",
+        climatology.p25[index] ?? "",
+        climatology.p50[index] ?? "",
+        climatology.p75[index] ?? "",
+        climatology.p90[index] ?? "",
+        climatology.mean[index] ?? "",
+        estimateSwiPercentile(values[index], climatology, index)?.toFixed(1) ?? "",
+      );
+    }
     rows.push(row.join(","));
   });
   const blob = new Blob([`\ufeff${rows.join("\n")}`], { type: "text/csv;charset=utf-8" });
