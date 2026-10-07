@@ -690,7 +690,7 @@ def main() -> None:
     history_stats = build_indicator_histories(
         VALUES_DIR,
         INDICATOR_HISTORY_DIR,
-        force_rebuild=bool(force_dates),
+        force_dates=force_dates,
     )
     metadata["indicator_history"] = history_stats
     write_json(DATA_METADATA, metadata)

@@ -101,15 +101,29 @@ def update_municipality_history(
     municipality_code: str,
     dates: list[str],
     force_rebuild: bool = False,
+    force_dates: set[str] | None = None,
 ) -> tuple[int, int]:
     start_index, histories = load_existing_histories(history_dir, municipality_code, dates, force_rebuild)
+    forced_indexes = {
+        index for index, date_text in enumerate(dates) if force_dates and date_text in force_dates
+    }
+    update_indexes = sorted(set(range(start_index, len(dates))) | forced_indexes)
 
-    for date_index, date_text in enumerate(dates[start_index:], start=start_index):
+    for series_by_cell in histories.values():
+        for cell_series in series_by_cell.values():
+            missing = len(dates) - len(cell_series["v"])
+            if missing > 0:
+                cell_series["v"].extend([None] * missing)
+            if "a" in cell_series and missing > 0:
+                cell_series["a"].extend([None] * missing)
+
+    for date_index in update_indexes:
+        date_text = dates[date_index]
         for series_by_cell in histories.values():
             for cell_series in series_by_cell.values():
-                cell_series["v"].append(None)
+                cell_series["v"][date_index] = None
                 if "a" in cell_series:
-                    cell_series["a"].append(None)
+                    cell_series["a"][date_index] = None
 
         values_path = values_dir / date_text / f"{municipality_code}.json"
         if not values_path.exists():
@@ -124,9 +138,9 @@ def update_municipality_history(
             for key, config in INDICATORS.items():
                 series_by_cell = histories[key]
                 if grid_id not in series_by_cell:
-                    cell_series = {"v": [None] * (date_index + 1)}
+                    cell_series = {"v": [None] * len(dates)}
                     if config.get("age_field"):
-                        cell_series["a"] = [None] * (date_index + 1)
+                        cell_series["a"] = [None] * len(dates)
                     series_by_cell[grid_id] = cell_series
                 cell_series = series_by_cell[grid_id]
                 value_index = field_index.get(config["field"], field_index.get(config.get("fallback", "")))
@@ -149,13 +163,14 @@ def update_municipality_history(
         write_gzip_json(history_dir / key / f"{municipality_code}.json.gz", output)
 
     cell_count = max((len(series) for series in histories.values()), default=0)
-    return cell_count, len(dates) - start_index
+    return cell_count, len(update_indexes)
 
 
 def build_indicator_histories(
     values_dir: Path = DEFAULT_VALUES_DIR,
     history_dir: Path = DEFAULT_HISTORY_DIR,
     force_rebuild: bool = False,
+    force_dates: set[str] | None = None,
 ) -> dict[str, int]:
     dates = available_dates(values_dir)
     codes = municipality_codes(values_dir, dates)
@@ -170,6 +185,7 @@ def build_indicator_histories(
             code,
             dates,
             force_rebuild=force_rebuild,
+            force_dates=force_dates,
         )
         cell_count += cells
         updated_date_count += updated_dates
@@ -214,12 +230,18 @@ def build_indicator_histories(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build compact chart histories for KIRI-LV indicators.")
     parser.add_argument("--rebuild", action="store_true", help="Ignore existing histories and rebuild all dates.")
+    parser.add_argument(
+        "--force-dates",
+        nargs="*",
+        default=[],
+        help="Re-read only these YYYY-MM-DD dates while retaining the rest of each history.",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    result = build_indicator_histories(force_rebuild=args.rebuild)
+    result = build_indicator_histories(force_rebuild=args.rebuild, force_dates=set(args.force_dates))
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 

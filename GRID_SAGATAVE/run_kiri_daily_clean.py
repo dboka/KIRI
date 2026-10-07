@@ -68,6 +68,26 @@ def load_env_file(path: Path) -> None:
             os.environ[key] = value
 
 
+def require_source_inputs(hsaf_project: Path, swi_project: Path) -> None:
+    required_files = [
+        hsaf_project / "h28_downloader.py",
+        hsaf_project / ".env",
+        swi_project / "copernicus_swi_flow.py",
+        swi_project / "make_lv_grid_swi_tiffs.py",
+        swi_project / ".env",
+    ]
+    missing_files = [str(path) for path in required_files if not path.is_file()]
+    required_credentials = ["HSAF_USER", "HSAF_PASS", "CDSE_USER", "CDSE_PASSWORD"]
+    missing_credentials = [key for key in required_credentials if not os.getenv(key, "").strip()]
+    if missing_files or missing_credentials:
+        details = []
+        if missing_files:
+            details.append("missing source files: " + ", ".join(missing_files))
+        if missing_credentials:
+            details.append("missing credential keys: " + ", ".join(missing_credentials))
+        raise RuntimeError("Daily source preflight failed; " + "; ".join(details))
+
+
 def run_step(name: str, command: list[str], cwd: Path, log_lines: list[str]) -> None:
     rendered = " ".join(shlex.quote(part) for part in command)
     print(f"\n== {name} ==")
@@ -261,6 +281,8 @@ def main() -> None:
     load_env_file(BASE_DIR / ".env")
     load_env_file(hsaf_project / ".env")
     load_env_file(swi_project / ".env")
+    if not args.skip_source_download:
+        require_source_inputs(hsaf_project, swi_project)
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     log_lines: list[str] = []
 
