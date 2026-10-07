@@ -205,7 +205,6 @@ def build_indicator_histories(
         "date_start": dates[0] if dates else None,
         "date_end": dates[-1] if dates else None,
         "cell_count": cell_count,
-        "updated_date_count": updated_date_count,
         "compressed": True,
     }
     write_json(
@@ -224,7 +223,7 @@ def build_indicator_histories(
             },
         },
     )
-    return stats
+    return {**stats, "updated_date_count": updated_date_count}
 
 
 def parse_args() -> argparse.Namespace:

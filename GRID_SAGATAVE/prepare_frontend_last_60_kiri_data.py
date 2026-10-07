@@ -692,7 +692,9 @@ def main() -> None:
         INDICATOR_HISTORY_DIR,
         force_dates=force_dates,
     )
-    metadata["indicator_history"] = history_stats
+    metadata["indicator_history"] = {
+        key: value for key, value in history_stats.items() if key != "updated_date_count"
+    }
     write_json(DATA_METADATA, metadata)
     print(
         json.dumps(
