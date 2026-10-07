@@ -1,9 +1,8 @@
-name: Daily KIRI Data Refresh
+name: Manual KIRI Data Refresh
 
 on:
-  schedule:
-    # 05:30 UTC is 08:30 in Riga during summer time and 07:30 during winter time.
-    - cron: "30 5 * * *"
+  # The production Windows Scheduled Task is the single daily scheduler. This
+  # workflow remains as an explicit recovery tool and must not queue a second run.
   workflow_dispatch:
     inputs:
       today:
@@ -41,7 +40,7 @@ jobs:
       CLIDATA_ORACLE_INSTANTCLIENT: ${{ vars.CLIDATA_ORACLE_INSTANTCLIENT }}
       CDSE_CLIENT_ID: ${{ secrets.CDSE_CLIENT_ID }}
       CDSE_CLIENT_SECRET: ${{ secrets.CDSE_CLIENT_SECRET }}
-      CDSE_USERNAME: ${{ secrets.CDSE_USERNAME }}
+      CDSE_USER: ${{ secrets.CDSE_USERNAME }}
       CDSE_PASSWORD: ${{ secrets.CDSE_PASSWORD }}
       LATVIA_TILES: E054N024,E060N024
       KIRI_HSAF_PROJECT: ${{ vars.KIRI_HSAF_PROJECT || 'C:\Users\deniss.boka\MESLI_PROJECT\FTP_TRYING' }}
