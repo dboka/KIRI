@@ -15,12 +15,13 @@ KIRI-LV is an interactive manure spreading risk map for Latvia. The prototype co
 ## Current Release
 
 - Release: `v0.1.3`
-- Default frontend date: `2026-09-06`
-- Daily calendar snapshots: `2026-07-09` to `2026-09-06`
-- Archive index: `2026-05-02` to `2026-09-06`
+- Default frontend date: `2026-10-06`
+- Daily calendar snapshots: `2026-08-08` to `2026-10-06`
+- Archive index: `2026-05-02` to `2026-10-06`
 - Municipality count: 43
 - Frontend deploy path: `GRID_SAGATAVE/frontend`
 - Data layout: one static 1 km grid geometry set plus daily value files
+- Publication cutoff: the automatic 08:00 run publishes only the completed previous calendar day.
 
 ## Root Folder Map
 

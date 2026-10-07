@@ -48,8 +48,12 @@ def write_gzip_json(path: Path, payload: dict) -> None:
     temp_path.replace(path)
 
 
-def available_dates(values_dir: Path) -> list[str]:
-    return sorted(path.name for path in values_dir.iterdir() if path.is_dir())
+def available_dates(values_dir: Path, end_date: str | None = None) -> list[str]:
+    return sorted(
+        path.name
+        for path in values_dir.iterdir()
+        if path.is_dir() and (not end_date or path.name <= end_date)
+    )
 
 
 def municipality_codes(values_dir: Path, dates: list[str]) -> list[str]:
@@ -171,8 +175,9 @@ def build_indicator_histories(
     history_dir: Path = DEFAULT_HISTORY_DIR,
     force_rebuild: bool = False,
     force_dates: set[str] | None = None,
+    end_date: str | None = None,
 ) -> dict[str, int]:
-    dates = available_dates(values_dir)
+    dates = available_dates(values_dir, end_date=end_date)
     codes = municipality_codes(values_dir, dates)
     history_dir.mkdir(parents=True, exist_ok=True)
 

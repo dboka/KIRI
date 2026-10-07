@@ -5,6 +5,7 @@ import math
 import shutil
 import argparse
 import time
+from datetime import date
 from pathlib import Path
 
 import geopandas as gpd
@@ -46,6 +47,11 @@ def parse_args() -> argparse.Namespace:
         description="Prepare KIRI-LV frontend data with a latest visible window and preserved local archive JSON."
     )
     parser.add_argument("--visible-days", type=int, default=60)
+    parser.add_argument(
+        "--end-date",
+        default=None,
+        help="Only publish dates on or before this YYYY-MM-DD cutoff.",
+    )
     parser.add_argument(
         "--prune-old-json",
         action="store_true",
@@ -543,6 +549,7 @@ def normalize_indicator_file(
 
 def main() -> None:
     args = parse_args()
+    end_date = date.fromisoformat(args.end_date) if args.end_date else None
     config = load_config(CONFIG_PATH)
     name_map = load_name_map()
     overview_template = read_json(SOURCE_MUNICIPALITIES)
@@ -550,6 +557,12 @@ def main() -> None:
     static_grid_count = build_static_grid_geometry()
 
     indicator_files = sorted(INDICATOR_DIR.glob("grid_indicators_P30_P90_P730_HSAF_SWI_*.csv"))
+    if end_date:
+        indicator_files = [
+            path
+            for path in indicator_files
+            if date.fromisoformat(path.stem.replace("grid_indicators_P30_P90_P730_HSAF_SWI_", "")) <= end_date
+        ]
     if not indicator_files:
         raise FileNotFoundError(f"No daily indicator CSV files found in {INDICATOR_DIR}")
 
@@ -569,7 +582,9 @@ def main() -> None:
     saved_payload_dates = {
         path.name
         for path in VALUES_DIR.iterdir()
-        if path.is_dir() and date_payload_complete(path.name, expected_codes)
+        if path.is_dir()
+        and date_payload_complete(path.name, expected_codes)
+        and (not end_date or date.fromisoformat(path.name) <= end_date)
     }
     all_dates = sorted(source_dates | saved_payload_dates)
     visible_date_list = all_dates[-args.visible_days :] if args.visible_days else all_dates
@@ -596,7 +611,17 @@ def main() -> None:
         indexed_dates.add(date_text)
         is_visible = date_text in visible_dates
         previous_row = previous_rows.get(date_text)
-        if previous_row and date_text not in force_dates and date_payload_complete(date_text, expected_codes):
+        reusable_previous_row = (
+            previous_row
+            and (
+                not is_visible
+                or (
+                    previous_row.get("overview_file")
+                    and previous_row.get("manifest_file")
+                )
+            )
+        )
+        if reusable_previous_row and date_text not in force_dates and date_payload_complete(date_text, expected_codes):
             print(f"Keeping existing frontend date {date_text}")
             update_hsaf_history_from_raw(path, date_text, hsaf_history)
             if is_visible:
@@ -691,6 +716,7 @@ def main() -> None:
         VALUES_DIR,
         INDICATOR_HISTORY_DIR,
         force_dates=force_dates,
+        end_date=args.end_date,
     )
     metadata["indicator_history"] = {
         key: value for key, value in history_stats.items() if key != "updated_date_count"

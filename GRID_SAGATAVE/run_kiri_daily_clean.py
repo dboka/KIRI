@@ -50,7 +50,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--swi-project", default=str(DEFAULT_SWI_PROJECT))
     parser.add_argument("--hsaf-root", default=str(DEFAULT_HSAF_ROOT))
     parser.add_argument("--swi-daily-dir", default=str(DEFAULT_SWI_DAILY_DIR))
-    parser.add_argument("--today", default=None, help="Override today's date as YYYY-MM-DD for repeatable local runs.")
+    parser.add_argument(
+        "--today",
+        default=None,
+        help="Override the processing cutoff date as YYYY-MM-DD. By default the completed previous day is used.",
+    )
     return parser.parse_args()
 
 
@@ -272,7 +276,11 @@ def start_local_server(port: int) -> dict[str, object]:
 
 def main() -> None:
     args = parse_args()
-    run_date = date.fromisoformat(args.today) if args.today else date.today()
+    # Operational publications always stop at the last completed calendar day.
+    # This prevents partial same-day H-SAF and precipitation observations from
+    # appearing on the public map. --today remains available for repeatable
+    # backfills and explicitly requested historical runs.
+    run_date = date.fromisoformat(args.today) if args.today else date.today() - timedelta(days=1)
     hsaf_project = Path(args.hsaf_project)
     swi_project = Path(args.swi_project)
     hsaf_root = Path(args.hsaf_root)
@@ -367,13 +375,19 @@ def main() -> None:
     swi_refreshed_dates = read_swi_refreshed_dates(SWI_REFRESH_STATUS)
 
     available_hsaf_dates = hsaf_dates(hsaf_root)
-    target_window = latest_window(available_hsaf_dates | indicator_dates(), args.visible_days)
+    available_indicator_dates = indicator_dates()
+    eligible_dates = {
+        value
+        for value in available_hsaf_dates | available_indicator_dates
+        if date.fromisoformat(value) <= run_date
+    }
+    target_window = latest_window(eligible_dates, args.visible_days)
     if not target_window:
         raise RuntimeError(f"No source or indicator dates found. Checked H-SAF root: {hsaf_root}")
 
-    missing_indicator_dates = [value for value in target_window if value not in indicator_dates()]
+    missing_indicator_dates = [value for value in target_window if value not in available_indicator_dates]
     missing_frontend_dates = [value for value in target_window if not frontend_payload_complete(value)]
-    force_frontend_dates = sorted(set(swi_refreshed_dates))
+    force_frontend_dates = sorted(set(swi_refreshed_dates) & set(target_window))
     rebuild_source_dates = target_window if args.rebuild_window else missing_indicator_dates
     if rebuild_source_dates and not is_suffix(rebuild_source_dates, target_window):
         rebuild_source_count = args.visible_days
@@ -421,6 +435,8 @@ def main() -> None:
         "prepare_frontend_last_60_kiri_data.py",
         "--visible-days",
         str(args.visible_days),
+        "--end-date",
+        run_date.isoformat(),
         "--materialize-archive-payloads",
     ]
     if force_frontend_dates:

@@ -36,6 +36,15 @@ GRID_SAGATAVE/__pycache__/
 Thumbs.db
 *.sr.lock
 
+# Local Codex and presentation build artifacts
+/.codex_build/
+/.codex-finalizer/
+/.chart-data-*/
+/outputs/
+/PREZ*.pptx
+/PREZ*.pptm
+/ZM_runas_teksts_*.md
+
 # Keep GitHub Pages payload compact:
 # frontend/data/grid_static + grid_values + dates overview/manifest are tracked.
 GRID_SAGATAVE/frontend/data/municipality_grids/

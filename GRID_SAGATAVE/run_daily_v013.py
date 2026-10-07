@@ -28,7 +28,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-source-download", action="store_true")
     parser.add_argument("--skip-cleanup", action="store_true")
     parser.add_argument("--swi-raster-date-offset-days", type=int, default=None)
-    parser.add_argument("--today", default=None, help="Override today's date as YYYY-MM-DD.")
+    parser.add_argument(
+        "--today",
+        default=None,
+        help="Override the processing cutoff date as YYYY-MM-DD. By default the completed previous day is used.",
+    )
     parser.add_argument("--commit-and-push", action="store_true")
     parser.add_argument("--push-branch", default="main")
     parser.add_argument("--keep-server-running", action="store_true")

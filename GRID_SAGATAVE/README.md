@@ -81,6 +81,7 @@ python prepare_frontend_compact_pages_data.py
 
 The clean runner:
 
+- uses the completed previous calendar day as its default publication cutoff;
 - downloads recent Latvia H-SAF H28 `.nc` files from the local `FTP_TRYING` source project;
 - downloads and prepares recent Copernicus SWI daily Latvia grid TIFFs from `COPERNICUS_SWI`;
 - detects which dates are missing from the latest 60-day frontend window;
@@ -93,4 +94,5 @@ The clean runner:
 
 - `frontend/data/municipality_grids` was the old duplicated geometry layout and has been removed.
 - Raw and intermediate outputs (`DATA_LAST_60`, `outputs`, `precip_outputs`, `indicator_outputs`) stay local and are ignored by git.
+- Same-day source files are never eligible for the public calendar; the next morning's run downloads and processes that completed date.
 - The clean daily path should keep complete existing date payloads, add missing daily JSON layers, preserve JSON history outside the visible 60-day calendar, and reuse `frontend/data/grid_static`.

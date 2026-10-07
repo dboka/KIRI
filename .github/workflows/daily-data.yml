@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       today:
-        description: "Optional YYYY-MM-DD run date override"
+        description: "Optional YYYY-MM-DD processing cutoff (defaults to the completed previous day)"
         required: false
         type: string
       rebuild_window:
