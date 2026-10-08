@@ -102,6 +102,20 @@ def run_step(name: str, command: list[str], cwd: Path, log_lines: list[str]) -> 
     log_lines.append(f"OK {name} in {time.time() - started:.1f}s\n")
 
 
+def run_optional_step(name: str, command: list[str], cwd: Path, log_lines: list[str]) -> bool:
+    try:
+        run_step(name, command, cwd, log_lines)
+    except subprocess.CalledProcessError as exc:
+        message = (
+            f"WARNING: {name} failed with exit code {exc.returncode}; "
+            "continuing with the latest locally available optional data."
+        )
+        print(message)
+        log_lines.append(message + "\n")
+        return False
+    return True
+
+
 def csv_has_rows(path: Path) -> bool:
     if not path.exists() or path.stat().st_size == 0:
         return False
@@ -324,7 +338,7 @@ def main() -> None:
             date.fromisoformat(local_swi_dates[-1]) + timedelta(days=1) if local_swi_dates else source_start
         )
         if swi_start <= run_date:
-            run_step(
+            run_optional_step(
                 "Download latest Copernicus SWI",
                 [
                     "python",
