@@ -7,6 +7,7 @@ This folder contains the KIRI-LV v0.1.3 spatial and frontend data preparation fl
 - `frontend` - GitHub Pages app and production frontend data.
 - `frontend/data/grid_static` - the only canonical 1 km grid geometry set.
 - `frontend/data/grid_values` - daily values by date and municipality, without geometry.
+- `frontend/data/precip_climatology` - 1991–2020 P30/P90/P730 reference curves and grid-cell spatial weights; see `PRECIP_CLIMATOLOGY.md`.
 - `frontend/data/dates` - daily municipality overview layers and manifests.
 - `frontend/data/municipality_boundaries` - municipality boundary geometry.
 - `config` - KIRI normalization configuration.

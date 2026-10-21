@@ -1,0 +1,221 @@
+{
+  "version": 1,
+  "source_workbook": "Dienakts_nokrisnu_daudzums.xlsx",
+  "source_sha256": "1b0d0ca208985145d8e3be0a744e06d4b0a7c0226f776f2197b7f0963313eaf6",
+  "reference_start": "1991-01-01",
+  "reference_end": "2020-12-31",
+  "method": "complete rolling daily sums; 15-day calendar window; station quantiles interpolated to grid",
+  "window_radius_days": 7,
+  "minimum_samples": 60,
+  "periods": {
+    "p30": 30,
+    "p90": 90,
+    "p730": 730
+  },
+  "input_quality": {
+    "station_count": 33,
+    "invalid_values": 0
+  },
+  "profile_quality": {
+    "p30": {
+      "complete_station_days": 326655,
+      "available_station_day_profiles": 12078,
+      "expected_station_day_profiles": 12078,
+      "minimum_profile_samples": 225
+    },
+    "p90": {
+      "complete_station_days": 319006,
+      "available_station_day_profiles": 12078,
+      "expected_station_day_profiles": 12078,
+      "minimum_profile_samples": 213
+    },
+    "p730": {
+      "complete_station_days": 281304,
+      "available_station_day_profiles": 12078,
+      "expected_station_day_profiles": 12078,
+      "minimum_profile_samples": 150
+    }
+  },
+  "spatial": {
+    "method": "inverse-distance-squared of 8 nearest stations in EPSG:3059",
+    "municipality_count": 43,
+    "cell_count": 64579,
+    "unassigned_cells": 1042,
+    "maximum_nearest_station_distance_km": 62.7,
+    "files": {
+      "100003003": {
+        "cells": 303,
+        "bytes": 10167
+      },
+      "100003011": {
+        "cells": 70,
+        "bytes": 2344
+      },
+      "100003028": {
+        "cells": 60,
+        "bytes": 2077
+      },
+      "100003036": {
+        "cells": 102,
+        "bytes": 3575
+      },
+      "100003044": {
+        "cells": 64,
+        "bytes": 2108
+      },
+      "100003052": {
+        "cells": 17,
+        "bytes": 606
+      },
+      "100003060": {
+        "cells": 55,
+        "bytes": 1856
+      },
+      "100015243": {
+        "cells": 625,
+        "bytes": 20739
+      },
+      "100015485": {
+        "cells": 126,
+        "bytes": 4387
+      },
+      "100015694": {
+        "cells": 1703,
+        "bytes": 55106
+      },
+      "100015854": {
+        "cells": 1875,
+        "bytes": 62509
+      },
+      "100016077": {
+        "cells": 308,
+        "bytes": 10706
+      },
+      "100016286": {
+        "cells": 909,
+        "bytes": 30064
+      },
+      "100016300": {
+        "cells": 277,
+        "bytes": 9369
+      },
+      "100016333": {
+        "cells": 2460,
+        "bytes": 81318
+      },
+      "100016390": {
+        "cells": 2741,
+        "bytes": 90443
+      },
+      "100016421": {
+        "cells": 2995,
+        "bytes": 99308
+      },
+      "100016438": {
+        "cells": 2382,
+        "bytes": 76953
+      },
+      "100016462": {
+        "cells": 2521,
+        "bytes": 81623
+      },
+      "100016470": {
+        "cells": 443,
+        "bytes": 15251
+      },
+      "100016487": {
+        "cells": 2665,
+        "bytes": 89583
+      },
+      "100016495": {
+        "cells": 3596,
+        "bytes": 117607
+      },
+      "100016501": {
+        "cells": 242,
+        "bytes": 8274
+      },
+      "100016534": {
+        "cells": 1604,
+        "bytes": 53362
+      },
+      "100016542": {
+        "cells": 2809,
+        "bytes": 92221
+      },
+      "100016550": {
+        "cells": 276,
+        "bytes": 9407
+      },
+      "100016575": {
+        "cells": 2180,
+        "bytes": 72667
+      },
+      "100016583": {
+        "cells": 345,
+        "bytes": 11814
+      },
+      "100016606": {
+        "cells": 2443,
+        "bytes": 79932
+      },
+      "100016622": {
+        "cells": 1634,
+        "bytes": 53458
+      },
+      "100016630": {
+        "cells": 2272,
+        "bytes": 75298
+      },
+      "100016647": {
+        "cells": 2946,
+        "bytes": 95870
+      },
+      "100016663": {
+        "cells": 2168,
+        "bytes": 71543
+      },
+      "100016671": {
+        "cells": 3078,
+        "bytes": 103498
+      },
+      "100016688": {
+        "cells": 1835,
+        "bytes": 62265
+      },
+      "100016696": {
+        "cells": 2510,
+        "bytes": 82984
+      },
+      "100016710": {
+        "cells": 2454,
+        "bytes": 82679
+      },
+      "100016727": {
+        "cells": 1413,
+        "bytes": 47273
+      },
+      "100016735": {
+        "cells": 1801,
+        "bytes": 60414
+      },
+      "100016743": {
+        "cells": 2293,
+        "bytes": 74676
+      },
+      "100016751": {
+        "cells": 2414,
+        "bytes": 76976
+      },
+      "100016768": {
+        "cells": 1033,
+        "bytes": 34560
+      },
+      "100016784": {
+        "cells": 532,
+        "bytes": 18206
+      }
+    }
+  },
+  "profile_bytes": 391155
+}

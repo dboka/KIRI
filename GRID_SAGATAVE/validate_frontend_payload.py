@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import gzip
 import json
+import math
 from pathlib import Path
 
 
@@ -16,6 +17,42 @@ def read_json(path: Path) -> dict:
 def read_gzip_json(path: Path) -> dict:
     with gzip.open(path, "rt", encoding="utf-8") as source:
         return json.load(source)
+
+
+def validate_precip_climatology(root: Path, municipality_codes: set[str]) -> dict[str, int]:
+    climate_root = root / "precip_climatology"
+    index = read_json(climate_root / "index.json")
+    stations = read_gzip_json(climate_root / "stations.json.gz")
+    assert index["reference_start"] == stations["reference_start"] == "1991-01-01"
+    assert index["reference_end"] == stations["reference_end"] == "2020-12-31"
+    assert stations["fields"] == ["p10", "p25", "p50", "p75", "p90", "mean", "count"]
+    station_count = len(stations["stations"])
+    assert station_count == index["input_quality"]["station_count"] == 33
+    for key, days in (("p30", 30), ("p90", 90), ("p730", 730)):
+        assert stations["periods"][key]["window_days"] == days
+        profiles = stations["periods"][key]["profiles"]
+        assert len(profiles) == station_count
+        for profile in profiles:
+            assert len(profile) == 366
+            for row in profile:
+                assert row is not None and len(row) == 7
+                assert all(math.isfinite(value) for value in row)
+                assert row[:5] == sorted(row[:5])
+                assert row[6] >= stations["minimum_samples"]
+    weight_files = list((climate_root / "weights").glob("*.json.gz"))
+    assert {path.stem.removesuffix(".json") for path in weight_files} == municipality_codes
+    grid_ids: set[str] = set()
+    for path in weight_files:
+        payload = read_gzip_json(path)
+        assert payload["version"] == 1
+        for grid_id, neighbors in payload["rows"]:
+            assert grid_id not in grid_ids
+            grid_ids.add(grid_id)
+            assert len(neighbors) == 8
+            assert all(0 <= station_index < station_count and 0 < weight <= 1 for station_index, weight in neighbors)
+            assert abs(sum(weight for _, weight in neighbors) - 1) < 1e-4
+    assert len(grid_ids) == index["spatial"]["cell_count"] == 64579
+    return {"stations": station_count, "grid_cells": len(grid_ids), "municipalities": len(weight_files)}
 
 
 def validate(root: Path) -> dict[str, object]:
@@ -50,6 +87,7 @@ def validate(root: Path) -> dict[str, object]:
     assert history_index["date_count"] == len(archive_dates)
 
     latest_manifest = read_json(root / calendar["dates"][-1]["manifest_file"])
+    precip_climatology = validate_precip_climatology(root, set(latest_manifest))
     series_count = 0
     for indicator in sorted(REQUIRED_INDICATORS):
         files = list((history_root / indicator).glob("*.json.gz"))
@@ -73,6 +111,7 @@ def validate(root: Path) -> dict[str, object]:
         "archive_days": len(archive_dates),
         "indicator_history_files": len(REQUIRED_INDICATORS) * 43,
         "indicator_series": series_count,
+        "precip_climatology": precip_climatology,
     }
 
 

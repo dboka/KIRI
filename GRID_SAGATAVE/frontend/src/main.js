@@ -148,6 +148,9 @@ const indicatorFallbackLegend = document.querySelector("#indicatorFallbackLegend
 const swiClimatologyOuterLegend = document.querySelector("#swiClimatologyOuterLegend");
 const swiClimatologyInnerLegend = document.querySelector("#swiClimatologyInnerLegend");
 const swiClimatologyMeanLegend = document.querySelector("#swiClimatologyMeanLegend");
+const climatologyMeanLabel = document.querySelector("#climatologyMeanLabel");
+const indicatorCreditBadge = document.querySelector("#indicatorCreditBadge");
+const indicatorCreditBrand = document.querySelector("#indicatorCreditBrand");
 const indicatorCredit = document.querySelector("#indicatorCredit");
 const bootStartedAt = window.performance.now();
 
@@ -417,6 +420,8 @@ const indicatorConfigs = {
     unit: "%",
     pointLabel: "Satelīta pārlidojums",
     credit: "H-SAF dati · KIRI-LV apstrāde",
+    sourceBadge: "EU",
+    sourceBrand: "H-SAF",
     fixedDomain: [0, 100],
   },
   swi: {
@@ -425,30 +430,38 @@ const indicatorConfigs = {
     unit: "%",
     pointLabel: "SWI datu punkts",
     credit: "CLMS SWI v1 · 2015–2024 klimatoloģija · KIRI-LV",
+    sourceBadge: "EU",
+    sourceBrand: "Copernicus",
     fixedDomain: [0, 100],
   },
   p30: {
-    title: "30 dienu nokrišņu uzkrājums",
+    title: "30 dienu nokrišņu uzkrājums un norma",
     shortLabel: "P30",
     unit: "mm",
     pointLabel: "Nokrišņu aprēķins",
-    credit: "KIRI-LV interpolētie nokrišņu dati",
+    credit: "CLIDATA · 1991–2020 nokrišņu norma · KIRI-LV",
+    sourceBadge: "LV",
+    sourceBrand: "CLIDATA",
     baselineZero: true,
   },
   p90: {
-    title: "90 dienu nokrišņu uzkrājums",
+    title: "90 dienu nokrišņu uzkrājums un norma",
     shortLabel: "P90",
     unit: "mm",
     pointLabel: "Nokrišņu aprēķins",
-    credit: "KIRI-LV interpolētie nokrišņu dati",
+    credit: "CLIDATA · 1991–2020 nokrišņu norma · KIRI-LV",
+    sourceBadge: "LV",
+    sourceBrand: "CLIDATA",
     baselineZero: true,
   },
   p730: {
-    title: "730 dienu nokrišņu fons",
+    title: "730 dienu nokrišņu fons un norma",
     shortLabel: "P730",
     unit: "mm",
     pointLabel: "Ilgtermiņa aprēķins",
-    credit: "KIRI-LV interpolētais ilgtermiņa nokrišņu fons",
+    credit: "CLIDATA · 1991–2020 nokrišņu norma · KIRI-LV",
+    sourceBadge: "LV",
+    sourceBrand: "CLIDATA",
     zoomedDomain: true,
   },
 };
@@ -518,7 +531,7 @@ function buildChartBandPath(lowValues, highValues, xFor, yFor) {
   return paths.join(" ");
 }
 
-function swiClimatologyDayIndex(dateText) {
+function climatologyDayIndex(dateText) {
   const parsed = parseChartDate(dateText);
   const reference = Date.UTC(2000, parsed.getUTCMonth(), parsed.getUTCDate());
   return Math.round((reference - Date.UTC(2000, 0, 1)) / 86400000);
@@ -567,14 +580,57 @@ function decodeSwiClimatology(buffer, gridId) {
   return climatology;
 }
 
-function alignSwiClimatology(dates, climatology) {
+function alignClimatology(dates, climatology) {
   if (!climatology) return null;
   const aligned = { p10: [], p25: [], p50: [], p75: [], p90: [], mean: [], count: [] };
   dates.forEach((dateText) => {
-    const dayIndex = swiClimatologyDayIndex(dateText);
+    const dayIndex = climatologyDayIndex(dateText);
     Object.keys(aligned).forEach((field) => aligned[field].push(climatology.fields[field][dayIndex]));
   });
   return aligned;
+}
+
+function decodePrecipClimatology(stations, weights, indicatorKey, gridId) {
+  if (!stations || !weights || stations.version !== 1 || weights.version !== 1) return null;
+  const gridWeights = weights.rows.find((row) => String(row[0]) === String(gridId))?.[1];
+  const profiles = stations.periods[indicatorKey]?.profiles;
+  if (!gridWeights || !profiles) return null;
+  const fields = ["p10", "p25", "p50", "p75", "p90", "mean", "count"];
+  const climate = { dayCount: 366, fields: Object.fromEntries(fields.map((field) => [field, []])) };
+  for (let dayIndex = 0; dayIndex < 366; dayIndex += 1) {
+    const available = gridWeights
+      .map(([stationIndex, weight]) => [profiles[stationIndex]?.[dayIndex], Number(weight)])
+      .filter(([profile, weight]) => profile && weight > 0);
+    const weightTotal = available.reduce((total, [, weight]) => total + weight, 0);
+    fields.forEach((field, fieldIndex) => {
+      const value = weightTotal > 0
+        ? field === "count"
+          ? Math.min(...available.map(([profile]) => profile[fieldIndex]))
+          : available.reduce((sum, [profile, weight]) => sum + profile[fieldIndex] * weight, 0) / weightTotal
+        : null;
+      climate.fields[field].push(value === null ? null : field === "count" ? value : Math.round(value * 10) / 10);
+    });
+  }
+  return climate;
+}
+
+function estimatePrecipPercentile(value, climate, index) {
+  if (!isIndicatorValue(value) || !climate) return null;
+  const levels = [climate.p10[index], climate.p25[index], climate.p50[index], climate.p75[index], climate.p90[index]];
+  if (levels.some((level) => !isIndicatorValue(level))) return null;
+  const numeric = Number(value);
+  if (numeric < levels[0]) return "<10";
+  if (numeric > levels[4]) return ">90";
+  const anchors = [10, 25, 50, 75, 90];
+  for (let position = 1; position < levels.length; position += 1) {
+    if (numeric <= levels[position]) {
+      const span = levels[position] - levels[position - 1];
+      if (span <= 0) return String(anchors[position]);
+      return String(Math.round(anchors[position - 1] +
+        (numeric - levels[position - 1]) / span * (anchors[position] - anchors[position - 1])));
+    }
+  }
+  return "90";
 }
 
 function estimateSwiPercentile(value, climate, index) {
@@ -606,9 +662,13 @@ function buildFallbackPath(values, ages, xFor, yFor) {
   return path;
 }
 
-function chartDomain(config, values, thresholds) {
+function chartDomain(config, values, thresholds, climatology = null) {
   if (config.fixedDomain) return config.fixedDomain;
   const numericValues = values.filter(isIndicatorValue).map(Number);
+  if (climatology) {
+    numericValues.push(...climatology.p10.filter(isIndicatorValue).map(Number));
+    numericValues.push(...climatology.p90.filter(isIndicatorValue).map(Number));
+  }
   const minValue = Math.min(...numericValues, ...thresholds);
   const maxValue = Math.max(...numericValues, ...thresholds);
   if (config.zoomedDomain) {
@@ -639,11 +699,11 @@ function renderIndicatorHistoryChart(history, series, indicatorKey, climatology 
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
   const thresholds = history.thresholds || [];
-  const [yMin, yMax] = chartDomain(config, values, thresholds);
+  const alignedClimatology = alignClimatology(dates, climatology);
+  const [yMin, yMax] = chartDomain(config, values, thresholds, alignedClimatology);
   const xFor = (index) => margin.left + (index / Math.max(1, dates.length - 1)) * plotWidth;
   const yFor = (value) => margin.top + plotHeight - ((value - yMin) / Math.max(1, yMax - yMin)) * plotHeight;
   const linePath = buildChartPath(values, xFor, yFor);
-  const alignedClimatology = indicatorKey === "swi" ? alignSwiClimatology(dates, climatology) : null;
   const climatologyOuterPath = alignedClimatology
     ? buildChartBandPath(alignedClimatology.p10, alignedClimatology.p90, xFor, yFor)
     : "";
@@ -765,12 +825,19 @@ function updateIndicatorChartHover(index) {
     const anomaly = hasValue ? Number(values[indicatorHoverIndex]) - mean : null;
     const anomalyLabel = anomaly === null ? "" : ` · ${anomaly >= 0 ? "+" : ""}${anomaly.toLocaleString("lv-LV", { maximumFractionDigits: 1 })} pp`;
     climateElement.textContent = `2015–2024 vid.: ${formatIndicatorValue(mean, config.unit)} · P50: ${formatIndicatorValue(median, config.unit)}${percentile === null ? "" : ` · ${Math.round(percentile)}. percentīle`}${anomalyLabel}`;
+  } else if (["p30", "p90", "p730"].includes(indicatorKey) && climatology && isIndicatorValue(climatology.mean[indicatorHoverIndex])) {
+    const mean = Number(climatology.mean[indicatorHoverIndex]);
+    const percentile = estimatePrecipPercentile(values[indicatorHoverIndex], climatology, indicatorHoverIndex);
+    const anomaly = hasValue ? Number(values[indicatorHoverIndex]) - mean : null;
+    const anomalyLabel = anomaly === null ? "" : ` · ${anomaly >= 0 ? "+" : ""}${anomaly.toLocaleString("lv-LV", { maximumFractionDigits: 1 })} mm`;
+    climateElement.textContent = `1991–2020 vid.: ${formatIndicatorValue(mean, config.unit)} · P50: ${formatIndicatorValue(climatology.p50[indicatorHoverIndex], config.unit)}${percentile === null ? "" : ` · aptuv. ${percentile}. percentīle`}${anomalyLabel}`;
   }
   indicatorChartTooltip.replaceChildren(valueLabel, dateElement, statusElement, climateElement);
   indicatorChartTooltip.hidden = false;
   const frameWidth = indicatorChartFrame.clientWidth;
   const rawLeft = (x / chart.width) * frameWidth;
-  indicatorChartTooltip.style.left = `${Math.max(88, Math.min(frameWidth - 88, rawLeft))}px`;
+  const halfTooltip = Math.min(indicatorChartTooltip.offsetWidth / 2, frameWidth / 2 - 6);
+  indicatorChartTooltip.style.left = `${Math.max(halfTooltip + 6, Math.min(frameWidth - halfTooltip - 6, rawLeft))}px`;
   indicatorHistoryChart.setAttribute("aria-label", `${dateLabel}: ${formatIndicatorValue(values[indicatorHoverIndex], config.unit)}. ${status}`);
 }
 
@@ -784,11 +851,14 @@ async function openIndicatorHistory(indicatorKey, button) {
   loadingLabel.textContent = "Ielādē…";
 
   try {
-    const [history, climatologyBuffer] = await Promise.all([
+    const isPrecip = ["p30", "p90", "p730"].includes(indicatorKey);
+    const [history, climatologyBuffer, precipStations, precipWeights] = await Promise.all([
       loadGzipJson(`data/indicator_history/${indicatorKey}/${target.municipalityCode}.json.gz`),
       indicatorKey === "swi"
         ? loadOptionalGzipBinary(`data/swi_climatology/${target.municipalityCode}.bin.gz`)
         : Promise.resolve(null),
+      isPrecip ? loadGzipJson("data/precip_climatology/stations.json.gz") : Promise.resolve(null),
+      isPrecip ? loadGzipJson(`data/precip_climatology/weights/${target.municipalityCode}.json.gz`) : Promise.resolve(null),
     ]);
     if (!activeIndicatorTarget || activeIndicatorTarget.gridId !== target.gridId) return;
     const series = history.series[target.gridId];
@@ -802,22 +872,29 @@ async function openIndicatorHistory(indicatorKey, button) {
     indicatorHistoryTitle.textContent = config.title;
     indicatorHistorySubtitle.textContent = `${target.municipalityName} · Grid šūna ${target.gridId}`;
     indicatorChartTitle.textContent = config.title;
-    const climatology = indicatorKey === "swi" ? decodeSwiClimatology(climatologyBuffer, target.gridId) : null;
+    const climatology = indicatorKey === "swi"
+      ? decodeSwiClimatology(climatologyBuffer, target.gridId)
+      : isPrecip ? decodePrecipClimatology(precipStations, precipWeights, indicatorKey, target.gridId) : null;
     indicatorChartMeta.textContent = indicatorKey === "swi" && climatology
       ? `Saglabātās KIRI-LV dienas pret 2015–2024 klimatoloģiju · 15 dienu logs · vienība: ${config.unit}`
-      : `Visas saglabātās KIRI-LV dienas · vienība: ${config.unit}`;
+      : isPrecip && climatology
+        ? `Slīdošs ${precipStations.periods[indicatorKey].window_days} dienu uzkrājums pret 1991–2020 normu · 15 dienu sezonas logs · ${config.unit}`
+        : `Visas saglabātās KIRI-LV dienas · vienība: ${config.unit}`;
     indicatorHistoryRange.textContent = `${indicatorAxisDateFormatter.format(parseChartDate(history.dates[0]))}–${indicatorAxisDateFormatter.format(parseChartDate(history.dates.at(-1)))} · ${history.dates.length} dienas`;
     indicatorLegendLabel.textContent = config.shortLabel;
     indicatorPointLabel.textContent = config.pointLabel;
     indicatorFallbackLegend.hidden = indicatorKey !== "hsaf";
-    const hasSwiClimatology = indicatorKey === "swi" && Boolean(climatology);
-    swiClimatologyOuterLegend.hidden = !hasSwiClimatology;
-    swiClimatologyInnerLegend.hidden = !hasSwiClimatology;
-    swiClimatologyMeanLegend.hidden = !hasSwiClimatology;
+    const hasClimatology = Boolean(climatology);
+    swiClimatologyOuterLegend.hidden = !hasClimatology;
+    swiClimatologyInnerLegend.hidden = !hasClimatology;
+    swiClimatologyMeanLegend.hidden = !hasClimatology;
+    climatologyMeanLabel.textContent = indicatorKey === "swi" ? "2015–2024 vidējais" : "1991–2020 vidējais";
+    indicatorCreditBadge.textContent = config.sourceBadge;
+    indicatorCreditBrand.textContent = config.sourceBrand;
     indicatorCredit.textContent = config.credit;
     indicatorDownloadButton.disabled = true;
-    renderIndicatorHistoryChart(history, series, indicatorKey, climatology);
     if (!indicatorHistoryDialog.open) indicatorHistoryDialog.showModal();
+    renderIndicatorHistoryChart(history, series, indicatorKey, climatology);
   } catch (error) {
     console.error(error);
     indicatorChartFrame.hidden = true;
@@ -837,7 +914,7 @@ function downloadIndicatorHistoryCsv() {
   if (!activeIndicatorSeries) return;
   const { dates, values, ages, climatology, gridId, indicatorKey, config } = activeIndicatorSeries;
   const includeAge = indicatorKey === "hsaf";
-  const includeClimatology = indicatorKey === "swi" && climatology;
+  const includeClimatology = Boolean(climatology);
   const rows = [`date,grid_id,${indicatorKey}_${config.unit === "%" ? "pct" : "mm"}${includeAge ? ",hsaf_age_days" : ""}${includeClimatology ? ",clim_p10,clim_p25,clim_p50,clim_p75,clim_p90,clim_mean,estimated_percentile" : ""}`];
   dates.forEach((date, index) => {
     const row = [date, gridId, values[index] ?? ""];
@@ -850,7 +927,9 @@ function downloadIndicatorHistoryCsv() {
         climatology.p75[index] ?? "",
         climatology.p90[index] ?? "",
         climatology.mean[index] ?? "",
-        estimateSwiPercentile(values[index], climatology, index)?.toFixed(1) ?? "",
+        (indicatorKey === "swi"
+          ? estimateSwiPercentile(values[index], climatology, index)?.toFixed(1)
+          : estimatePrecipPercentile(values[index], climatology, index)) ?? "",
       );
     }
     rows.push(row.join(","));

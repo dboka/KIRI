@@ -960,6 +960,7 @@ h1 {
   z-index: 2;
   top: 22px;
   min-width: 150px;
+  max-width: calc(100% - 24px);
   padding: 9px 11px;
   border-left: 3px solid #a3163d;
   color: #24384a;
@@ -967,6 +968,7 @@ h1 {
   box-shadow: 0 8px 24px rgba(42, 54, 62, 0.16);
   pointer-events: none;
   transform: translateX(-50%);
+  overflow-wrap: anywhere;
 }
 
 .hsaf-chart-tooltip strong,
@@ -1016,6 +1018,10 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.hsaf-chart-legend span[hidden] {
+  display: none !important;
 }
 
 .hsaf-chart-legend b {
@@ -1230,11 +1236,25 @@ h1 {
 
   .hsaf-dialog {
     width: calc(100vw - 20px);
-    height: calc(100dvh - 20px);
+    height: fit-content;
+    max-height: calc(100dvh - 20px);
+    overflow-y: auto;
   }
 
   .hsaf-dialog-shell {
     padding: 22px 20px 18px;
+    min-height: 0;
+  }
+
+  .hsaf-chart-frame {
+    flex: 0 0 auto;
+    min-height: 0;
+  }
+
+  .hsaf-history-chart {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 1120 / 520;
   }
 
   .hsaf-dialog-header {
@@ -1323,9 +1343,7 @@ h1 {
     text-align: left;
   }
 
-  .hsaf-chart-frame,
-  .hsaf-chart-state,
-  .hsaf-history-chart {
+  .hsaf-chart-state {
     min-height: 320px;
   }
 
