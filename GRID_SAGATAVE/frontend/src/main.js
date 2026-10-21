@@ -591,24 +591,47 @@ function alignClimatology(dates, climatology) {
 }
 
 function decodePrecipClimatology(stations, weights, indicatorKey, gridId) {
-  if (!stations || !weights || stations.version !== 1 || weights.version !== 1) return null;
+  if (!stations || !weights || stations.version !== 1 || weights.version !== 2) return null;
   const gridWeights = weights.rows.find((row) => String(row[0]) === String(gridId))?.[1];
   const profiles = stations.periods[indicatorKey]?.profiles;
-  if (!gridWeights || !profiles) return null;
+  if (!gridWeights || !profiles || gridWeights.length !== profiles.length) return null;
   const fields = ["p10", "p25", "p50", "p75", "p90", "mean", "count"];
   const climate = { dayCount: 366, fields: Object.fromEntries(fields.map((field) => [field, []])) };
   for (let dayIndex = 0; dayIndex < 366; dayIndex += 1) {
-    const available = gridWeights
-      .map(([stationIndex, weight]) => [profiles[stationIndex]?.[dayIndex], Number(weight)])
-      .filter(([profile, weight]) => profile && weight > 0);
-    const weightTotal = available.reduce((total, [, weight]) => total + weight, 0);
+    const values = profiles.map((profile) => profile[dayIndex]);
+    if (values.some((value) => !value)) return null;
     fields.forEach((field, fieldIndex) => {
-      const value = weightTotal > 0
-        ? field === "count"
-          ? Math.min(...available.map(([profile]) => profile[fieldIndex]))
-          : available.reduce((sum, [profile, weight]) => sum + profile[fieldIndex] * weight, 0) / weightTotal
-        : null;
-      climate.fields[field].push(value === null ? null : field === "count" ? value : Math.round(value * 10) / 10);
+      if (field === "count") {
+        climate.fields[field].push(Math.min(...values.map((value) => value[fieldIndex])));
+        return;
+      }
+      const stationValues = values.map((value) => value[fieldIndex]);
+      const prediction = gridWeights.reduce((sum, weight, index) => sum + Number(weight) * stationValues[index], 0);
+      // The operational gstat function clamps every prediction to the station range.
+      const clamped = Math.max(Math.min(...stationValues), Math.min(Math.max(...stationValues), prediction));
+      climate.fields[field].push(Math.round(clamped * 10) / 10);
+    });
+    // Kriging each quantile separately can occasionally make adjacent curves cross.
+    // Pool only those crossing values so every reference band remains ordered.
+    const blocks = [];
+    fields.slice(0, 5).forEach((field) => {
+      blocks.push({ sum: climate.fields[field][dayIndex], count: 1 });
+      while (blocks.length > 1) {
+        const right = blocks[blocks.length - 1];
+        const left = blocks[blocks.length - 2];
+        if (left.sum / left.count <= right.sum / right.count) break;
+        left.sum += right.sum;
+        left.count += right.count;
+        blocks.pop();
+      }
+    });
+    let quantileIndex = 0;
+    blocks.forEach((block) => {
+      const value = Math.round((block.sum / block.count) * 10) / 10;
+      for (let index = 0; index < block.count; index += 1) {
+        climate.fields[fields[quantileIndex]][dayIndex] = value;
+        quantileIndex += 1;
+      }
     });
   }
   return climate;
@@ -858,7 +881,7 @@ async function openIndicatorHistory(indicatorKey, button) {
         ? loadOptionalGzipBinary(`data/swi_climatology/${target.municipalityCode}.bin.gz`)
         : Promise.resolve(null),
       isPrecip ? loadGzipJson("data/precip_climatology/stations.json.gz") : Promise.resolve(null),
-      isPrecip ? loadGzipJson(`data/precip_climatology/weights/${target.municipalityCode}.json.gz`) : Promise.resolve(null),
+      isPrecip ? loadGzipJson(`data/precip_climatology/weights/${target.municipalityCode}.json.gz?v=2`) : Promise.resolve(null),
     ]);
     if (!activeIndicatorTarget || activeIndicatorTarget.gridId !== target.gridId) return;
     const series = history.series[target.gridId];
@@ -878,7 +901,7 @@ async function openIndicatorHistory(indicatorKey, button) {
     indicatorChartMeta.textContent = indicatorKey === "swi" && climatology
       ? `Saglabātās KIRI-LV dienas pret 2015–2024 klimatoloģiju · 15 dienu logs · vienība: ${config.unit}`
       : isPrecip && climatology
-        ? `Slīdošs ${precipStations.periods[indicatorKey].window_days} dienu uzkrājums pret 1991–2020 normu · 15 dienu sezonas logs · ${config.unit}`
+        ? `Slīdošs ${precipStations.periods[indicatorKey].window_days} dienu uzkrājums pret 1991–2020 normu · universālais krigings · 15 dienu sezonas logs · ${config.unit}`
         : `Visas saglabātās KIRI-LV dienas · vienība: ${config.unit}`;
     indicatorHistoryRange.textContent = `${indicatorAxisDateFormatter.format(parseChartDate(history.dates[0]))}–${indicatorAxisDateFormatter.format(parseChartDate(history.dates.at(-1)))} · ${history.dates.length} dienas`;
     indicatorLegendLabel.textContent = config.shortLabel;

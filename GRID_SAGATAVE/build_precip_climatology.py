@@ -1,8 +1,8 @@
 """Build compact 1991–2020 precipitation reference curves for KIRI charts.
 
 The source workbook is read only. Daily P30/P90/P730 sums require every day in
-the rolling window. Station climatologies are calculated once and are spatially
-adapted to a grid cell in the browser using eight nearby stations.
+the rolling window. Station climatologies are calculated once and interpolated
+to the grid with the same universal-kriging model as daily KIRI precipitation.
 """
 
 from __future__ import annotations
@@ -16,7 +16,8 @@ from pathlib import Path
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from scipy.spatial import cKDTree
+from scipy.linalg import solve
+from scipy.spatial.distance import cdist
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -27,7 +28,9 @@ REFERENCE_START = "1991-01-01"
 REFERENCE_END = "2020-12-31"
 RADIUS_DAYS = 7
 MIN_SAMPLES = 60
-NEIGHBORS = 8
+KRIGING_RANGE_M = 45000
+KRIGING_MODEL = "Exp"
+KRIGING_DRIFT = "value ~ x + y + I(x^2) + I(y^2) + x * y + cont + h"
 
 
 def parse_args() -> argparse.Namespace:
@@ -118,6 +121,16 @@ def station_profiles(daily: pd.DataFrame) -> tuple[dict[str, object], dict[str, 
     return periods, quality
 
 
+def drift_matrix(xy: np.ndarray, cont: np.ndarray, elevation: np.ndarray) -> np.ndarray:
+    # Centering/scaling changes the basis, not the span of the operational R formula.
+    x = (xy[:, 0] - 600000.0) / 100000.0
+    y = (xy[:, 1] - 300000.0) / 100000.0
+    return np.column_stack((
+        np.ones(len(x)), x, y, x * x, y * y, x * y,
+        (cont - 30.0) / 10.0, elevation / 100.0,
+    ))
+
+
 def build_weights(station_ids: list[str], station_path: Path, grid_path: Path, out_dir: Path) -> dict[str, object]:
     stations = gpd.read_file(station_path, layer="stations")
     if stations.crs is None:
@@ -129,36 +142,64 @@ def build_weights(station_ids: list[str], station_path: Path, grid_path: Path, o
         missing = [station_ids[i] for i, invalid in enumerate(stations.geometry.isna()) if invalid]
         raise ValueError(f"Station coordinates missing for: {missing}")
     coordinates = np.column_stack((stations.geometry.x.to_numpy(), stations.geometry.y.to_numpy()))
+    station_cont = pd.to_numeric(stations["cont_pr"], errors="coerce").to_numpy()
+    station_elev = pd.to_numeric(stations["ELEVATION"], errors="coerce").to_numpy()
+    if not np.isfinite(coordinates).all() or not np.isfinite(station_cont).all() or not np.isfinite(station_elev).all():
+        raise ValueError("Station geometry, elevation, and cont_pr must be complete")
     grid = pd.read_csv(
         grid_path,
-        usecols=["grid_id", "x", "y", "municipality_code"],
+        usecols=["grid_id", "x", "y", "h5", "cont_pr", "municipality_code"],
         dtype={"grid_id": str, "municipality_code": str},
     )
     unassigned_cells = int(grid["municipality_code"].isna().sum())
     grid = grid.dropna(subset=["municipality_code"]).reset_index(drop=True)
-    if grid["grid_id"].duplicated().any() or grid[["x", "y"]].isna().any().any():
-        raise ValueError("Grid IDs must be unique and coordinates complete")
-    distances, indices = cKDTree(coordinates).query(grid[["x", "y"]].to_numpy(), k=NEIGHBORS)
-    inverse_square = 1.0 / np.maximum(distances, 1.0) ** 2
-    weights = inverse_square / inverse_square.sum(axis=1, keepdims=True)
-    exact = distances[:, 0] < 1.0
-    weights[exact] = 0.0
-    weights[exact, 0] = 1.0
+    if grid["grid_id"].duplicated().any() or not np.isfinite(grid[["x", "y", "h5", "cont_pr"]].to_numpy()).all():
+        raise ValueError("Grid IDs must be unique and kriging covariates complete")
+
+    # KIRI's R model is Exp(range=45000, nugget=0), with a fixed range and
+    # fitted sill. The sill is a common covariance multiplier and cancels out
+    # of the universal-kriging equations. The linear weights therefore match
+    # gstat::krige for every station-normal field with these same 33 stations.
+    station_drift = drift_matrix(coordinates, station_cont, station_elev)
+    covariance = np.exp(-cdist(coordinates, coordinates) / KRIGING_RANGE_M)
+    station_count = len(station_ids)
+    drift_count = station_drift.shape[1]
+    system = np.block([
+        [covariance, station_drift],
+        [station_drift.T, np.zeros((drift_count, drift_count))],
+    ])
+    grid_xy = grid[["x", "y"]].to_numpy()
+    grid_drift = drift_matrix(grid_xy, grid["cont_pr"].to_numpy(), grid["h5"].to_numpy())
+    weights = np.empty((len(grid), station_count), dtype=np.float64)
+    for start in range(0, len(grid), 4096):
+        end = min(start + 4096, len(grid))
+        grid_covariance = np.exp(-cdist(coordinates, grid_xy[start:end]) / KRIGING_RANGE_M)
+        right_hand_side = np.vstack((grid_covariance, grid_drift[start:end].T))
+        weights[start:end] = solve(system, right_hand_side, assume_a="sym")[:station_count].T
+    if not np.allclose(weights.sum(axis=1), 1, atol=1e-10):
+        raise ValueError("Universal-kriging weights do not preserve constants")
+    if not np.allclose(weights @ station_drift, grid_drift, atol=1e-9):
+        raise ValueError("Universal-kriging weights do not reproduce the drift")
     files: dict[str, object] = {}
     for code, group in grid.groupby("municipality_code", sort=True):
         rows = []
         for row_number, grid_id in zip(group.index, group["grid_id"]):
-            neighbors = [[int(index), round(float(weight), 6)] for index, weight in zip(indices[row_number], weights[row_number])]
-            rows.append([str(grid_id), neighbors])
+            coefficients = [round(float(weight), 9) for weight in weights[row_number]]
+            rows.append([str(grid_id), coefficients])
         path = out_dir / "weights" / f"{code}.json.gz"
-        write_gzip_json(path, {"version": 1, "rows": rows})
+        write_gzip_json(path, {"version": 2, "rows": rows})
         files[code] = {"cells": len(rows), "bytes": path.stat().st_size}
     return {
-        "method": "inverse-distance-squared of 8 nearest stations in EPSG:3059",
+        "method": "universal kriging with exponential variogram, range 45000 m, zero nugget, all stations and operational drift; predictions clamped to station range",
+        "variogram_model": KRIGING_MODEL,
+        "range_m": KRIGING_RANGE_M,
+        "nugget": 0,
+        "drift": KRIGING_DRIFT,
+        "station_count": station_count,
         "municipality_count": len(files),
         "cell_count": len(grid),
         "unassigned_cells": unassigned_cells,
-        "maximum_nearest_station_distance_km": round(float(distances[:, 0].max() / 1000), 1),
+        "maximum_absolute_weight": round(float(np.max(np.abs(weights))), 3),
         "files": files,
     }
 
@@ -185,12 +226,12 @@ def main() -> None:
     spatial = build_weights(list(daily.columns), args.stations, args.grid, args.out_dir)
     digest = hashlib.sha256(args.source.read_bytes()).hexdigest()
     index = {
-        "version": 1,
+        "version": 2,
         "source_workbook": args.source.name,
         "source_sha256": digest,
         "reference_start": REFERENCE_START,
         "reference_end": REFERENCE_END,
-        "method": "complete rolling daily sums; 15-day calendar window; station quantiles interpolated to grid",
+        "method": "complete rolling daily sums; 15-day calendar window; station quantiles interpolated with operational universal kriging",
         "window_radius_days": RADIUS_DAYS,
         "minimum_samples": MIN_SAMPLES,
         "periods": PERIODS,
@@ -200,7 +241,7 @@ def main() -> None:
         "profile_bytes": profile_path.stat().st_size,
     }
     (args.out_dir / "index.json").write_text(json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(json.dumps({"profile_bytes": index["profile_bytes"], "profile_quality": quality, "spatial": {key: spatial[key] for key in ("municipality_count", "cell_count", "maximum_nearest_station_distance_km")}}, indent=2))
+    print(json.dumps({"profile_bytes": index["profile_bytes"], "profile_quality": quality, "spatial": {key: spatial[key] for key in ("municipality_count", "cell_count", "maximum_absolute_weight")}}, indent=2))
 
 
 if __name__ == "__main__":

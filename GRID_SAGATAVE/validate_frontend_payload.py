@@ -23,6 +23,10 @@ def validate_precip_climatology(root: Path, municipality_codes: set[str]) -> dic
     climate_root = root / "precip_climatology"
     index = read_json(climate_root / "index.json")
     stations = read_gzip_json(climate_root / "stations.json.gz")
+    assert index["version"] == 2
+    assert index["spatial"]["variogram_model"] == "Exp"
+    assert index["spatial"]["range_m"] == 45000
+    assert index["spatial"]["nugget"] == 0
     assert index["reference_start"] == stations["reference_start"] == "1991-01-01"
     assert index["reference_end"] == stations["reference_end"] == "2020-12-31"
     assert stations["fields"] == ["p10", "p25", "p50", "p75", "p90", "mean", "count"]
@@ -44,13 +48,13 @@ def validate_precip_climatology(root: Path, municipality_codes: set[str]) -> dic
     grid_ids: set[str] = set()
     for path in weight_files:
         payload = read_gzip_json(path)
-        assert payload["version"] == 1
-        for grid_id, neighbors in payload["rows"]:
+        assert payload["version"] == 2
+        for grid_id, coefficients in payload["rows"]:
             assert grid_id not in grid_ids
             grid_ids.add(grid_id)
-            assert len(neighbors) == 8
-            assert all(0 <= station_index < station_count and 0 < weight <= 1 for station_index, weight in neighbors)
-            assert abs(sum(weight for _, weight in neighbors) - 1) < 1e-4
+            assert len(coefficients) == station_count
+            assert all(math.isfinite(weight) for weight in coefficients)
+            assert abs(sum(coefficients) - 1) < 1e-7
     assert len(grid_ids) == index["spatial"]["cell_count"] == 64579
     return {"stations": station_count, "grid_cells": len(grid_ids), "municipalities": len(weight_files)}
 

@@ -1,10 +1,10 @@
 {
-  "version": 1,
+  "version": 2,
   "source_workbook": "Dienakts_nokrisnu_daudzums.xlsx",
   "source_sha256": "1b0d0ca208985145d8e3be0a744e06d4b0a7c0226f776f2197b7f0963313eaf6",
   "reference_start": "1991-01-01",
   "reference_end": "2020-12-31",
-  "method": "complete rolling daily sums; 15-day calendar window; station quantiles interpolated to grid",
+  "method": "complete rolling daily sums; 15-day calendar window; station quantiles interpolated with operational universal kriging",
   "window_radius_days": 7,
   "minimum_samples": 60,
   "periods": {
@@ -37,183 +37,188 @@
     }
   },
   "spatial": {
-    "method": "inverse-distance-squared of 8 nearest stations in EPSG:3059",
+    "method": "universal kriging with exponential variogram, range 45000 m, zero nugget, all stations and operational drift; predictions clamped to station range",
+    "variogram_model": "Exp",
+    "range_m": 45000,
+    "nugget": 0,
+    "drift": "value ~ x + y + I(x^2) + I(y^2) + x * y + cont + h",
+    "station_count": 33,
     "municipality_count": 43,
     "cell_count": 64579,
     "unassigned_cells": 1042,
-    "maximum_nearest_station_distance_km": 62.7,
+    "maximum_absolute_weight": 1.155,
     "files": {
       "100003003": {
         "cells": 303,
-        "bytes": 10167
+        "bytes": 49271
       },
       "100003011": {
         "cells": 70,
-        "bytes": 2344
+        "bytes": 11946
       },
       "100003028": {
         "cells": 60,
-        "bytes": 2077
+        "bytes": 10282
       },
       "100003036": {
         "cells": 102,
-        "bytes": 3575
+        "bytes": 17035
       },
       "100003044": {
         "cells": 64,
-        "bytes": 2108
+        "bytes": 10634
       },
       "100003052": {
         "cells": 17,
-        "bytes": 606
+        "bytes": 3043
       },
       "100003060": {
         "cells": 55,
-        "bytes": 1856
+        "bytes": 9094
       },
       "100015243": {
         "cells": 625,
-        "bytes": 20739
+        "bytes": 100361
       },
       "100015485": {
         "cells": 126,
-        "bytes": 4387
+        "bytes": 20950
       },
       "100015694": {
         "cells": 1703,
-        "bytes": 55106
+        "bytes": 285609
       },
       "100015854": {
         "cells": 1875,
-        "bytes": 62509
+        "bytes": 308772
       },
       "100016077": {
         "cells": 308,
-        "bytes": 10706
+        "bytes": 50037
       },
       "100016286": {
         "cells": 909,
-        "bytes": 30064
+        "bytes": 152141
       },
       "100016300": {
         "cells": 277,
-        "bytes": 9369
+        "bytes": 46195
       },
       "100016333": {
         "cells": 2460,
-        "bytes": 81318
+        "bytes": 397846
       },
       "100016390": {
         "cells": 2741,
-        "bytes": 90443
+        "bytes": 444630
       },
       "100016421": {
         "cells": 2995,
-        "bytes": 99308
+        "bytes": 489593
       },
       "100016438": {
         "cells": 2382,
-        "bytes": 76953
+        "bytes": 405910
       },
       "100016462": {
         "cells": 2521,
-        "bytes": 81623
+        "bytes": 419438
       },
       "100016470": {
         "cells": 443,
-        "bytes": 15251
+        "bytes": 71955
       },
       "100016487": {
         "cells": 2665,
-        "bytes": 89583
+        "bytes": 444257
       },
       "100016495": {
         "cells": 3596,
-        "bytes": 117607
+        "bytes": 586989
       },
       "100016501": {
         "cells": 242,
-        "bytes": 8274
+        "bytes": 40373
       },
       "100016534": {
         "cells": 1604,
-        "bytes": 53362
+        "bytes": 259241
       },
       "100016542": {
         "cells": 2809,
-        "bytes": 92221
+        "bytes": 459081
       },
       "100016550": {
         "cells": 276,
-        "bytes": 9407
+        "bytes": 44742
       },
       "100016575": {
         "cells": 2180,
-        "bytes": 72667
+        "bytes": 351987
       },
       "100016583": {
         "cells": 345,
-        "bytes": 11814
+        "bytes": 56204
       },
       "100016606": {
         "cells": 2443,
-        "bytes": 79932
+        "bytes": 396645
       },
       "100016622": {
         "cells": 1634,
-        "bytes": 53458
+        "bytes": 268162
       },
       "100016630": {
         "cells": 2272,
-        "bytes": 75298
+        "bytes": 367024
       },
       "100016647": {
         "cells": 2946,
-        "bytes": 95870
+        "bytes": 484949
       },
       "100016663": {
         "cells": 2168,
-        "bytes": 71543
+        "bytes": 354324
       },
       "100016671": {
         "cells": 3078,
-        "bytes": 103498
+        "bytes": 511623
       },
       "100016688": {
         "cells": 1835,
-        "bytes": 62265
+        "bytes": 293927
       },
       "100016696": {
         "cells": 2510,
-        "bytes": 82984
+        "bytes": 413173
       },
       "100016710": {
         "cells": 2454,
-        "bytes": 82679
+        "bytes": 402557
       },
       "100016727": {
         "cells": 1413,
-        "bytes": 47273
+        "bytes": 229562
       },
       "100016735": {
         "cells": 1801,
-        "bytes": 60414
+        "bytes": 300673
       },
       "100016743": {
         "cells": 2293,
-        "bytes": 74676
+        "bytes": 378236
       },
       "100016751": {
         "cells": 2414,
-        "bytes": 76976
+        "bytes": 411602
       },
       "100016768": {
         "cells": 1033,
-        "bytes": 34560
+        "bytes": 167696
       },
       "100016784": {
         "cells": 532,
-        "bytes": 18206
+        "bytes": 87022
       }
     }
   },
